@@ -1,0 +1,116 @@
+@import '../../styles/colors.scss';
+
+header {
+  position: sticky;
+  top: 0;
+  background-color: $color--extra-lightblue;
+  z-index: 100;
+  overflow: hidden;
+  width: 100%;
+}
+.container {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 42px;
+}
+.item {
+  text-decoration: none;
+  color: $color--lightgray;
+
+  &__active {
+    color: $color--blue;
+  }
+}
+
+.burger_container {
+  & .active {
+    & > span {
+      width: 0;
+      height: 0;
+    }
+  }
+}
+
+.burger_button,
+.burger_button_active {
+  width: 30px;
+  height: 20px;
+  position: relative;
+  cursor: pointer;
+
+  & span {
+    position: absolute;
+    top: 9px;
+    width: 30px;
+    height: 2px;
+    background-color: $color--blue;
+  }
+}
+
+.burger_button {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 30px;
+    height: 2px;
+    background-color: $color--blue;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 30px;
+    height: 2px;
+    background-color: $color--blue;
+  }
+}
+
+.burger_button_active {
+  & span {
+    transform: rotate(45deg);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 9px;
+    width: 30px;
+    height: 2px;
+    background-color: $color--blue;
+    transform: rotate(-45deg);
+  }
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  & .info {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    & span {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    & img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  & .date {
+    color: $color--text-light;
+  }
+}

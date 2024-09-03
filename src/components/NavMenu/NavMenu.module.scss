@@ -1,0 +1,53 @@
+@import '../../styles/colors.scss';
+
+.menu {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 100px;
+  left: 0;
+  transition: all 0.5s;
+  overflow: hidden;
+  &[menu-active='true'] {
+    display: block;
+    transform: translate(0, 0);
+  }
+  &[menu-active='false'] {
+    display: block;
+    transform: translate(-150%, 0);
+  }
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  background-color: $color--extra-lightblue;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+.listElement {
+  display: block;
+  font-size: 36px;
+  line-height: 48px;
+  & > a,
+  a:hover {
+    text-decoration: none;
+    color: $color--blue;
+  }
+}
