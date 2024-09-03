@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import classNames from 'classnames';
 import { NavLink } from 'react-router-dom';
 
@@ -16,9 +16,34 @@ interface NavMenuProps {
 }
 
 export const NavMenu = ({ menuActive, setMenuActive, items }: NavMenuProps) => {
+  const [recentGroups, setRecentGroups] = useState([]);
   return (
     <div menu-active={menuActive.toString()} className={style.menu}>
       <div className={style.content}>
+        <div className={style.recent_block}>
+          <div className={style.recent_title}>Недавнее:</div>
+          {recentGroups.length ? (
+            recentGroups.map((item) => (
+              <div
+                className={style.recent_item}
+                onClick={() => {
+                  setMenuActive(false);
+                }}
+              >
+                - {item}
+              </div>
+            ))
+          ) : (
+            <div
+              className={style.recent_item}
+              onClick={() => {
+                setMenuActive(false);
+              }}
+            >
+              <i>Вы еще ничего не искали.</i>
+            </div>
+          )}
+        </div>
         <ul className={style.list}>
           {items.map((item, index) => (
             <li key={index} className={style.listElement}>
