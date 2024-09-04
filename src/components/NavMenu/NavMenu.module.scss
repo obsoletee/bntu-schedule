@@ -4,7 +4,7 @@
   width: 100vw;
   height: 100vh;
   position: fixed;
-  top: 120px;
+  top: 100px;
   left: 0;
   transition: all 0.5s;
   overflow: hidden;
@@ -19,10 +19,18 @@
   @media (min-width: 768px) {
     display: none;
   }
+
+  @media (max-width: 258px) {
+    top: 120px;
+  }
+
+  @media (max-width: 200px) {
+    top: 140px;
+  }
 }
 
 .content {
-  padding: 20px;
+  padding: 20px 10px;
   width: 100%;
   height: 100%;
   background-color: $color--extra-lightblue;
@@ -47,23 +55,4 @@
 .recent_item {
   color: $color--text-light;
   cursor: pointer;
-}
-
-.list {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-}
-
-.listElement {
-  display: block;
-  font-size: 36px;
-  line-height: 48px;
-  & > a,
-  a:hover {
-    text-decoration: none;
-    color: $color--blue;
-  }
 }

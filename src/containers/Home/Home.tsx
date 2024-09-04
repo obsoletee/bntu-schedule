@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Header } from '../../components/Header/Header';
 
@@ -6,6 +6,7 @@ import style from './Home.module.scss';
 import { Card, Carousel, List, Space } from 'antd';
 import { DaySchedule, schedule } from '../../model/schedule';
 import { useViewportSize } from '../../hooks/useViewportSize';
+import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
 
 interface CurrentGroupNumber {
   currentGroupNumber: string;
@@ -19,6 +20,14 @@ interface ScheduleList {
   weekNumber: number;
 }
 
+interface ScheduleType {
+  [key: string]: {
+    [week: string]: {
+      [day: string]: DaySchedule[];
+    };
+  };
+}
+
 export const Home = () => {
   const groupNumber = useSelector(
     (state: CurrentGroupNumber) => state.currentGroupNumber,
@@ -27,89 +36,65 @@ export const Home = () => {
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
   const { width } = useViewportSize();
 
-  useEffect(() => {
-    const generateSchedule = () => {
-      const now = new Date();
-      const startDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-      );
-      const endDate = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        now.getDate(),
-      );
+  const generateSchedule = useCallback(() => {
+    const now = new Date();
+    const currentDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const endDate = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      now.getDate(),
+    );
 
-      const daysArray: ScheduleList[] = [];
-      const currentDate = startDate;
+    const daysArray: ScheduleList[] = [];
 
-      while (currentDate <= endDate) {
-        const dayOfWeekEN = currentDate.toLocaleDateString('en-US', {
-          weekday: 'long',
-        });
-        const dayOfWeekRU = currentDate.toLocaleDateString('ru', {
-          weekday: 'long',
-        });
-        const shortDayOfWeekRU =
-          dayOfWeekRU === 'понедельник'
-            ? 'Пн'
-            : dayOfWeekRU === 'вторник'
-            ? 'Вт'
-            : dayOfWeekRU === 'среда'
-            ? 'Ср'
-            : dayOfWeekRU === 'четверг'
-            ? 'Чт'
-            : dayOfWeekRU === 'пятница'
-            ? 'Пт'
-            : dayOfWeekRU === 'суббота'
-            ? 'Сб'
-            : dayOfWeekRU === 'воскресенье'
-            ? 'Вс'
-            : '';
+    while (currentDate <= endDate) {
+      const dayOfWeekEN = currentDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+      });
+      const dayOfWeekRU = currentDate.toLocaleDateString('ru', {
+        weekday: 'long',
+      });
 
-        const formattedDate = currentDate.toLocaleDateString();
-        const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
-        const pastDaysOfYear =
-          (currentDate.getTime() - startOfYear.getTime()) / 86400000;
-        const weekNumber = Math.ceil(
-          (pastDaysOfYear + startOfYear.getDay()) / 7,
-        );
+      const shortDayOfWeekRU = getShortDayOfWeek(dayOfWeekRU);
 
-        const dateList = {
-          date: formattedDate,
-          dayOfWeekEN,
-          dayOfWeekRU,
-          shortDayOfWeekRU,
-          weekNumber: weekNumber % 2 === 0 ? 1 : 2,
-        };
+      const formattedDate = currentDate.toLocaleDateString();
+      const weekNumber = countWeekNumber(currentDate);
 
-        daysArray.push(dateList);
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
+      const dateList = {
+        date: formattedDate,
+        dayOfWeekEN,
+        dayOfWeekRU,
+        shortDayOfWeekRU,
+        weekNumber,
+      };
 
-      setScheduleList(daysArray);
-    };
+      daysArray.push(dateList);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
 
-    generateSchedule();
+    setScheduleList(daysArray);
   }, []);
 
+  useEffect(() => {
+    generateSchedule();
+  }, [generateSchedule]);
+
+  const groupSchedule = schedule as ScheduleType;
+
   return (
-    <>
-      <div className={style.wrapper}>
-        <Header />
-        <div>
-          <div className={style.group_info}>
-            {groupNumber ? (
-              <div>гр. {groupNumber}</div>
-            ) : (
-              <div>Выберите группу.</div>
-            )}
-          </div>
-          {groupNumber ? (
-            <Carousel draggable>
+    <div className={style.wrapper}>
+      <Header />
+      <div>
+        {groupNumber ? (
+          <div>
+            <div className={style.group_info}>гр. {groupNumber}</div>
+            <Carousel draggable infinite={false}>
               {scheduleList.map((date) => (
-                <div className={style.card_container}>
+                <div key={date.date} className={style.card_container}>
                   <Space direction="vertical">
                     <Card
                       bordered
@@ -129,9 +114,9 @@ export const Home = () => {
                       <List
                         itemLayout="horizontal"
                         dataSource={
-                          schedule[`group${groupNumber}`][
+                          groupSchedule[`group${groupNumber}`]?.[
                             `week${date.weekNumber}`
-                          ][`${date.dayOfWeekEN.toLowerCase()}`]
+                          ]?.[`${date.dayOfWeekEN.toLowerCase()}`] || []
                         }
                         renderItem={(item: DaySchedule) => (
                           <List.Item key={item.id}>
@@ -146,7 +131,11 @@ export const Home = () => {
                               title={`${item.startTime}-${item.endTime}: ${item.shortName}`}
                               description={
                                 <div>
-                                  <div>{`${item.class}-${item.korpus}к`}</div>
+                                  {item.class && item.korpus ? (
+                                    <div>{`${item.class}-${item.korpus}к`}</div>
+                                  ) : (
+                                    <></>
+                                  )}
                                   <div>
                                     {item.subgroup != '0'
                                       ? `${item.teacher} (подгр. ${item.subgroup})`
@@ -163,11 +152,11 @@ export const Home = () => {
                 </div>
               ))}
             </Carousel>
-          ) : (
-            <div>Расписание не найдено...</div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div>Выберите группу.</div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
