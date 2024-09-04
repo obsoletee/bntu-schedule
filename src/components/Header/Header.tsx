@@ -1,10 +1,7 @@
-import classNames from 'classnames';
-import { NavLink, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import { NavMenu } from '../NavMenu';
 import { useViewportSize } from '../../hooks/useViewportSize';
-import { images } from '../../assets/images';
 
 import { navItems } from './data';
 
@@ -23,29 +20,59 @@ export const Header = () => {
 
   const [isMenuActive, setIsMenuActive] = useState(false);
 
-  const navigate = useNavigate();
   const { width } = useViewportSize();
 
+  // Function to update date and week number
+  const updateDateTime = () => {
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString();
+
+    const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+    const pastDaysOfYear =
+      (currentDate.getTime() - startOfYear.getTime()) / 86400000;
+    const weekNumber = Math.ceil(
+      (pastDaysOfYear + startOfYear.getDay() + 1) / 7,
+    );
+    const studyWeek = weekNumber % 2 === 0 ? 1 : 2;
+
+    setCurrentState({
+      currentDate: formattedDate,
+      studyWeekNumber: studyWeek,
+    });
+  };
+
+  const getTimeUntilMidnight = () => {
+    const now = new Date();
+    const nextMidnight = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0,
+      0,
+      0,
+      0,
+    );
+    return nextMidnight.getTime() - now.getTime();
+  };
+
   useEffect(() => {
-    const updateDateTime = () => {
-      const currentDate = new Date();
-      const formattedDate = currentDate.toLocaleDateString();
-
-      const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
-      const pastDaysOfYear =
-        (currentDate.getTime() - startOfYear.getTime()) / 86400000;
-      const weekNumber = Math.ceil(
-        (pastDaysOfYear + startOfYear.getDay() + 1) / 7,
-      );
-      const studyWeek = weekNumber % 2 === 0 ? 1 : 2;
-
-      setCurrentState({
-        currentDate: formattedDate,
-        studyWeekNumber: studyWeek,
-      });
-    };
-
+    console.log('Привет');
     updateDateTime();
+
+    const timeUntilMidnight = getTimeUntilMidnight();
+    const intervalId = setInterval(() => {
+      updateDateTime();
+      const newTimeUntilMidnight = getTimeUntilMidnight();
+      clearInterval(intervalId);
+      setTimeout(() => {
+        updateDateTime();
+        setInterval(() => {
+          updateDateTime();
+        }, 24 * 60 * 60 * 1000);
+      }, newTimeUntilMidnight);
+    }, timeUntilMidnight);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const toggleMenu = () => {
@@ -59,36 +86,12 @@ export const Header = () => {
           <div className={style.logo}>
             <div className={style.info}>
               <span>Расписание БНТУ</span>
-              <img
-                onClick={() => navigate('/')}
-                src={images.bntuLogo}
-                alt={'logo'}
-              />
             </div>
+            <div className={style.date}>Дата: {currentState.currentDate}</div>
             <div className={style.date}>
-              Дата: {currentState.currentDate} | Номер недели:{' '}
-              {currentState.studyWeekNumber}
+              Номер недели: {currentState.studyWeekNumber}
             </div>
           </div>
-          {width > 768 && (
-            <div className={style.navigation}>
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.route}
-                  to={item.route}
-                  className={({ isActive }) =>
-                    classNames({
-                      [style.item]: true,
-                      [style.item__active]: isActive,
-                    })
-                  }
-                >
-                  {item.title}
-                </NavLink>
-              ))}
-            </div>
-          )}
-
           {width < 768 && (
             <div
               onClick={toggleMenu}

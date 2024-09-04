@@ -12,12 +12,12 @@ interface Action {
   payload: string;
 }
 const defaultState = {
-  groupNumber: '11004122',
+  currentGroupNumber: '11004122',
 };
 const reducer = (state = defaultState, action: Action) => {
   switch (action.type) {
     case 'CHANGE_GROUP_NUMBER':
-      return { ...state, groupNumber: action.payload };
+      return { ...state, currentGroupNumber: action.payload };
     default:
       return state;
   }
