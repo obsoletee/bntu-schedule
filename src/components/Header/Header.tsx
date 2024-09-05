@@ -1,19 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Drawer, Select, Space, Typography } from 'antd';
+import { Drawer, List, Select, Space, Typography } from 'antd';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
 import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { State } from '../../store';
 
-interface State {
+interface currentState {
   currentDate: string;
   studyWeekNumber: number;
 }
 
 export const Header = () => {
-  const [currentState, setCurrentState] = useState<State>({
+  const [currentState, setCurrentState] = useState<currentState>({
     currentDate: '',
     studyWeekNumber: 0,
   });
@@ -22,6 +23,9 @@ export const Header = () => {
   const { Title, Text } = Typography;
   const { width } = useViewportSize();
   const dispatch = useDispatch();
+  const latestGroups = useSelector(
+    (state: State) => state.latestGroups.latestGroups,
+  );
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
@@ -38,10 +42,28 @@ export const Header = () => {
     updateDateTime();
   }, []);
 
-  const changeGroupNumber = (value: string) => {
+  const handleChangeGroupNumber = (value: string) => {
+    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
+
+    if (!latestGroups.some((group) => group.number === value)) {
+      dispatch({
+        type: 'ADD_LATEST_GROUPS',
+        payload: { number: value },
+      });
+    }
+
+    setIsMenuActive(false);
+  };
+
+  const handleUseGroupNumber = (value: string) => {
     dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
     setIsMenuActive(false);
   };
+
+  const handleDeleteLatestGroup = (value: string) => {
+    dispatch({ type: 'REMOVE_LATEST_GROUPS', payload: value });
+  };
+
   const showDrawer = () => {
     setIsMenuActive(true);
   };
@@ -51,7 +73,7 @@ export const Header = () => {
   };
 
   const onChange = (value: string) => {
-    changeGroupNumber(value);
+    handleChangeGroupNumber(value);
   };
 
   const onSearch = (value: string) => {
@@ -106,6 +128,40 @@ export const Header = () => {
                 options={bsuirAllowedGroups}
               />
             </Space>
+            {latestGroups.length > 0 ? (
+              <>
+                <Title level={4}>Добавленные:</Title>
+                <List
+                  itemLayout="horizontal"
+                  dataSource={latestGroups}
+                  renderItem={(group) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <Space direction="horizontal">
+                            <Text
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => handleUseGroupNumber(group.number)}
+                            >{`${group.number} `}</Text>
+                            <Text
+                              onClick={() =>
+                                handleDeleteLatestGroup(group.number)
+                              }
+                              style={{ cursor: 'pointer' }}
+                              type="secondary"
+                            >
+                              x
+                            </Text>
+                          </Space>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
+              </>
+            ) : (
+              <Text>Добавленных групп нет.</Text>
+            )}
           </Space>
         </Drawer>
       </div>

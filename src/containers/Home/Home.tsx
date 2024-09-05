@@ -9,11 +9,7 @@ import { DaySchedule, schedule } from '../../model/schedule';
 import { useViewportSize } from '../../hooks/useViewportSize';
 import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
 import { DialogModal } from '../../components/Modal';
-
-interface CurrentGroupNumber {
-  currentGroupNumber: string;
-}
-
+import { State } from '../../store';
 interface ScheduleList {
   date: string;
   dayOfWeekEN: string;
@@ -32,7 +28,7 @@ interface ScheduleType {
 
 export const Home = () => {
   const groupNumber = useSelector(
-    (state: CurrentGroupNumber) => state.currentGroupNumber,
+    (state: State) => state.currentGroup.currentGroup,
   );
 
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
@@ -107,80 +103,81 @@ export const Home = () => {
       ) : (
         <></>
       )}
-
-      {groupNumber ? (
-        <div className={style.container}>
-          <div className={style.title}>
-            <Title level={3}>Гр. {groupNumber}</Title>
-          </div>
-          <Carousel draggable infinite={false}>
-            {scheduleList.map((date) => (
-              <div key={date.date} className={style.card_container}>
-                <Space direction="vertical">
-                  <Card
-                    bordered
-                    title={
-                      width < 250
-                        ? `${date.shortDayOfWeekRU}. ${date.date.slice(
-                            0,
-                            5,
-                          )} нед. ${date.weekNumber}`
-                        : `${date.dayOfWeekRU
-                            .slice(0, 1)
-                            .toUpperCase()}${date.dayOfWeekRU.slice(
-                            1,
-                          )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
-                    }
-                  >
-                    <List
-                      className={style.list_item}
-                      itemLayout="horizontal"
-                      dataSource={
-                        groupSchedule[`group${groupNumber}`]?.[
-                          `week${date.weekNumber}`
-                        ]?.[`${date.dayOfWeekEN.toLowerCase()}`] || []
+      <div className={style.container}>
+        {groupNumber ? (
+          <>
+            <div className={style.title}>
+              <Title level={3}>Гр. {groupNumber}</Title>
+            </div>
+            <Carousel draggable infinite={false}>
+              {scheduleList.map((date) => (
+                <div key={date.date} className={style.card_container}>
+                  <Space direction="vertical">
+                    <Card
+                      bordered
+                      title={
+                        width < 250
+                          ? `${date.shortDayOfWeekRU}. ${date.date.slice(
+                              0,
+                              5,
+                            )} нед. ${date.weekNumber}`
+                          : `${date.dayOfWeekRU
+                              .slice(0, 1)
+                              .toUpperCase()}${date.dayOfWeekRU.slice(
+                              1,
+                            )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
                       }
-                      renderItem={(item: DaySchedule) => (
-                        <List.Item
-                          key={item.id}
-                          onClick={() => handleOpenModal(item)}
-                        >
-                          <List.Item.Meta
+                    >
+                      <List
+                        className={style.list_item}
+                        itemLayout="horizontal"
+                        dataSource={
+                          groupSchedule[`group${groupNumber}`]?.[
+                            `week${date.weekNumber}`
+                          ]?.[`${date.dayOfWeekEN.toLowerCase()}`] || []
+                        }
+                        renderItem={(item: DaySchedule) => (
+                          <List.Item
                             key={item.id}
-                            avatar={
-                              <div
-                                className={style.status}
-                                lesson-type={item.type}
-                              ></div>
-                            }
-                            title={`${item.startTime}-${item.endTime}: ${item.shortName}`}
-                            description={
-                              <div className={style.list_description}>
-                                {item.class && item.korpus ? (
-                                  <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
-                                ) : (
-                                  <></>
-                                )}
-                                <Text type="secondary">
-                                  {item.subgroup != '0'
-                                    ? `${item.teacher} (подгр. ${item.subgroup})`
-                                    : `${item.teacher}`}
-                                </Text>
-                              </div>
-                            }
-                          />
-                        </List.Item>
-                      )}
-                    />
-                  </Card>
-                </Space>
-              </div>
-            ))}
-          </Carousel>
-        </div>
-      ) : (
-        <div>Выберите группу.</div>
-      )}
+                            onClick={() => handleOpenModal(item)}
+                          >
+                            <List.Item.Meta
+                              key={item.id}
+                              avatar={
+                                <div
+                                  className={style.status}
+                                  lesson-type={item.type}
+                                ></div>
+                              }
+                              title={`${item.startTime}-${item.endTime}: ${item.shortName}`}
+                              description={
+                                <div className={style.list_description}>
+                                  {item.class && item.korpus ? (
+                                    <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
+                                  ) : (
+                                    <></>
+                                  )}
+                                  <Text type="secondary">
+                                    {item.subgroup != '0'
+                                      ? `${item.teacher} (подгр. ${item.subgroup})`
+                                      : `${item.teacher}`}
+                                  </Text>
+                                </div>
+                              }
+                            />
+                          </List.Item>
+                        )}
+                      />
+                    </Card>
+                  </Space>
+                </div>
+              ))}
+            </Carousel>
+          </>
+        ) : (
+          <Text type="danger">Сперва выберите группу.</Text>
+        )}
+      </div>
     </div>
   );
 };
