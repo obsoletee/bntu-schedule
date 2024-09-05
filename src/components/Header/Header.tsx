@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Drawer, List, Select, Space, Typography } from 'antd';
+import { Typography } from 'antd';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
-import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
-import { useDispatch, useSelector } from 'react-redux';
-import { State } from '../../store';
+import { MenuDrawer } from '../Drawer';
 
 interface currentState {
   currentDate: string;
@@ -22,10 +20,6 @@ export const Header = () => {
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
   const { width } = useViewportSize();
-  const dispatch = useDispatch();
-  const latestGroups = useSelector(
-    (state: State) => state.latestGroups.latestGroups,
-  );
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
@@ -42,42 +36,8 @@ export const Header = () => {
     updateDateTime();
   }, []);
 
-  const handleChangeGroupNumber = (value: string) => {
-    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
-
-    if (!latestGroups.some((group) => group.number === value)) {
-      dispatch({
-        type: 'ADD_LATEST_GROUPS',
-        payload: { number: value },
-      });
-    }
-
-    setIsMenuActive(false);
-  };
-
-  const handleUseGroupNumber = (value: string) => {
-    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
-    setIsMenuActive(false);
-  };
-
-  const handleDeleteLatestGroup = (value: string) => {
-    dispatch({ type: 'REMOVE_LATEST_GROUPS', payload: value });
-  };
-
   const showDrawer = () => {
     setIsMenuActive(true);
-  };
-
-  const onClose = () => {
-    setIsMenuActive(false);
-  };
-
-  const onChange = (value: string) => {
-    handleChangeGroupNumber(value);
-  };
-
-  const onSearch = (value: string) => {
-    console.log('search:', value);
   };
 
   return (
@@ -98,72 +58,10 @@ export const Header = () => {
             <span />
           </div>
         )}
-        <Drawer
-          title="Расписание"
-          placement={'left'}
-          onClose={onClose}
-          open={isMenuActive}
-        >
-          <Title level={3}>Выберите группу:</Title>
-          <Space direction="vertical">
-            <Space direction="horizontal">
-              <Text>БНТУ</Text>
-              <Select
-                showSearch
-                placeholder="Номер группы"
-                optionFilterProp="label"
-                onChange={onChange}
-                onSearch={onSearch}
-                options={bntuAllowedGroups}
-              />
-            </Space>
-            <Space direction="horizontal">
-              <Text>БГУИР</Text>
-              <Select
-                showSearch
-                placeholder="Номер группы"
-                optionFilterProp="label"
-                onChange={onChange}
-                onSearch={onSearch}
-                options={bsuirAllowedGroups}
-              />
-            </Space>
-            {latestGroups.length > 0 ? (
-              <>
-                <Title level={4}>Добавленные:</Title>
-                <List
-                  itemLayout="horizontal"
-                  dataSource={latestGroups}
-                  renderItem={(group) => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={
-                          <Space direction="horizontal">
-                            <Text
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => handleUseGroupNumber(group.number)}
-                            >{`${group.number} `}</Text>
-                            <Text
-                              onClick={() =>
-                                handleDeleteLatestGroup(group.number)
-                              }
-                              style={{ cursor: 'pointer' }}
-                              type="secondary"
-                            >
-                              x
-                            </Text>
-                          </Space>
-                        }
-                      />
-                    </List.Item>
-                  )}
-                />
-              </>
-            ) : (
-              <Text>Добавленных групп нет.</Text>
-            )}
-          </Space>
-        </Drawer>
+        <MenuDrawer
+          isMenuActive={isMenuActive}
+          setIsMenuActive={setIsMenuActive}
+        />
       </div>
     </header>
   );
