@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-
-import { NavMenu } from '../NavMenu';
+import { Drawer, Select, Space, Typography } from 'antd';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
+import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
+import { useDispatch } from 'react-redux';
 
 interface State {
   currentDate: string;
@@ -18,8 +19,9 @@ export const Header = () => {
   });
 
   const [isMenuActive, setIsMenuActive] = useState(false);
-
+  const { Title, Text } = Typography;
   const { width } = useViewportSize();
+  const dispatch = useDispatch();
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
@@ -36,36 +38,77 @@ export const Header = () => {
     updateDateTime();
   }, []);
 
-  const toggleMenu = useCallback(() => {
-    setIsMenuActive(!isMenuActive);
-  }, [isMenuActive]);
+  const changeGroupNumber = (value: string) => {
+    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
+    setIsMenuActive(false);
+  };
+  const showDrawer = () => {
+    setIsMenuActive(true);
+  };
+
+  const onClose = () => {
+    setIsMenuActive(false);
+  };
+
+  const onChange = (value: string) => {
+    changeGroupNumber(value);
+  };
+
+  const onSearch = (value: string) => {
+    console.log('search:', value);
+  };
 
   return (
-    <>
-      <header>
-        <div className={style.container}>
-          <div className={style.logo}>
-            <div className={style.info}>
-              <span>Расписание БНТУ</span>
-            </div>
-            <div className={style.date}>Дата: {currentState.currentDate}</div>
-            <div className={style.date}>
-              Номер недели: {currentState.studyWeekNumber}
-            </div>
-          </div>
-          {width < 768 && (
-            <div
-              onClick={toggleMenu}
-              className={
-                isMenuActive ? style.burger_button_active : style.burger_button
-              }
-            >
-              <span />
-            </div>
-          )}
-          <NavMenu menuActive={isMenuActive} setMenuActive={setIsMenuActive} />
+    <header>
+      <div className={style.container}>
+        <div className={style.info}>
+          <Title level={3}>Расписание</Title>
+          <Text>Сегодня: {currentState.currentDate}</Text>
+          <Text>Неделя: {currentState.studyWeekNumber}</Text>
         </div>
-      </header>
-    </>
+        {width < 768 && (
+          <div
+            onClick={showDrawer}
+            className={
+              isMenuActive ? style.burger_button_active : style.burger_button
+            }
+          >
+            <span />
+          </div>
+        )}
+        <Drawer
+          title="Расписание"
+          placement={'left'}
+          onClose={onClose}
+          open={isMenuActive}
+        >
+          <Title level={3}>Выберите группу:</Title>
+          <Space direction="vertical">
+            <Space direction="horizontal">
+              <Text>БНТУ</Text>
+              <Select
+                showSearch
+                placeholder="Номер группы"
+                optionFilterProp="label"
+                onChange={onChange}
+                onSearch={onSearch}
+                options={bntuAllowedGroups}
+              />
+            </Space>
+            <Space direction="horizontal">
+              <Text>БГУИР</Text>
+              <Select
+                showSearch
+                placeholder="Номер группы"
+                optionFilterProp="label"
+                onChange={onChange}
+                onSearch={onSearch}
+                options={bsuirAllowedGroups}
+              />
+            </Space>
+          </Space>
+        </Drawer>
+      </div>
+    </header>
   );
 };

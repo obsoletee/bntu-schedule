@@ -19,20 +19,6 @@ header {
     align-items: flex-start;
   }
 }
-.navigation {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  height: 42px;
-}
-.item {
-  text-decoration: none;
-  color: $color--lightgray;
-
-  &__active {
-    color: $color--blue;
-  }
-}
 
 .burger_container {
   margin-right: 10px;
@@ -46,6 +32,7 @@ header {
 
 .burger_button,
 .burger_button_active {
+  align-self: flex-start;
   width: 30px;
   height: 20px;
   position: relative;
@@ -53,10 +40,10 @@ header {
 
   & span {
     position: absolute;
-    top: 9px;
+    top: 16px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
   }
 }
 
@@ -64,19 +51,19 @@ header {
   &::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 7px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
   }
 
   &::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -7px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
   }
 }
 
@@ -88,35 +75,15 @@ header {
   &::before {
     content: '';
     position: absolute;
-    top: 9px;
+    top: 16px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
     transform: rotate(-45deg);
   }
 }
 
-.logo {
+.info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-
-  & .info {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    & span {
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    & img {
-      width: 36px;
-      height: 36px;
-    }
-  }
-
-  & .date {
-    color: $color--text-light;
-  }
 }
