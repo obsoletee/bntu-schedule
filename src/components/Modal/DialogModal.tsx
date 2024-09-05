@@ -35,9 +35,9 @@ export const DialogModal = ({
     >
       <div className={style.description_container}>
         <Text>{data.teacher}</Text>
-        <Text>{`${data.startTime} - ${data.endTime}`}</Text>
+        <Text>{`Время: ${data.startTime} - ${data.endTime}`}</Text>
         {data.class && data.korpus ? (
-          <Text>{`${data.class}-${data.korpus}к`}</Text>
+          <Text>{`Аудитория: ${data.class}-${data.korpus}к`}</Text>
         ) : (
           <></>
         )}

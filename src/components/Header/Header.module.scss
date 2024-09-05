@@ -43,7 +43,7 @@ header {
     top: 16px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
   }
 }
 
@@ -54,7 +54,7 @@ header {
     top: 7px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
   }
 
   &::after {
@@ -63,7 +63,7 @@ header {
     bottom: -7px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
   }
 }
 
@@ -78,7 +78,7 @@ header {
     top: 16px;
     width: 30px;
     height: 2px;
-    background-color: $color--blue;
+    background-color: $color--text-dark;
     transform: rotate(-45deg);
   }
 }

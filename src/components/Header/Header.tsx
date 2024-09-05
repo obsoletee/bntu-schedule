@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Drawer, Select, Typography } from 'antd';
+import { Drawer, Select, Space, Typography } from 'antd';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
+import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
+import { useDispatch } from 'react-redux';
 
 interface State {
   currentDate: string;
@@ -19,6 +21,7 @@ export const Header = () => {
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
   const { width } = useViewportSize();
+  const dispatch = useDispatch();
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
@@ -35,6 +38,10 @@ export const Header = () => {
     updateDateTime();
   }, []);
 
+  const changeGroupNumber = (value: string) => {
+    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
+    setIsMenuActive(false);
+  };
   const showDrawer = () => {
     setIsMenuActive(true);
   };
@@ -44,7 +51,7 @@ export const Header = () => {
   };
 
   const onChange = (value: string) => {
-    console.log(`selected ${value}`);
+    changeGroupNumber(value);
   };
 
   const onSearch = (value: string) => {
@@ -55,9 +62,9 @@ export const Header = () => {
     <header>
       <div className={style.container}>
         <div className={style.info}>
-          <Title level={3}>Расписание БНТУ</Title>
-          <Text>Дата: {currentState.currentDate}</Text>
-          <Text>Номер недели: {currentState.studyWeekNumber}</Text>
+          <Title level={3}>Расписание</Title>
+          <Text>Сегодня: {currentState.currentDate}</Text>
+          <Text>Неделя: {currentState.studyWeekNumber}</Text>
         </div>
         {width < 768 && (
           <div
@@ -70,35 +77,36 @@ export const Header = () => {
           </div>
         )}
         <Drawer
-          title="Расписание БНТУ"
+          title="Расписание"
           placement={'left'}
           onClose={onClose}
           open={isMenuActive}
         >
-          <Title level={3}>Введите номер группы:</Title>
-          <Select
-            showSearch
-            placeholder="Select a person"
-            optionFilterProp="label"
-            onChange={onChange}
-            onSearch={onSearch}
-            options={[
-              {
-                value: 'jack',
-                label: 'Jack',
-              },
-              {
-                value: 'lucy',
-                label: 'Lucy',
-              },
-              {
-                value: 'tom',
-                label: 'Tom',
-              },
-            ]}
-          />
-          <p>Some contents...</p>
-          <p>Some contents...</p>
+          <Title level={3}>Выберите группу:</Title>
+          <Space direction="vertical">
+            <Space direction="horizontal">
+              <Text>БНТУ</Text>
+              <Select
+                showSearch
+                placeholder="Номер группы"
+                optionFilterProp="label"
+                onChange={onChange}
+                onSearch={onSearch}
+                options={bntuAllowedGroups}
+              />
+            </Space>
+            <Space direction="horizontal">
+              <Text>БГУИР</Text>
+              <Select
+                showSearch
+                placeholder="Номер группы"
+                optionFilterProp="label"
+                onChange={onChange}
+                onSearch={onSearch}
+                options={bsuirAllowedGroups}
+              />
+            </Space>
+          </Space>
         </Drawer>
       </div>
     </header>

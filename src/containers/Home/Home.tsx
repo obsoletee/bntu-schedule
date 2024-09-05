@@ -133,6 +133,7 @@ export const Home = () => {
                     }
                   >
                     <List
+                      className={style.list_item}
                       itemLayout="horizontal"
                       dataSource={
                         groupSchedule[`group${groupNumber}`]?.[
