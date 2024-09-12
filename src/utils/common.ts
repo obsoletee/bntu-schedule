@@ -1,9 +1,16 @@
-export const countWeekNumber = (currentDate: Date): number => {
+export const countWeekNumber = (
+  currentDate: Date,
+  university: string,
+): number => {
   const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
   const pastDaysOfYear =
     (currentDate.getTime() - startOfYear.getTime()) / 86400000;
   const weekNumber =
-    Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 2 === 0 ? 1 : 2;
+    university === 'bsuir'
+      ? (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 4) + 2
+      : university === 'bntu'
+      ? (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 2) + 1
+      : 0;
   return weekNumber;
 };
 

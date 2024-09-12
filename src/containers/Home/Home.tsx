@@ -1,20 +1,20 @@
+import { Card, Carousel, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+
+import { bntuSchedule } from '../../model/bntuSchedule';
+import { bsuirSchedule } from '../../model/bsuirSchedule';
+import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
+import { DaySchedule } from '../../model/Schedule';
+import { DialogModal } from '../../components/Modal';
+import { LessonList } from '../../components/LessonList';
 import { Header } from '../../components/Header/Header';
-import { Typography } from 'antd';
+import { State } from '../../store';
+import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Home.module.scss';
-import { Card, Carousel, List, Space } from 'antd';
-import { DaySchedule, schedule } from '../../model/schedule';
-import { useViewportSize } from '../../hooks/useViewportSize';
-import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
-import { DialogModal } from '../../components/Modal';
 
-interface CurrentGroupNumber {
-  currentGroupNumber: string;
-}
-
-interface ScheduleList {
+export interface ScheduleList {
   date: string;
   dayOfWeekEN: string;
   dayOfWeekRU: string;
@@ -22,26 +22,14 @@ interface ScheduleList {
   weekNumber: number;
 }
 
-interface ScheduleType {
-  [key: string]: {
-    [week: string]: {
-      [day: string]: DaySchedule[];
-    };
-  };
-}
-
 export const Home = () => {
-  const groupNumber = useSelector(
-    (state: CurrentGroupNumber) => state.currentGroupNumber,
-  );
+  const currentGroup = useSelector((state: State) => state.currentGroup);
 
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
   const [lessonsInfo, setLessonsInfo] = useState<DaySchedule>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { width } = useViewportSize();
   const { Text, Title } = Typography;
-
-  const groupSchedule = schedule as ScheduleType;
 
   const handleOpenModal = useCallback((lessonInfo: DaySchedule) => {
     setIsModalOpen(true);
@@ -74,7 +62,7 @@ export const Home = () => {
       const shortDayOfWeekRU = getShortDayOfWeek(dayOfWeekRU);
 
       const formattedDate = currentDate.toLocaleDateString();
-      const weekNumber = countWeekNumber(currentDate);
+      const weekNumber = countWeekNumber(currentDate, currentGroup.university);
 
       const dateList = {
         date: formattedDate,
@@ -89,11 +77,11 @@ export const Home = () => {
     }
 
     setScheduleList(daysArray);
-  }, []);
+  }, [currentGroup]);
 
   useEffect(() => {
     generateSchedule();
-  }, [generateSchedule]);
+  }, [currentGroup, generateSchedule]);
 
   return (
     <div className={style.wrapper}>
@@ -107,80 +95,58 @@ export const Home = () => {
       ) : (
         <></>
       )}
-
-      {groupNumber ? (
-        <div className={style.container}>
-          <div className={style.title}>
-            <Title level={3}>Гр. {groupNumber}</Title>
-          </div>
-          <Carousel draggable infinite={false}>
-            {scheduleList.map((date) => (
-              <div key={date.date} className={style.card_container}>
-                <Space direction="vertical">
-                  <Card
-                    bordered
-                    title={
-                      width < 250
-                        ? `${date.shortDayOfWeekRU}. ${date.date.slice(
-                            0,
-                            5,
-                          )} нед. ${date.weekNumber}`
-                        : `${date.dayOfWeekRU
-                            .slice(0, 1)
-                            .toUpperCase()}${date.dayOfWeekRU.slice(
-                            1,
-                          )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
-                    }
-                  >
-                    <List
-                      className={style.list_item}
-                      itemLayout="horizontal"
-                      dataSource={
-                        groupSchedule[`group${groupNumber}`]?.[
-                          `week${date.weekNumber}`
-                        ]?.[`${date.dayOfWeekEN.toLowerCase()}`] || []
+      <div className={style.container}>
+        {currentGroup ? (
+          <>
+            <div className={style.title}>
+              <Title level={3}>Гр. {currentGroup.currentGroup}</Title>
+            </div>
+            <Carousel draggable infinite={false}>
+              {scheduleList.map((date) => (
+                <div key={date.date} className={style.card_container}>
+                  <Space direction="vertical">
+                    <Card
+                      bordered
+                      title={
+                        width < 250
+                          ? `${date.shortDayOfWeekRU}. ${date.date.slice(
+                              0,
+                              5,
+                            )} нед. ${date.weekNumber}`
+                          : `${date.dayOfWeekRU
+                              .slice(0, 1)
+                              .toUpperCase()}${date.dayOfWeekRU.slice(
+                              1,
+                            )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
                       }
-                      renderItem={(item: DaySchedule) => (
-                        <List.Item
-                          key={item.id}
-                          onClick={() => handleOpenModal(item)}
-                        >
-                          <List.Item.Meta
-                            key={item.id}
-                            avatar={
-                              <div
-                                className={style.status}
-                                lesson-type={item.type}
-                              ></div>
-                            }
-                            title={`${item.startTime}-${item.endTime}: ${item.shortName}`}
-                            description={
-                              <div className={style.list_description}>
-                                {item.class && item.korpus ? (
-                                  <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
-                                ) : (
-                                  <></>
-                                )}
-                                <Text type="secondary">
-                                  {item.subgroup != '0'
-                                    ? `${item.teacher} (подгр. ${item.subgroup})`
-                                    : `${item.teacher}`}
-                                </Text>
-                              </div>
-                            }
-                          />
-                        </List.Item>
+                    >
+                      {currentGroup.university === 'bntu' ? (
+                        <LessonList
+                          data={bntuSchedule}
+                          handleOpenModal={handleOpenModal}
+                          date={date}
+                          currentGroup={currentGroup}
+                        />
+                      ) : currentGroup.university === 'bsuir' ? (
+                        <LessonList
+                          data={bsuirSchedule}
+                          handleOpenModal={handleOpenModal}
+                          date={date}
+                          currentGroup={currentGroup}
+                        />
+                      ) : (
+                        <></>
                       )}
-                    />
-                  </Card>
-                </Space>
-              </div>
-            ))}
-          </Carousel>
-        </div>
-      ) : (
-        <div>Выберите группу.</div>
-      )}
+                    </Card>
+                  </Space>
+                </div>
+              ))}
+            </Carousel>
+          </>
+        ) : (
+          <Text type="danger">Сперва выберите группу.</Text>
+        )}
+      </div>
     </div>
   );
 };

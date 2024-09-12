@@ -1,33 +1,35 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Drawer, Select, Space, Typography } from 'antd';
+import { Typography } from 'antd';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
-import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
-import { useDispatch } from 'react-redux';
+import { MenuDrawer } from '../Drawer';
+import { State } from '../../store';
+import { useSelector } from 'react-redux';
 
-interface State {
+interface currentState {
   currentDate: string;
   studyWeekNumber: number;
 }
 
 export const Header = () => {
-  const [currentState, setCurrentState] = useState<State>({
+  const [currentState, setCurrentState] = useState<currentState>({
     currentDate: '',
     studyWeekNumber: 0,
   });
 
+  const groupNumber = useSelector((state: State) => state.currentGroup);
+
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
   const { width } = useViewportSize();
-  const dispatch = useDispatch();
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
 
-    const weekNumber = countWeekNumber(currentDate);
+    const weekNumber = countWeekNumber(currentDate, groupNumber.university);
     setCurrentState({
       currentDate: formattedDate,
       studyWeekNumber: weekNumber,
@@ -36,26 +38,10 @@ export const Header = () => {
 
   useEffect(() => {
     updateDateTime();
-  }, []);
+  }, [groupNumber]);
 
-  const changeGroupNumber = (value: string) => {
-    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
-    setIsMenuActive(false);
-  };
   const showDrawer = () => {
     setIsMenuActive(true);
-  };
-
-  const onClose = () => {
-    setIsMenuActive(false);
-  };
-
-  const onChange = (value: string) => {
-    changeGroupNumber(value);
-  };
-
-  const onSearch = (value: string) => {
-    console.log('search:', value);
   };
 
   return (
@@ -76,38 +62,10 @@ export const Header = () => {
             <span />
           </div>
         )}
-        <Drawer
-          title="Расписание"
-          placement={'left'}
-          onClose={onClose}
-          open={isMenuActive}
-        >
-          <Title level={3}>Выберите группу:</Title>
-          <Space direction="vertical">
-            <Space direction="horizontal">
-              <Text>БНТУ</Text>
-              <Select
-                showSearch
-                placeholder="Номер группы"
-                optionFilterProp="label"
-                onChange={onChange}
-                onSearch={onSearch}
-                options={bntuAllowedGroups}
-              />
-            </Space>
-            <Space direction="horizontal">
-              <Text>БГУИР</Text>
-              <Select
-                showSearch
-                placeholder="Номер группы"
-                optionFilterProp="label"
-                onChange={onChange}
-                onSearch={onSearch}
-                options={bsuirAllowedGroups}
-              />
-            </Space>
-          </Space>
-        </Drawer>
+        <MenuDrawer
+          isMenuActive={isMenuActive}
+          setIsMenuActive={setIsMenuActive}
+        />
       </div>
     </header>
   );
