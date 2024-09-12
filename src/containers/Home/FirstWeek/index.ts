@@ -1,1 +1,0 @@
-export { FirstWeek } from './FirstWeek';
