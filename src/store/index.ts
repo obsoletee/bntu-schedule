@@ -9,12 +9,13 @@ export interface Action {
 
 export interface LatestGroup {
   number: string;
+  university: string;
 }
 
 export interface CurrentGroupState {
   currentGroup: string;
+  university: string;
 }
-
 export interface LatestGroupsState {
   latestGroups: LatestGroup[];
 }

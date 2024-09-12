@@ -1,8 +1,9 @@
 import { Drawer, Space, Select, List, Typography } from 'antd';
-import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
 import { useDispatch, useSelector } from 'react-redux';
-import { State } from '../../store';
 import { Dispatch, SetStateAction } from 'react';
+
+import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
+import { State } from '../../store';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -20,20 +21,26 @@ export const MenuDrawer = ({
     (state: State) => state.latestGroups.latestGroups,
   );
 
-  const handleChangeGroupNumber = (value: string) => {
-    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
+  const handleChangeGroupNumber = (value: string, university: string) => {
+    dispatch({
+      type: 'CHANGE_GROUP_NUMBER',
+      payload: { currentGroup: value, university: university },
+    });
 
     if (!latestGroups.some((group) => group.number === value)) {
       dispatch({
         type: 'ADD_LATEST_GROUPS',
-        payload: { number: value },
+        payload: { number: value, university: university },
       });
     }
 
     setIsMenuActive(false);
   };
-  const handleUseGroupNumber = (value: string) => {
-    dispatch({ type: 'CHANGE_GROUP_NUMBER', payload: value });
+  const handleUseGroupNumber = (value: string, university: string) => {
+    dispatch({
+      type: 'CHANGE_GROUP_NUMBER',
+      payload: { currentGroup: value, university: university },
+    });
     setIsMenuActive(false);
   };
 
@@ -43,10 +50,6 @@ export const MenuDrawer = ({
 
   const onClose = () => {
     setIsMenuActive(false);
-  };
-
-  const onChange = (value: string) => {
-    handleChangeGroupNumber(value);
   };
 
   const onSearch = (value: string) => {
@@ -67,7 +70,9 @@ export const MenuDrawer = ({
             showSearch
             placeholder="Номер группы"
             optionFilterProp="label"
-            onChange={onChange}
+            onChange={(value) => {
+              handleChangeGroupNumber(value, 'bntu');
+            }}
             onSearch={onSearch}
             options={bntuAllowedGroups}
           />
@@ -78,7 +83,9 @@ export const MenuDrawer = ({
             showSearch
             placeholder="Номер группы"
             optionFilterProp="label"
-            onChange={onChange}
+            onChange={(value) => {
+              handleChangeGroupNumber(value, 'bsuir');
+            }}
             onSearch={onSearch}
             options={bsuirAllowedGroups}
           />
@@ -95,7 +102,9 @@ export const MenuDrawer = ({
                     <Space direction="horizontal">
                       <Text
                         style={{ cursor: 'pointer' }}
-                        onClick={() => handleUseGroupNumber(group.number)}
+                        onClick={() =>
+                          handleUseGroupNumber(group.number, group.university)
+                        }
                       >{`${group.number} `}</Text>
                       <Text
                         onClick={() => handleDeleteLatestGroup(group.number)}

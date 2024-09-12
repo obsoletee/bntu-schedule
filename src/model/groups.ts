@@ -1,3 +1,8 @@
+export interface AllowedGroups {
+  value: string;
+  label: string;
+}
+
 export const bntuAllowedGroups = [
   { value: '11004122', label: '11004122' },
   { value: '11004222', label: '11004222' },

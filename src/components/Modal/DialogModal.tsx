@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Modal, Typography } from 'antd';
 
-import { DaySchedule } from '../../model/schedule';
+import { DaySchedule } from '../../model/Schedule';
 
 import style from './DialogModal.module.scss';
 
@@ -34,7 +34,9 @@ export const DialogModal = ({
       onCancel={handleCancel}
     >
       <div className={style.description_container}>
-        <Text>{data.teacher}</Text>
+        <Text>
+          <b>{data.teacher}</b>
+        </Text>
         <Text>{`Время: ${data.startTime} - ${data.endTime}`}</Text>
         {data.class && data.korpus ? (
           <Text>{`Аудитория: ${data.class}-${data.korpus}к`}</Text>
@@ -46,6 +48,19 @@ export const DialogModal = ({
         ) : (
           <></>
         )}
+        <Text>
+          Недели:{' '}
+          {data.week.length > 0 ? (
+            <>
+              {data.week.slice(0, -1).join(', ')}
+              {data.week.length > 1
+                ? `, ${data.week[data.week.length - 1]}`
+                : `${data.week[0]}`}
+            </>
+          ) : (
+            'Нет данных.'
+          )}
+        </Text>
       </div>
     </Modal>
   );
