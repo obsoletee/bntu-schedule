@@ -3,6 +3,7 @@ import { Action } from './index';
 const defaultState = {
   latestGroups: JSON.parse(localStorage.getItem('latestGroups') || '[]') as {
     number: string;
+    university: string;
   }[],
 };
 

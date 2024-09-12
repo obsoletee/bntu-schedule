@@ -5,6 +5,8 @@ import { useViewportSize } from '../../hooks/useViewportSize';
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
 import { MenuDrawer } from '../Drawer';
+import { State } from '../../store';
+import { useSelector } from 'react-redux';
 
 interface currentState {
   currentDate: string;
@@ -17,6 +19,8 @@ export const Header = () => {
     studyWeekNumber: 0,
   });
 
+  const groupNumber = useSelector((state: State) => state.currentGroup);
+
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
   const { width } = useViewportSize();
@@ -25,7 +29,7 @@ export const Header = () => {
     const currentDate = new Date();
     const formattedDate = currentDate.toLocaleDateString();
 
-    const weekNumber = countWeekNumber(currentDate);
+    const weekNumber = countWeekNumber(currentDate, groupNumber.university);
     setCurrentState({
       currentDate: formattedDate,
       studyWeekNumber: weekNumber,
@@ -34,7 +38,7 @@ export const Header = () => {
 
   useEffect(() => {
     updateDateTime();
-  }, []);
+  }, [groupNumber]);
 
   const showDrawer = () => {
     setIsMenuActive(true);
