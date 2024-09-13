@@ -1,4 +1,4 @@
-interface Action {
+interface CurrentGroupAction {
   type: string;
   payload: { currentGroup: string; university: string };
 }
@@ -8,7 +8,10 @@ const defaultState = {
   university: localStorage.getItem('university') || '',
 };
 
-export const currentGroupReducer = (state = defaultState, action: Action) => {
+export const currentGroupReducer = (
+  state = defaultState,
+  action: CurrentGroupAction,
+) => {
   switch (action.type) {
     case 'CHANGE_GROUP_NUMBER':
       localStorage.setItem('currentGroup', action.payload.currentGroup);
