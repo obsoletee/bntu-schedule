@@ -1,28 +1,62 @@
-@import '../../styles/colors.scss';
-
 .wrapper {
   width: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.container {
+.welcome_container {
+  margin: 30px 0 0 0;
+  padding: 0 20px;
   width: 100%;
-  padding: 0 10px;
-  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
-.title {
+.welcome_text {
+  font-size: 2rem;
   text-align: center;
 }
 
-.card_container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 10px;
-  width: 100%;
+.welcome_date {
+  font-size: 1.25rem;
+}
 
-  & > div {
-    width: 100%;
+.schedule_container {
+  padding: 0 20px;
+  margin: 30px 0 0 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.schedule_title {
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0 0 15px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0 0 15px;
+
+  & .schedule_button {
+    transition: all 0.2s ease-out;
+    padding: 10px;
+    box-shadow: 1px 1px 3px rgb(0, 0, 0);
+    border-radius: 10px;
+    border: 1px solid black;
+    &:hover {
+      cursor: pointer;
+      transform: translate(0, 2px);
+      background-color: rgb(197, 255, 200);
+    }
   }
 }
