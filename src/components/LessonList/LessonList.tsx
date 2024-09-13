@@ -12,6 +12,14 @@ interface LessonListProps {
   handleOpenModal: (lessonInfo: DaySchedule) => void;
 }
 
+type DayOfWeek =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday';
+
 export const LessonList = ({
   data,
   currentGroup,
@@ -25,7 +33,7 @@ export const LessonList = ({
       itemLayout="horizontal"
       dataSource={
         data[`group${currentGroup.currentGroup}`][
-          date.dayOfWeekEN.toLocaleLowerCase()
+          date.dayOfWeekEN.toLowerCase() as DayOfWeek
         ]
       }
       renderItem={(item: DaySchedule) =>

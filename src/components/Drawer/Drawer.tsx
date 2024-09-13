@@ -21,6 +21,8 @@ export const MenuDrawer = ({
     (state: State) => state.latestGroups.latestGroups,
   );
 
+  const version = useSelector((state: State) => state.version.version);
+
   const handleChangeGroupNumber = (value: string, university: string) => {
     dispatch({
       type: 'CHANGE_GROUP_NUMBER',
@@ -57,7 +59,12 @@ export const MenuDrawer = ({
   };
   return (
     <Drawer
-      title="Расписание"
+      title={
+        <Space direction="horizontal">
+          <Text>Расписание</Text>
+          <Text type="secondary">{version}</Text>
+        </Space>
+      }
       placement={'left'}
       onClose={onClose}
       open={isMenuActive}
