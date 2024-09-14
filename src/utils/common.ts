@@ -10,7 +10,7 @@ export const countWeekNumber = (
       ? (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 4) + 2
       : university === 'bntu'
       ? (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 2) + 1
-      : 0;
+      : (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 4) + 2;
   return weekNumber;
 };
 

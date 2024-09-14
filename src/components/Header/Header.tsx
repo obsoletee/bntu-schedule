@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Typography } from 'antd';
-import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Header.module.scss';
 import { countWeekNumber } from '../../utils/common';
@@ -23,7 +22,6 @@ export const Header = () => {
 
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
-  const { width } = useViewportSize();
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
@@ -34,7 +32,7 @@ export const Header = () => {
       currentDate: formattedDate,
       studyWeekNumber: weekNumber,
     });
-  }, []);
+  }, [groupNumber]);
 
   useEffect(() => {
     updateDateTime();
@@ -52,16 +50,14 @@ export const Header = () => {
           <Text>Сегодня: {currentState.currentDate}</Text>
           <Text>Неделя: {currentState.studyWeekNumber}</Text>
         </div>
-        {width < 768 && (
-          <div
-            onClick={showDrawer}
-            className={
-              isMenuActive ? style.burger_button_active : style.burger_button
-            }
-          >
-            <span />
-          </div>
-        )}
+        <div
+          onClick={showDrawer}
+          className={
+            isMenuActive ? style.burger_button_active : style.burger_button
+          }
+        >
+          <span />
+        </div>
         <MenuDrawer
           isMenuActive={isMenuActive}
           setIsMenuActive={setIsMenuActive}

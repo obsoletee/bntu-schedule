@@ -32,7 +32,7 @@ export const LessonList = ({
       className={style.list_item}
       itemLayout="horizontal"
       dataSource={
-        data[`group${currentGroup.currentGroup}`][
+        data[`group${currentGroup.currentGroup}`]?.[
           date.dayOfWeekEN.toLowerCase() as DayOfWeek
         ]
       }

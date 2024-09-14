@@ -101,7 +101,7 @@ export const MenuDrawer = ({
           <List
             header={<Title level={4}>Добавленные:</Title>}
             itemLayout="horizontal"
-            dataSource={latestGroups}
+            dataSource={latestGroups.slice(-5).reverse()}
             renderItem={(group) => (
               <List.Item>
                 <List.Item.Meta

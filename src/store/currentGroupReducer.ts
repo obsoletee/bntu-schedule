@@ -6,6 +6,7 @@ interface CurrentGroupAction {
 const defaultState = {
   currentGroup: localStorage.getItem('currentGroup') || '',
   university: localStorage.getItem('university') || '',
+  weekCounter: localStorage.getItem('weekCounter') || '',
 };
 
 export const currentGroupReducer = (
