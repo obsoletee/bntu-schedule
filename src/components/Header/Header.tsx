@@ -25,7 +25,15 @@ export const Header = () => {
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString();
+    const formattedDate = `${
+      currentDate.getDay() < 10
+        ? `0${currentDate.getDay()}`
+        : `${currentDate.getDay()}`
+    }.${
+      currentDate.getMonth() < 10
+        ? `0${currentDate.getMonth()}`
+        : `${currentDate.getMonth()}`
+    }.${currentDate.getFullYear()}`;
 
     const weekNumber = countWeekNumber(currentDate, groupNumber.university);
     setCurrentState({
