@@ -81,7 +81,7 @@ export const Home = () => {
 
   useEffect(() => {
     generateSchedule();
-  }, [currentGroup, generateSchedule]);
+  }, [currentGroup]);
 
   return (
     <div className={style.wrapper}>

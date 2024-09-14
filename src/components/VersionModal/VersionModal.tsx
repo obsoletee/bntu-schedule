@@ -34,7 +34,7 @@ export const VersionModal = ({
     >
       <div className={style.description_container}>
         {data.changes.map((item) => (
-          <Text>- {item}</Text>
+          <Text key={item}>- {item}</Text>
         ))}
       </div>
     </Modal>
