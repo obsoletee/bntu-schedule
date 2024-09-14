@@ -6,7 +6,7 @@ import { bntuSchedule } from '../../model/bntuSchedule';
 import { bsuirSchedule } from '../../model/bsuirSchedule';
 import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
 import { DaySchedule } from '../../model/Schedule';
-import { DialogModal } from '../../components/Modal';
+import { LessonModal } from '../../components/LessonModal';
 import { LessonList } from '../../components/LessonList';
 import { Header } from '../../components/Header/Header';
 import { State } from '../../store';
@@ -87,7 +87,7 @@ export const Home = () => {
     <div className={style.wrapper}>
       <Header />
       {lessonsInfo ? (
-        <DialogModal
+        <LessonModal
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           data={lessonsInfo}

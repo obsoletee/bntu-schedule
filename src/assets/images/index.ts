@@ -1,5 +1,5 @@
-import bntuLogo from './bntulogo.png';
+import scheduleLogo from './scheduleLogo.webp';
 
 export const images = {
-  bntuLogo,
+  scheduleLogo,
 };
