@@ -101,7 +101,7 @@ export const Home = () => {
             <div className={style.title}>
               <Title level={3}>Гр. {currentGroup.currentGroup}</Title>
             </div>
-            <Carousel draggable infinite={false}>
+            <Carousel draggable infinite={false} dots={false}>
               {scheduleList.map((date) => (
                 <div key={date.date} className={style.card_container}>
                   <Space direction="vertical">
