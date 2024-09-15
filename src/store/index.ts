@@ -1,7 +1,6 @@
 import { combineReducers, createStore } from 'redux';
 import { currentGroupReducer } from './currentGroupReducer';
 import { latestGroupsReducer } from './latestGroupsReducer';
-import { versionReducer } from './versionReducer';
 
 export interface Action {
   type: string;
@@ -16,6 +15,7 @@ export interface LatestGroup {
 export interface CurrentGroupState {
   currentGroup: string;
   university: string;
+  subgroup: string;
 }
 
 export interface VersionState {
@@ -29,13 +29,11 @@ export interface LatestGroupsState {
 export interface State {
   currentGroup: CurrentGroupState;
   latestGroups: LatestGroupsState;
-  version: VersionState;
 }
 
 const rootReducer = combineReducers({
   currentGroup: currentGroupReducer,
   latestGroups: latestGroupsReducer,
-  version: versionReducer,
 });
 
 export const store = createStore(rootReducer);

@@ -1,12 +1,16 @@
 import { Card, Carousel, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { bntuSchedule } from '../../model/bntuSchedule';
 import { bsuirSchedule } from '../../model/bsuirSchedule';
-import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
+import {
+  countWeekNumber,
+  formatDate,
+  getShortDayOfWeek,
+} from '../../utils/common';
 import { DaySchedule } from '../../model/Schedule';
-import { DialogModal } from '../../components/Modal';
+import { LessonModal } from '../../components/LessonModal';
 import { LessonList } from '../../components/LessonList';
 import { Header } from '../../components/Header/Header';
 import { State } from '../../store';
@@ -23,7 +27,7 @@ export interface ScheduleList {
 }
 
 export const Home = () => {
-  const currentGroup = useSelector((state: State) => state.currentGroup);
+  const groupInfo = useSelector((state: State) => state.currentGroup);
 
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
   const [lessonsInfo, setLessonsInfo] = useState<DaySchedule>();
@@ -31,22 +35,19 @@ export const Home = () => {
   const { width } = useViewportSize();
   const { Text, Title } = Typography;
 
+  const dispatch = useDispatch();
+
   const handleOpenModal = useCallback((lessonInfo: DaySchedule) => {
     setIsModalOpen(true);
     setLessonsInfo(lessonInfo);
   }, []);
 
   const generateSchedule = useCallback(() => {
-    const now = new Date();
-    const currentDate = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-    );
+    const currentDate = new Date();
     const endDate = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      now.getDate(),
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      currentDate.getDate(),
     );
 
     const daysArray: ScheduleList[] = [];
@@ -61,8 +62,9 @@ export const Home = () => {
 
       const shortDayOfWeekRU = getShortDayOfWeek(dayOfWeekRU);
 
-      const formattedDate = currentDate.toLocaleDateString();
-      const weekNumber = countWeekNumber(currentDate, currentGroup.university);
+      const formattedDate = formatDate(currentDate);
+
+      const weekNumber = countWeekNumber(currentDate, groupInfo.university);
 
       const dateList = {
         date: formattedDate,
@@ -77,17 +79,24 @@ export const Home = () => {
     }
 
     setScheduleList(daysArray);
-  }, [currentGroup]);
+  }, [groupInfo]);
 
   useEffect(() => {
     generateSchedule();
-  }, [currentGroup, generateSchedule]);
+  }, [groupInfo, generateSchedule]);
+
+  const handleSubgroupChange = (value: string) => {
+    dispatch({
+      type: 'CHANGE_SUBGROUP',
+      payload: { subgroup: value },
+    });
+  };
 
   return (
     <div className={style.wrapper}>
       <Header />
       {lessonsInfo ? (
-        <DialogModal
+        <LessonModal
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           data={lessonsInfo}
@@ -96,43 +105,84 @@ export const Home = () => {
         <></>
       )}
       <div className={style.container}>
-        {currentGroup ? (
+        {groupInfo ? (
           <>
             <div className={style.title}>
-              <Title level={3}>Гр. {currentGroup.currentGroup}</Title>
+              <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
             </div>
-            <Carousel draggable infinite={false} dots={false}>
+            <Carousel draggable infinite={false} dots={false} speed={200}>
               {scheduleList.map((date) => (
                 <div key={date.date} className={style.card_container}>
                   <Space direction="vertical">
                     <Card
                       bordered
                       title={
-                        width < 250
-                          ? `${date.shortDayOfWeekRU}. ${date.date.slice(
-                              0,
-                              5,
-                            )} нед. ${date.weekNumber}`
-                          : `${date.dayOfWeekRU
-                              .slice(0, 1)
-                              .toUpperCase()}${date.dayOfWeekRU.slice(
-                              1,
-                            )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
+                        <Space direction="vertical">
+                          <div>
+                            {width < 250
+                              ? `${date.shortDayOfWeekRU}. ${date.date.slice(
+                                  0,
+                                  5,
+                                )} нед. ${date.weekNumber}`
+                              : `${date.dayOfWeekRU
+                                  .slice(0, 1)
+                                  .toUpperCase()}${date.dayOfWeekRU.slice(
+                                  1,
+                                )} ${date.date.slice(0, 5)} нед. ${
+                                  date.weekNumber
+                                }`}
+                          </div>
+                          <Space direction="horizontal">
+                            <Text
+                              underline
+                              onClick={() => handleSubgroupChange('')}
+                              type={
+                                groupInfo.subgroup === ''
+                                  ? `success`
+                                  : `secondary`
+                              }
+                            >
+                              Все
+                            </Text>
+                            <Text
+                              underline
+                              onClick={() => handleSubgroupChange('1')}
+                              type={
+                                groupInfo.subgroup === '1'
+                                  ? `success`
+                                  : `secondary`
+                              }
+                            >
+                              1 подг.
+                            </Text>
+                            <Text
+                              underline
+                              onClick={() => handleSubgroupChange('2')}
+                              type={
+                                groupInfo.subgroup === '2'
+                                  ? `success`
+                                  : `secondary`
+                              }
+                            >
+                              2 подг.
+                            </Text>
+                          </Space>
+                        </Space>
                       }
                     >
-                      {currentGroup.university === 'bntu' ? (
+                      {groupInfo.university === 'bntu' ? (
                         <LessonList
                           data={bntuSchedule}
                           handleOpenModal={handleOpenModal}
                           date={date}
-                          currentGroup={currentGroup}
+                          currentGroup={groupInfo}
                         />
-                      ) : currentGroup.university === 'bsuir' ? (
+                      ) : groupInfo.university === 'bsuir' ? (
                         <LessonList
                           data={bsuirSchedule}
                           handleOpenModal={handleOpenModal}
                           date={date}
-                          currentGroup={currentGroup}
+                          currentGroup={groupInfo}
                         />
                       ) : (
                         <></>

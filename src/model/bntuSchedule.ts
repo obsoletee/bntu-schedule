@@ -509,5 +509,6 @@ export const bntuSchedule = {
         week: ['2'],
       },
     ],
+    sunday: [],
   },
 };

@@ -7,10 +7,11 @@ export const countWeekNumber = (
     (currentDate.getTime() - startOfYear.getTime()) / 86400000;
   const weekNumber =
     university === 'bsuir'
-      ? (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 4) + 2
+      ? calculateBsuirWeekNumber(startOfYear, pastDaysOfYear)
       : university === 'bntu'
-      ? (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 2) + 1
-      : (Math.ceil((pastDaysOfYear + startOfYear.getDay()) / 7) % 4) + 2;
+      ? calculateBntuWeekNumber(startOfYear, pastDaysOfYear)
+      : calculateBsuirWeekNumber(startOfYear, pastDaysOfYear);
+
   return weekNumber;
 };
 
@@ -32,4 +33,41 @@ export const getShortDayOfWeek = (dayOfWeek: string) => {
       ? 'Вс'
       : '';
   return shortDayOfWeekRU;
+};
+
+export const formatDate = (date: Date) => {
+  const formattedDate = `${
+    date.getUTCDate() < 10 ? `0${date.getUTCDate()}` : `${date.getUTCDate()}`
+  }.${
+    date.getMonth() + 1 < 10
+      ? `0${date.getMonth() + 1}`
+      : `${date.getMonth() + 1}`
+  }.${date.getFullYear()}`;
+
+  return formattedDate;
+};
+
+export const calculateBntuWeekNumber = (
+  startOfYear: Date,
+  pastDaysOfYear: number,
+): number => {
+  return (Math.ceil((pastDaysOfYear + startOfYear.getDay() - 1) / 7) % 2) + 1;
+};
+
+export const calculateBsuirWeekNumber = (
+  startOfYear: Date,
+  pastDaysOfYear: number,
+): number => {
+  switch (Math.ceil((pastDaysOfYear + startOfYear.getDay() - 1) / 7) % 4) {
+    case 0:
+      return 2;
+    case 1:
+      return 3;
+    case 2:
+      return 4;
+    case 3:
+      return 1;
+    default:
+      return 0;
+  }
 };

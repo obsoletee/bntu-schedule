@@ -3,19 +3,19 @@ import { Modal, Typography } from 'antd';
 
 import { DaySchedule } from '../../model/Schedule';
 
-import style from './DialogModal.module.scss';
+import style from './LessonModal.module.scss';
 
-interface DialogModalProps {
+interface LessonModalProps {
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   data: DaySchedule;
 }
 
-export const DialogModal = ({
+export const LessonModal = ({
   isModalOpen,
   setIsModalOpen,
   data,
-}: DialogModalProps) => {
+}: LessonModalProps) => {
   const { Text } = Typography;
 
   const handleOk = () => {
