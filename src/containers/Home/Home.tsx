@@ -110,7 +110,7 @@ export const Home = () => {
             <div className={style.title}>
               <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
             </div>
-            <Carousel draggable infinite={false} dots={false}>
+            <Carousel draggable infinite={false} dots={false} speed={200}>
               {scheduleList.map((date) => (
                 <div key={date.date} className={style.card_container}>
                   <Space direction="vertical">
