@@ -1,6 +1,6 @@
 import { Card, Carousel, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { bntuSchedule } from '../../model/bntuSchedule';
 import { bsuirSchedule } from '../../model/bsuirSchedule';
@@ -34,6 +34,8 @@ export const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { width } = useViewportSize();
   const { Text, Title } = Typography;
+
+  const dispatch = useDispatch();
 
   const handleOpenModal = useCallback((lessonInfo: DaySchedule) => {
     setIsModalOpen(true);
@@ -83,6 +85,13 @@ export const Home = () => {
     generateSchedule();
   }, [groupInfo, generateSchedule]);
 
+  const handleSubgroupChange = (value: string) => {
+    dispatch({
+      type: 'CHANGE_SUBGROUP',
+      payload: { subgroup: value },
+    });
+  };
+
   return (
     <div className={style.wrapper}>
       <Header />
@@ -108,16 +117,57 @@ export const Home = () => {
                     <Card
                       bordered
                       title={
-                        width < 250
-                          ? `${date.shortDayOfWeekRU}. ${date.date.slice(
-                              0,
-                              5,
-                            )} нед. ${date.weekNumber}`
-                          : `${date.dayOfWeekRU
-                              .slice(0, 1)
-                              .toUpperCase()}${date.dayOfWeekRU.slice(
-                              1,
-                            )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
+                        <Space direction="vertical">
+                          <div>
+                            {width < 250
+                              ? `${date.shortDayOfWeekRU}. ${date.date.slice(
+                                  0,
+                                  5,
+                                )} нед. ${date.weekNumber}`
+                              : `${date.dayOfWeekRU
+                                  .slice(0, 1)
+                                  .toUpperCase()}${date.dayOfWeekRU.slice(
+                                  1,
+                                )} ${date.date.slice(0, 5)} нед. ${
+                                  date.weekNumber
+                                }`}
+                          </div>
+                          <Space direction="horizontal">
+                            <Text
+                              underline
+                              onClick={() => handleSubgroupChange('')}
+                              type={
+                                groupInfo.subgroup === ''
+                                  ? `success`
+                                  : `secondary`
+                              }
+                            >
+                              Все
+                            </Text>
+                            <Text
+                              underline
+                              onClick={() => handleSubgroupChange('1')}
+                              type={
+                                groupInfo.subgroup === '1'
+                                  ? `success`
+                                  : `secondary`
+                              }
+                            >
+                              1 подг.
+                            </Text>
+                            <Text
+                              underline
+                              onClick={() => handleSubgroupChange('2')}
+                              type={
+                                groupInfo.subgroup === '2'
+                                  ? `success`
+                                  : `secondary`
+                              }
+                            >
+                              2 подг.
+                            </Text>
+                          </Space>
+                        </Space>
                       }
                     >
                       {groupInfo.university === 'bntu' ? (

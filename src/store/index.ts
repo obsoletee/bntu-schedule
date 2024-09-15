@@ -15,6 +15,7 @@ export interface LatestGroup {
 export interface CurrentGroupState {
   currentGroup: string;
   university: string;
+  subgroup: string;
 }
 
 export interface VersionState {

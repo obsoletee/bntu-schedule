@@ -713,5 +713,6 @@ export const bsuirSchedule = {
         week: ['1'],
       },
     ],
+    sunday: [],
   },
 };
