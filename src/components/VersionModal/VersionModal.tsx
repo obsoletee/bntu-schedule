@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { Modal, Typography } from 'antd';
 
 import style from './VersionModal.module.scss';
-import { Version, version102 } from '../../model/version';
+import { Version } from '../../model/version';
 
 interface VersionModalProps {
   isModalOpen: boolean;
@@ -27,7 +27,7 @@ export const VersionModal = ({
 
   return (
     <Modal
-      title={`Подробности версии ${version102.title}`}
+      title={`Подробности версии ${data.title}`}
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}

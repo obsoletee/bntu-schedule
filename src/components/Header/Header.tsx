@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Typography } from 'antd';
 
 import style from './Header.module.scss';
-import { countWeekNumber } from '../../utils/common';
+import { countWeekNumber, formatDate } from '../../utils/common';
 import { MenuDrawer } from '../Drawer';
 import { State } from '../../store';
 import { useSelector } from 'react-redux';
@@ -18,33 +18,26 @@ export const Header = () => {
     studyWeekNumber: 0,
   });
 
-  const groupNumber = useSelector((state: State) => state.currentGroup);
+  const groupInfo = useSelector((state: State) => state.currentGroup);
 
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
 
   const updateDateTime = useCallback(() => {
     const currentDate = new Date();
-    const formattedDate = `${
-      currentDate.getDay() < 10
-        ? `0${currentDate.getDay()}`
-        : `${currentDate.getDay()}`
-    }.${
-      currentDate.getMonth() < 10
-        ? `0${currentDate.getMonth()}`
-        : `${currentDate.getMonth()}`
-    }.${currentDate.getFullYear()}`;
+    const formattedDate = formatDate(currentDate);
 
-    const weekNumber = countWeekNumber(currentDate, groupNumber.university);
+    const weekNumber = countWeekNumber(currentDate, groupInfo.university);
+
     setCurrentState({
       currentDate: formattedDate,
       studyWeekNumber: weekNumber,
     });
-  }, [groupNumber]);
+  }, [groupInfo]);
 
   useEffect(() => {
     updateDateTime();
-  }, [groupNumber]);
+  }, [groupInfo, updateDateTime]);
 
   const showDrawer = () => {
     setIsMenuActive(true);

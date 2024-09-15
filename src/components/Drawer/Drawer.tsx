@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
 import { State } from '../../store';
-import { version102 } from '../../model/version';
+import { versions } from '../../model/version';
 
 import style from './Drawer.module.scss';
 import { VersionModal } from '../VersionModal/VersionModal';
@@ -20,6 +20,7 @@ export const MenuDrawer = ({
 }: MenuDrawerProps) => {
   const { Title, Text } = Typography;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const latestVersion = versions.slice(-1)[0];
   const dispatch = useDispatch();
   const latestGroups = useSelector(
     (state: State) => state.latestGroups.latestGroups,
@@ -71,7 +72,7 @@ export const MenuDrawer = ({
               className={style.version}
               onClick={changesHandle}
             >
-              {`v${version102.title}`}
+              {`v${latestVersion.title}`}
             </Text>
           </Space>
         }
@@ -140,7 +141,7 @@ export const MenuDrawer = ({
         </Space>
       </Drawer>
       <VersionModal
-        data={version102}
+        data={latestVersion}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />

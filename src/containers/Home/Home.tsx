@@ -4,7 +4,11 @@ import { useSelector } from 'react-redux';
 
 import { bntuSchedule } from '../../model/bntuSchedule';
 import { bsuirSchedule } from '../../model/bsuirSchedule';
-import { countWeekNumber, getShortDayOfWeek } from '../../utils/common';
+import {
+  countWeekNumber,
+  formatDate,
+  getShortDayOfWeek,
+} from '../../utils/common';
 import { DaySchedule } from '../../model/Schedule';
 import { LessonModal } from '../../components/LessonModal';
 import { LessonList } from '../../components/LessonList';
@@ -23,7 +27,7 @@ export interface ScheduleList {
 }
 
 export const Home = () => {
-  const currentGroup = useSelector((state: State) => state.currentGroup);
+  const groupInfo = useSelector((state: State) => state.currentGroup);
 
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
   const [lessonsInfo, setLessonsInfo] = useState<DaySchedule>();
@@ -37,16 +41,11 @@ export const Home = () => {
   }, []);
 
   const generateSchedule = useCallback(() => {
-    const now = new Date();
-    const currentDate = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-    );
+    const currentDate = new Date();
     const endDate = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      now.getDate(),
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      currentDate.getDate(),
     );
 
     const daysArray: ScheduleList[] = [];
@@ -61,8 +60,9 @@ export const Home = () => {
 
       const shortDayOfWeekRU = getShortDayOfWeek(dayOfWeekRU);
 
-      const formattedDate = currentDate.toLocaleDateString();
-      const weekNumber = countWeekNumber(currentDate, currentGroup.university);
+      const formattedDate = formatDate(currentDate);
+
+      const weekNumber = countWeekNumber(currentDate, groupInfo.university);
 
       const dateList = {
         date: formattedDate,
@@ -77,11 +77,11 @@ export const Home = () => {
     }
 
     setScheduleList(daysArray);
-  }, [currentGroup]);
+  }, [groupInfo]);
 
   useEffect(() => {
     generateSchedule();
-  }, [currentGroup]);
+  }, [groupInfo, generateSchedule]);
 
   return (
     <div className={style.wrapper}>
@@ -96,10 +96,10 @@ export const Home = () => {
         <></>
       )}
       <div className={style.container}>
-        {currentGroup ? (
+        {groupInfo ? (
           <>
             <div className={style.title}>
-              <Title level={3}>Гр. {currentGroup.currentGroup}</Title>
+              <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
             </div>
             <Carousel draggable infinite={false} dots={false}>
               {scheduleList.map((date) => (
@@ -120,19 +120,19 @@ export const Home = () => {
                             )} ${date.date.slice(0, 5)} нед. ${date.weekNumber}`
                       }
                     >
-                      {currentGroup.university === 'bntu' ? (
+                      {groupInfo.university === 'bntu' ? (
                         <LessonList
                           data={bntuSchedule}
                           handleOpenModal={handleOpenModal}
                           date={date}
-                          currentGroup={currentGroup}
+                          currentGroup={groupInfo}
                         />
-                      ) : currentGroup.university === 'bsuir' ? (
+                      ) : groupInfo.university === 'bsuir' ? (
                         <LessonList
                           data={bsuirSchedule}
                           handleOpenModal={handleOpenModal}
                           date={date}
-                          currentGroup={currentGroup}
+                          currentGroup={groupInfo}
                         />
                       ) : (
                         <></>
