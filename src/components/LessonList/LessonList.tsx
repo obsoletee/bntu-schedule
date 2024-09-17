@@ -65,7 +65,7 @@ export const LessonList = ({
             avatar={
               <div className={style.status} lesson-type={item.type}></div>
             }
-            title={`${item.startTime}-${item.endTime}: ${item.shortName}`}
+            title={`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
             description={
               <div className={style.list_description}>
                 {item.class && item.korpus ? (
@@ -75,8 +75,8 @@ export const LessonList = ({
                 )}
                 <Text type="secondary">
                   {item.subgroup != '0'
-                    ? `${item.teacher} (подгр. ${item.subgroup})`
-                    : `${item.teacher}`}
+                    ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
+                    : `${item.teacher.shortName}`}
                 </Text>
               </div>
             }

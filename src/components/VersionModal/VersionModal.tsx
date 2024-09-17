@@ -3,6 +3,8 @@ import { Modal, Typography } from 'antd';
 
 import style from './VersionModal.module.scss';
 import { Version } from '../../model/version';
+import { VERSIONS_LIST } from '../../routes/routes';
+import { Link } from 'react-router-dom';
 
 interface VersionModalProps {
   isModalOpen: boolean;
@@ -33,10 +35,14 @@ export const VersionModal = ({
       onCancel={handleCancel}
     >
       <div className={style.description_container}>
-        {data.changes.map((item) => (
-          <Text key={item}>- {item}</Text>
-        ))}
+        {data.changes
+          .slice(-5)
+          .reverse()
+          .map((item) => (
+            <Text key={item}>- {item}</Text>
+          ))}
       </div>
+      <Link to={VERSIONS_LIST}>История обновлений</Link>
     </Modal>
   );
 };

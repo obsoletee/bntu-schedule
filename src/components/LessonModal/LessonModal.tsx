@@ -28,23 +28,18 @@ export const LessonModal = ({
 
   return (
     <Modal
-      title={`${data.name} | ${data.type}`}
+      title={`${data.subject.fullName} | ${data.type}`}
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
     >
       <div className={style.description_container}>
         <Text>
-          <b>{data.teacher}</b>
+          <b>{data.teacher.fullName}</b>
         </Text>
         <Text>{`Время: ${data.startTime} - ${data.endTime}`}</Text>
         {data.class && data.korpus ? (
           <Text>{`Аудитория: ${data.class}-${data.korpus}к`}</Text>
-        ) : (
-          <></>
-        )}
-        {data.subgroup != '0' ? (
-          <Text type="danger">{`Подгруппа ${data.subgroup}`}</Text>
         ) : (
           <></>
         )}
@@ -61,6 +56,11 @@ export const LessonModal = ({
             'Нет данных.'
           )}
         </Text>
+        {data.subgroup != '0' ? (
+          <Text type="danger">{`Подгруппа ${data.subgroup}`}</Text>
+        ) : (
+          <></>
+        )}
       </div>
     </Modal>
   );
