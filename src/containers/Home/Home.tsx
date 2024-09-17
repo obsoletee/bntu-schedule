@@ -99,7 +99,7 @@ export const Home = () => {
             <div className={style.title}>
               <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
             </div>
-            <Carousel draggable infinite={false} dots={false} speed={200}>
+            <Carousel draggable infinite={false} dots={false} speed={250}>
               {scheduleList.map((date) => (
                 <div key={date.date} className={style.card_container}>
                   <Space direction="vertical">
@@ -125,22 +125,20 @@ export const Home = () => {
                         </Space>
                       }
                     >
-                      {groupInfo.university === 'bntu' ? (
-                        <LessonList
-                          data={bntuSchedule}
-                          handleOpenModal={handleOpenModal}
-                          date={date}
-                          currentGroup={groupInfo}
-                        />
-                      ) : groupInfo.university === 'bsuir' ? (
-                        <LessonList
-                          data={bsuirSchedule}
-                          handleOpenModal={handleOpenModal}
-                          date={date}
-                          currentGroup={groupInfo}
-                        />
-                      ) : (
+                      {groupInfo.university === '' ? (
                         <></>
+                      ) : (
+                        <LessonList
+                          data={
+                            groupInfo.university === 'bntu'
+                              ? bntuSchedule
+                              : groupInfo.university === 'bsuir'
+                              ? bsuirSchedule
+                              : bntuSchedule
+                          }
+                          handleOpenModal={handleOpenModal}
+                          date={date}
+                        />
                       )}
                     </Card>
                   </Space>

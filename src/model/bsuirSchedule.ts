@@ -1,3 +1,6 @@
+import { images } from '../assets/images';
+import { bsuirTeachersImages } from '../assets/images/bsuirTeachers';
+
 const lessonType = {
   lecture: 'Лекция',
   practice: 'Практика',
@@ -8,70 +11,87 @@ const teachers = {
   Ponomareva: {
     shortName: 'Пономарева Е.И.',
     fullName: 'Пономарева Екатерина Игоревна',
+    avatar: bsuirTeachersImages.ponomareva,
   },
   Pinchuk: {
     shortName: 'Пинчук Т.Г.',
     fullName: 'Пинчук Татьяна Георгиевна',
+    avatar: bsuirTeachersImages.pinchuk,
   },
   Rusakovich: {
     shortName: 'Русакович А.Н.',
     fullName: 'Русакович Александр Николаевич',
+    avatar: bsuirTeachersImages.rusakovich,
   },
   Artyshevsky: {
     shortName: 'Артюшевский Н.В.',
     fullName: 'Артюшевский Николай Владимирович',
+    avatar: bsuirTeachersImages.artyshevsky,
   },
   Storozhev: {
     shortName: 'Сторожев Д.А.',
     fullName: 'Сторожев Дмитрий Алексеевич',
+    avatar: bsuirTeachersImages.storozhev,
   },
   PetrovichUU: {
     shortName: 'Петрович Ю.Ю.',
     fullName: 'Петрович Юлия Юрьевна',
+    avatar: bsuirTeachersImages.petrovichuu,
   },
   Parhimenko: {
     shortName: 'Пархименко В.А.',
     fullName: 'Пархименко Владимир Анатольевич',
+    avatar: bsuirTeachersImages.parhimenko,
   },
   Shevaldisheva: {
     shortName: 'Шевалдышева Е.З.',
     fullName: 'Шевалдышева Елена Зигфридовна',
+    avatar: bsuirTeachersImages.shevaldisheva,
   },
   Pashkovskaya: {
     shortName: 'Пашковская К.В.',
     fullName: 'Пашковская Ксения Витальевна',
+    avatar: images.emptyAvatar,
   },
   Tkalich: {
     shortName: 'Ткалич Т.А',
     fullName: 'Ткалич Татьяна Алексеевна',
+    avatar: bsuirTeachersImages.tkalich,
   },
   Smirnov: {
     shortName: 'Смирнов И.В.',
     fullName: 'Смирнов Игорь Викторович',
+    avatar: bsuirTeachersImages.smirnov,
   },
   Komlichenko: {
     shortName: 'Комличенко В.Н.',
     fullName: 'Комличенко Виталий Николаевич',
+    avatar: bsuirTeachersImages.komlichenko,
   },
   Nagulevich: {
     shortName: 'Нагулевич Р.С.',
     fullName: 'Нагулевич Рита Станиславовна',
+    avatar: bsuirTeachersImages.nagulevich,
   },
   Nicheporuk: {
     shortName: 'Ничепорук В.В.',
     fullName: 'Ничепорук Валерия Владимировна',
+    avatar: bsuirTeachersImages.nicheporuk,
   },
   Primakovich: {
     shortName: 'Примакович Л.В.',
     fullName: 'Примакович Людмила Васильевна',
+    avatar: bsuirTeachersImages.primakovich,
   },
   Matyas: {
     shortName: 'Матяс О.А.',
     fullName: 'Матяс Ольга Александровна',
+    avatar: bsuirTeachersImages.matyas,
   },
   Dobish: {
     shortName: 'Добыш М.А.',
     fullName: 'Добыш Мария Александровна',
+    avatar: bsuirTeachersImages.dobysh,
   },
 };
 

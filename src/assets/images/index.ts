@@ -1,1 +1,5 @@
-export const images = {};
+import emptyAvatar from './emptyAvatar.webp';
+
+export const images = {
+  emptyAvatar,
+};

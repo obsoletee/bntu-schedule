@@ -1,3 +1,4 @@
+import { images } from '../assets/images';
 import { bntuTeachersImages } from '../assets/images/bntuTeachers';
 
 const lessonType = {
@@ -10,7 +11,7 @@ const teachers = {
   Empty: {
     shortName: '',
     fullName: '',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Pitsuha: {
     shortName: 'Пицуха Е.А.',
@@ -20,12 +21,12 @@ const teachers = {
   Krutilin: {
     shortName: 'Крутилин А.Б.',
     fullName: 'Крутилин Антон Борисович',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Nekalo: {
     shortName: 'Некало И.А.',
     fullName: 'Некало Игорь Андреевич',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Svistun: {
     shortName: 'Свистун А.Л.',
@@ -45,7 +46,7 @@ const teachers = {
   Livansky: {
     shortName: 'Ливанский Д.Г.',
     fullName: 'Ливанский Дмитрий Геннадьевич',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Polyakova: {
     shortName: 'Полякова О.Е.',
@@ -55,17 +56,17 @@ const teachers = {
   Strytsky: {
     shortName: 'Струцкий Н.В',
     fullName: 'Струцкий Николай В.',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Volohovich: {
     shortName: 'Волохович Д.А.',
     fullName: 'Волохович Д.А.',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Karnytsky: {
     shortName: 'Карницкий Н.Б.',
     fullName: 'Карницкий Николай Борисович',
-    avatar: bntuTeachersImages.empty,
+    avatar: images.emptyAvatar,
   },
   Nemkevich: {
     shortName: 'Немкевич Е.Г.',
