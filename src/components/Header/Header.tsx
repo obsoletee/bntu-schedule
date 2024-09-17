@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Typography } from 'antd';
 
 import style from './Header.module.scss';
-import { countWeekNumber, formatDate } from '../../utils/common';
+import { updateDateTime } from '../../utils/common';
 import { MenuDrawer } from '../Drawer';
 import { State } from '../../store';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { HOME } from '../../routes';
 
 interface currentState {
   currentDate: string;
@@ -23,21 +25,16 @@ export const Header = () => {
   const [isMenuActive, setIsMenuActive] = useState(false);
   const { Title, Text } = Typography;
 
-  const updateDateTime = useCallback(() => {
-    const currentDate = new Date();
-    const formattedDate = formatDate(currentDate);
-
-    const weekNumber = countWeekNumber(currentDate, groupInfo.university);
-
+  useEffect(() => {
+    const { formattedDate, studyWeekNumber } = updateDateTime(
+      groupInfo.university,
+      new Date(),
+    );
     setCurrentState({
       currentDate: formattedDate,
-      studyWeekNumber: weekNumber,
+      studyWeekNumber: studyWeekNumber,
     });
   }, [groupInfo]);
-
-  useEffect(() => {
-    updateDateTime();
-  }, [groupInfo, updateDateTime]);
 
   const showDrawer = () => {
     setIsMenuActive(true);
@@ -47,7 +44,9 @@ export const Header = () => {
     <header>
       <div className={style.container}>
         <div className={style.info}>
-          <Title level={3}>Расписание</Title>
+          <Title level={3}>
+            <Link to={HOME}>Расписание</Link>
+          </Title>
           <Text>Сегодня: {currentState.currentDate}</Text>
           <Text>Неделя: {currentState.studyWeekNumber}</Text>
         </div>

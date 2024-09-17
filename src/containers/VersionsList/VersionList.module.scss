@@ -1,0 +1,19 @@
+@import '../../styles/colors.scss';
+
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  background-color: $color--white;
+}
+
+.container {
+  width: 100%;
+  padding: 0 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.version_title {
+  display: flex;
+  justify-content: space-between;
+}

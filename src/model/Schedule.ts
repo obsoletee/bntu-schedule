@@ -1,11 +1,21 @@
+export interface Subject {
+  shortName: string;
+  fullName: string;
+}
+
+export interface Teacher {
+  shortName: string;
+  fullName: string;
+  avatar: string;
+}
+
 export interface DaySchedule {
   id: number;
   startTime: string;
   endTime: string;
   type: string;
-  shortName: string;
-  name: string;
-  teacher: string;
+  subject: Subject;
+  teacher: Teacher;
   class: string;
   korpus: string;
   subgroup: string;

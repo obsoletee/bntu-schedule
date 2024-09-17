@@ -1,5 +1,5 @@
-import scheduleLogo from './scheduleLogo.webp';
+import emptyAvatar from './emptyAvatar.webp';
 
 export const images = {
-  scheduleLogo,
+  emptyAvatar,
 };
