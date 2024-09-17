@@ -6,6 +6,7 @@ export interface Subject {
 export interface Teacher {
   shortName: string;
   fullName: string;
+  avatar: string;
 }
 
 export interface DaySchedule {

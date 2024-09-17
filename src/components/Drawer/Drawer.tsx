@@ -8,6 +8,8 @@ import { versions } from '../../model/version';
 
 import style from './Drawer.module.scss';
 import { VersionModal } from '../VersionModal/VersionModal';
+import { Link } from 'react-router-dom';
+import { HOME } from '../../routes';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -66,7 +68,9 @@ export const MenuDrawer = ({
       <Drawer
         title={
           <Space direction="horizontal">
-            <Text>Расписание</Text>
+            <Text>
+              <Link to={HOME}>Расписание</Link>
+            </Text>
             <Text
               type="secondary"
               className={style.version}

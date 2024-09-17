@@ -1,3 +1,5 @@
+import { bntuTeachersImages } from '../assets/images/bntuTeachers';
+
 const lessonType = {
   lecture: 'Лекция',
   practice: 'Практика',
@@ -5,19 +7,71 @@ const lessonType = {
 };
 
 const teachers = {
-  Empty: { shortName: '', fullName: '' },
-  Pitsuha: { shortName: 'Пицуха Е.А.', fullName: '' },
-  Nemkevich: { shortName: 'Немкевич Е.Г', fullName: '' },
-  Krutilin: { shortName: 'Крутилин А.Б.', fullName: '' },
-  Nekalo: { shortName: 'Некало И.А.', fullName: '' },
-  Svistun: { shortName: 'Свистун А.Л.', fullName: '' },
-  Brakovich: { shortName: 'Бракович И.С.', fullName: '' },
-  Dyachek: { shortName: 'Дячек П.И', fullName: '' },
-  Livansky: { shortName: 'Ливанский Д.Г.', fullName: '' },
-  Polyakova: { shortName: 'Полякова О.Е.', fullName: '' },
-  Strytsky: { shortName: 'Струцкий Н.В', fullName: '' },
-  Volohovich: { shortName: 'Волохович Д.А.', fullName: '' },
-  Karnytsky: { shortName: 'Карницкий Н.Б.', fullName: '' },
+  Empty: {
+    shortName: '',
+    fullName: '',
+    avatar: bntuTeachersImages.empty,
+  },
+  Pitsuha: {
+    shortName: 'Пицуха Е.А.',
+    fullName: 'Пицуха Евгений Александрович',
+    avatar: bntuTeachersImages.pitsuha,
+  },
+  Krutilin: {
+    shortName: 'Крутилин А.Б.',
+    fullName: 'Крутилин Антон Борисович',
+    avatar: bntuTeachersImages.empty,
+  },
+  Nekalo: {
+    shortName: 'Некало И.А.',
+    fullName: 'Некало Игорь Андреевич',
+    avatar: bntuTeachersImages.empty,
+  },
+  Svistun: {
+    shortName: 'Свистун А.Л.',
+    fullName: 'Свистун Анастасия Леонидовна',
+    avatar: bntuTeachersImages.svistun,
+  },
+  Brakovich: {
+    shortName: 'Бракович И.С.',
+    fullName: 'Бракович Игорь Сергеевич',
+    avatar: bntuTeachersImages.brakovich,
+  },
+  Dyachek: {
+    shortName: 'Дячек П.И',
+    fullName: 'Дячек Петр Иванович',
+    avatar: bntuTeachersImages.dyachek,
+  },
+  Livansky: {
+    shortName: 'Ливанский Д.Г.',
+    fullName: 'Ливанский Дмитрий Геннадьевич',
+    avatar: bntuTeachersImages.empty,
+  },
+  Polyakova: {
+    shortName: 'Полякова О.Е.',
+    fullName: 'Полякова Ольга Евгеньевна',
+    avatar: bntuTeachersImages.polyakova,
+  },
+  Strytsky: {
+    shortName: 'Струцкий Н.В',
+    fullName: 'Струцкий Николай В.',
+    avatar: bntuTeachersImages.empty,
+  },
+  Volohovich: {
+    shortName: 'Волохович Д.А.',
+    fullName: 'Волохович Д.А.',
+    avatar: bntuTeachersImages.empty,
+  },
+  Karnytsky: {
+    shortName: 'Карницкий Н.Б.',
+    fullName: 'Карницкий Николай Борисович',
+    avatar: bntuTeachersImages.empty,
+  },
+  Nemkevich: {
+    shortName: 'Немкевич Е.Г.',
+    fullName: 'Немкевич Елена Геннадьевна',
+    avatar: bntuTeachersImages.nemkevich,
+  },
 };
 
 const subjects = {

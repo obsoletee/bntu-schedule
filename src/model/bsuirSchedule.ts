@@ -79,50 +79,47 @@ const subjects = {
   ris: {
     shortName: 'РИС',
     fullName: 'Распределенные информационные системы',
+    avatar: '',
   },
   iove: {
     shortName: 'ИОвЭ',
     fullName: 'Исследование операций в экономике',
+    avatar: '',
   },
   mrcb: {
     shortName: 'МРЦБ',
     fullName: 'Моделирование рынка ценных бумаг',
+    avatar: '',
   },
   stoei: {
     shortName: 'СТОЭИ',
     fullName: 'Современные технологии обработки экономической информации',
+    avatar: '',
   },
   simubd: {
     shortName: 'СиМУБД',
     fullName: 'Системы и методы управления базами данных',
+    avatar: '',
   },
   iitem: {
     shortName: 'ИиТЭМ',
     fullName: 'Инструменты и технологии электронного маркетинга',
+    avatar: '',
   },
   do: {
     shortName: 'ДО',
     fullName: 'Деловое общение',
+    avatar: '',
   },
   infsup: {
     shortName: 'ИнфСУП',
     fullName: 'Информационные системы управления предприятием',
-  },
-  otoplenie: {
-    shortName: 'Отопление',
-    fullName: 'Отопление',
-  },
-  vodosnabjenie: {
-    shortName: 'Водоснабжение',
-    fullName: 'Водоснабжение и водоотведение',
-  },
-  fizra: {
-    shortName: 'Физра',
-    fullName: 'Физическая культура',
+    avatar: '',
   },
   buaia: {
     shortName: 'БУАиА',
     fullName: 'Бухгалтерский учет, анализ и аудит',
+    avatar: '',
   },
 };
 
