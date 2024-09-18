@@ -21,7 +21,7 @@ const teachers = {
   Krutilin: {
     shortName: 'Крутилин А.Б.',
     fullName: 'Крутилин Антон Борисович',
-    avatar: images.emptyAvatar,
+    avatar: bntuTeachersImages.krutilin,
   },
   Nekalo: {
     shortName: 'Некало И.А.',
@@ -46,7 +46,7 @@ const teachers = {
   Livansky: {
     shortName: 'Ливанский Д.Г.',
     fullName: 'Ливанский Дмитрий Геннадьевич',
-    avatar: images.emptyAvatar,
+    avatar: bntuTeachersImages.livansky,
   },
   Polyakova: {
     shortName: 'Полякова О.Е.',

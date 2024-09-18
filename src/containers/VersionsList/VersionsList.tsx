@@ -12,7 +12,7 @@ export const VersionsList = () => {
         <Title level={3}>История изменений</Title>
         <List
           itemLayout="horizontal"
-          dataSource={versions.reverse()}
+          dataSource={[...versions].reverse()}
           renderItem={(item) => (
             <List.Item key={item.title}>
               <List.Item.Meta
