@@ -8,9 +8,7 @@ const Filter = lazy(() => import('../../components/Filter'));
 const LessonList = lazy(() => import('../../components/LessonList'));
 const LessonModal = lazy(() => import('../../components/LessonModal'));
 
-import { bntuSchedule } from '../../model/bntuSchedule';
-import { bsuirSchedule } from '../../model/bsuirSchedule';
-import { DaySchedule } from '../../model/Schedule';
+import { DaySchedule, GroupSchedule } from '../../model/Schedule';
 import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
 import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
@@ -28,6 +26,7 @@ interface ScheduleList {
 export const Home = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
+  const [schedule, setSchedule] = useState<GroupSchedule>();
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
   const [lessonsInfo, setLessonsInfo] = useState<DaySchedule>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,6 +79,23 @@ export const Home = () => {
   }, [groupInfo]);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `https://elaborate-antonina-obsoletee-b8b3bfb1.koyeb.app/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: GroupSchedule = await response.json();
+        setSchedule(result);
+      } catch (error) {
+        console.error('Ошибка:', error);
+      }
+    };
+
+    fetchData();
     generateSchedule();
   }, [groupInfo, generateSchedule]);
 
@@ -138,13 +154,7 @@ export const Home = () => {
                       ) : (
                         <Suspense fallback={<CustomSpin />}>
                           <LessonList
-                            data={
-                              groupInfo.university === 'bntu'
-                                ? bntuSchedule
-                                : groupInfo.university === 'bsuir'
-                                ? bsuirSchedule
-                                : bntuSchedule
-                            }
+                            data={schedule}
                             handleOpenModal={handleOpenModal}
                             date={date}
                           />

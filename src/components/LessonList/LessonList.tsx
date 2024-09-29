@@ -2,7 +2,7 @@ import { List, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { DaySchedule, Schedule } from '../../model/Schedule';
+import { DaySchedule, GroupSchedule } from '../../model/Schedule';
 import { State } from '../../store';
 
 import style from './LessonList.module.scss';
@@ -15,7 +15,7 @@ interface ScheduleList {
   weekNumber: number;
 }
 interface LessonListProps {
-  data: Schedule;
+  data: GroupSchedule | undefined;
   date: ScheduleList;
   handleOpenModal: (lessonInfo: DaySchedule) => void;
 }
@@ -40,21 +40,20 @@ export const LessonList = ({
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
   useEffect(() => {
-    const updatedLessons = groupInfo.subgroup
-      ? data[`group${groupInfo.currentGroup}`]?.[
-          date.dayOfWeekEN.toLowerCase() as DayOfWeek
-        ]?.filter(
-          (item) =>
-            item.week.includes(date.weekNumber.toString()) &&
-            (!item.subgroup.localeCompare(groupInfo.subgroup) ||
-              item.subgroup === '0'),
-        ) || []
-      : data[`group${groupInfo.currentGroup}`]?.[
-          date.dayOfWeekEN.toLowerCase() as DayOfWeek
-        ]?.filter((item) => item.week.includes(date.weekNumber.toString())) ||
-        [];
+    if (data) {
+      const updatedLessons = groupInfo.subgroup
+        ? data[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
+            (item) =>
+              item.week.includes(date.weekNumber.toString()) &&
+              (!item.subgroup.localeCompare(groupInfo.subgroup) ||
+                item.subgroup === '0'),
+          ) || []
+        : data[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter((item) =>
+            item.week.includes(date.weekNumber.toString()),
+          ) || [];
 
-    setLessons(updatedLessons);
+      setLessons(updatedLessons);
+    }
   }, [groupInfo.subgroup, groupInfo.currentGroup, data, date]);
 
   return (

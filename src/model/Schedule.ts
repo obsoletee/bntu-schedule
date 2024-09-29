@@ -22,15 +22,13 @@ export interface DaySchedule {
   week: string[];
 }
 
-interface GroupSchedule {
+export interface GroupSchedule {
+  _id: string;
+  group: string;
   monday: DaySchedule[];
   tuesday: DaySchedule[];
   wednesday: DaySchedule[];
   thursday: DaySchedule[];
   friday: DaySchedule[];
   saturday: DaySchedule[];
-}
-
-export interface Schedule {
-  [key: string]: GroupSchedule;
 }
