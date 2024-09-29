@@ -64,7 +64,7 @@ export const LessonModal = ({
           )}
         </div>
         <div className={style.photo_wrapper}>
-          <img src={data.teacher.avatar} />
+          <img src={`${data.teacher.avatar}`} />
         </div>
       </div>
     </Modal>
