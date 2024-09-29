@@ -1,3 +1,12 @@
+import emptyAvatar from './emptyAvatar.webp';
+import brakovich from './brakovich.webp';
+import dyachek from './dyachek.webp';
+import krutilin from './krutilin.webp';
+import livansky from './livansky.webp';
+import nemkevich from './nemkevich.webp';
+import pitsuha from './pitsuha.webp';
+import polyakova from './polyakova.webp';
+import svistun from './svistun.webp';
 import artyshevsky from './artyshevsky.webp';
 import dobysh from './dobysh.webp';
 import komlichenko from './komlichenko.webp';
@@ -15,7 +24,16 @@ import smirnov from './smirnov.webp';
 import storozhev from './storozhev.webp';
 import tkalich from './tkalich.webp';
 
-export const bsuirTeachersImages = {
+export const teacherImages = {
+  emptyAvatar,
+  brakovich,
+  dyachek,
+  krutilin,
+  livansky,
+  nemkevich,
+  pitsuha,
+  polyakova,
+  svistun,
   artyshevsky,
   parhimenko,
   petrovichuu,

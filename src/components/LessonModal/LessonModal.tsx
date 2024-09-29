@@ -4,6 +4,7 @@ import { Modal, Typography } from 'antd';
 import { DaySchedule } from '../../model/Schedule';
 
 import style from './LessonModal.module.scss';
+import { teacherImages } from '../../assets/images/teacherImages';
 
 interface LessonModalProps {
   isModalOpen: boolean;
@@ -17,6 +18,7 @@ export const LessonModal = ({
   data,
 }: LessonModalProps) => {
   const { Text } = Typography;
+  const avatarKey = data.teacher.avatar as keyof typeof teacherImages;
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -25,7 +27,6 @@ export const LessonModal = ({
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
   return (
     <Modal
       title={`${data.subject.fullName} | ${data.type}`}
@@ -64,7 +65,7 @@ export const LessonModal = ({
           )}
         </div>
         <div className={style.photo_wrapper}>
-          <img src={`${data.teacher.avatar}`} />
+          <img src={teacherImages[avatarKey]} alt={data.teacher.fullName} />
         </div>
       </div>
     </Modal>
