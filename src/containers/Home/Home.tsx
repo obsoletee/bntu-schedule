@@ -1,21 +1,23 @@
 import { Card, Carousel, Space, Typography } from 'antd';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
+
+import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
+const Header = lazy(() => import('../../components/Header'));
+const Filter = lazy(() => import('../../components/Filter'));
+const LessonList = lazy(() => import('../../components/LessonList'));
+const LessonModal = lazy(() => import('../../components/LessonModal'));
 
 import { bntuSchedule } from '../../model/bntuSchedule';
 import { bsuirSchedule } from '../../model/bsuirSchedule';
-import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
 import { DaySchedule } from '../../model/Schedule';
-import { LessonModal } from '../../components/LessonModal';
-import { LessonList } from '../../components/LessonList';
-import { Header } from '../../components/Header/Header';
+import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
 import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Home.module.scss';
-import { Filter } from '../../components/Filter';
 
-export interface ScheduleList {
+interface ScheduleList {
   date: string;
   dayOfWeekEN: string;
   dayOfWeekRU: string;
@@ -83,13 +85,17 @@ export const Home = () => {
 
   return (
     <div className={style.wrapper}>
-      <Header />
+      <Suspense fallback={<CustomSpin />}>
+        <Header />
+      </Suspense>
       {lessonsInfo ? (
-        <LessonModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
-          data={lessonsInfo}
-        />
+        <Suspense fallback={<CustomSpin />}>
+          <LessonModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            data={lessonsInfo}
+          />
+        </Suspense>
       ) : (
         <></>
       )}
@@ -121,24 +127,28 @@ export const Home = () => {
                                   date.weekNumber
                                 }`}
                           </div>
-                          <Filter />
+                          <Suspense fallback={<CustomSpin />}>
+                            <Filter />
+                          </Suspense>
                         </Space>
                       }
                     >
                       {groupInfo.university === '' ? (
                         <></>
                       ) : (
-                        <LessonList
-                          data={
-                            groupInfo.university === 'bntu'
-                              ? bntuSchedule
-                              : groupInfo.university === 'bsuir'
-                              ? bsuirSchedule
-                              : bntuSchedule
-                          }
-                          handleOpenModal={handleOpenModal}
-                          date={date}
-                        />
+                        <Suspense fallback={<CustomSpin />}>
+                          <LessonList
+                            data={
+                              groupInfo.university === 'bntu'
+                                ? bntuSchedule
+                                : groupInfo.university === 'bsuir'
+                                ? bsuirSchedule
+                                : bntuSchedule
+                            }
+                            handleOpenModal={handleOpenModal}
+                            date={date}
+                          />
+                        </Suspense>
                       )}
                     </Card>
                   </Space>

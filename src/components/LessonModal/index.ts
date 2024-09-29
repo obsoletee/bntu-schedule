@@ -1,1 +1,3 @@
-export { LessonModal } from './LessonModal';
+import { LessonModal } from './LessonModal';
+
+export default LessonModal;

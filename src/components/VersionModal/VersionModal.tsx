@@ -1,10 +1,11 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Modal, Typography } from 'antd';
+import { Link } from 'react-router-dom';
 
-import style from './VersionModal.module.scss';
 import { Version } from '../../model/version';
 import { VERSIONS_LIST } from '../../routes/routes';
-import { Link } from 'react-router-dom';
+
+import style from './VersionModal.module.scss';
 
 interface VersionModalProps {
   isModalOpen: boolean;

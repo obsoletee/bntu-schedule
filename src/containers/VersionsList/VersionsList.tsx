@@ -1,13 +1,20 @@
 import { List, Typography } from 'antd';
-import { Header } from '../../components/Header';
-import style from './VersionList.module.scss';
+import { lazy, Suspense } from 'react';
+
+const Header = lazy(() => import('../../components/Header'));
+
 import { versions } from '../../model/version';
+import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
+
+import style from './VersionList.module.scss';
 
 export const VersionsList = () => {
   const { Text, Title } = Typography;
   return (
     <div className={style.wrapper}>
-      <Header />
+      <Suspense fallback={<CustomSpin />}>
+        <Header />
+      </Suspense>
       <div className={style.container}>
         <Title level={3}>История изменений</Title>
         <List
@@ -16,6 +23,7 @@ export const VersionsList = () => {
           renderItem={(item) => (
             <List.Item key={item.title}>
               <List.Item.Meta
+                key={item.title}
                 title={
                   <div className={style.version_title}>
                     <Text>Версия {item.title}: </Text>{' '}
