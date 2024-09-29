@@ -259,7 +259,7 @@ export const bntuSchedule = {
         id: 8,
         startTime: '13:55',
         endTime: '15:30',
-        type: lessonType.practice,
+        type: lessonType.lecture,
         subject: subjects.ouis,
         teacher: teachers.Nemkevich,
         class: '339',
@@ -489,7 +489,7 @@ export const bntuSchedule = {
         class: '21',
         korpus: '1',
         subgroup: '0',
-        week: ['1', '2'],
+        week: ['2'],
       },
       {
         id: 4,
