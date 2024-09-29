@@ -1,15 +1,15 @@
-import { Drawer, Space, Select, List, Typography } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, SetStateAction, useState } from 'react';
+import { Drawer, Space, Select, List, Typography } from 'antd';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
+import { HOME } from '../../routes';
 import { State } from '../../store';
 import { versions } from '../../model/version';
-
-import style from './Drawer.module.scss';
 import { VersionModal } from '../VersionModal/VersionModal';
-import { Link } from 'react-router-dom';
-import { HOME } from '../../routes';
+
+import style from './MenuDrawer.module.scss';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;

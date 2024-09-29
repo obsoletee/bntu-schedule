@@ -1,1 +1,3 @@
-export { LessonList } from './LessonList';
+import { LessonList } from './LessonList';
+
+export default LessonList;

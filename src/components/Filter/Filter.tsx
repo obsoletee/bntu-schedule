@@ -1,7 +1,8 @@
 import { Space, Typography } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { State } from '../../store';
+
 import { buttons } from './buttons';
+import { State } from '../../store';
 
 import style from './Filter.module.scss';
 

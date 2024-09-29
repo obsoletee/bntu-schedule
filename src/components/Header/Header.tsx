@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Typography } from 'antd';
+import { lazy, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+
+const MenuDrawer = lazy(() => import('../MenuDrawer'));
+import { HOME } from '../../routes';
+import { State } from '../../store';
+import { updateDateTime } from '../../utils/common';
 
 import style from './Header.module.scss';
-import { updateDateTime } from '../../utils/common';
-import { MenuDrawer } from '../Drawer';
-import { State } from '../../store';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { HOME } from '../../routes';
 
 interface currentState {
   currentDate: string;
