@@ -9,6 +9,14 @@ export interface Teacher {
   avatar: string;
 }
 
+export type DayOfWeek =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday';
+
 export interface DaySchedule {
   id: number;
   startTime: string;

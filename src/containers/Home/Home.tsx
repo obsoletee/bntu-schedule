@@ -5,10 +5,11 @@ import { useSelector } from 'react-redux';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
 const Filter = lazy(() => import('../../components/Filter'));
-const LessonList = lazy(() => import('../../components/LessonList'));
-const LessonModal = lazy(() => import('../../components/LessonModal'));
+const LessonListWithDate = lazy(
+  () => import('../../components/LessonListWithDate'),
+);
 
-import { DaySchedule, GroupSchedule } from '../../model/Schedule';
+import { GroupSchedule } from '../../model/Schedule';
 import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
 import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
@@ -28,15 +29,9 @@ export const Home = () => {
 
   const [schedule, setSchedule] = useState<GroupSchedule>();
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
-  const [lessonsInfo, setLessonsInfo] = useState<DaySchedule>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { width } = useViewportSize();
   const { Text, Title } = Typography;
-
-  const handleOpenModal = useCallback((lessonInfo: DaySchedule) => {
-    setIsModalOpen(true);
-    setLessonsInfo(lessonInfo);
-  }, []);
 
   const generateSchedule = useCallback(() => {
     const startDate = new Date();
@@ -82,7 +77,7 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://elaborate-antonina-obsoletee-b8b3bfb1.koyeb.app/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `https://long-edy-obsoletee-6b4c05a7.koyeb.app/${groupInfo.university}/group${groupInfo.currentGroup}`,
         );
 
         if (!response.ok) {
@@ -104,17 +99,7 @@ export const Home = () => {
       <Suspense fallback={<CustomSpin />}>
         <Header />
       </Suspense>
-      {lessonsInfo ? (
-        <Suspense fallback={<CustomSpin />}>
-          <LessonModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-            data={lessonsInfo}
-          />
-        </Suspense>
-      ) : (
-        <></>
-      )}
+
       <div className={style.container}>
         {groupInfo ? (
           <>
@@ -153,11 +138,7 @@ export const Home = () => {
                         <></>
                       ) : (
                         <Suspense fallback={<CustomSpin />}>
-                          <LessonList
-                            data={schedule}
-                            handleOpenModal={handleOpenModal}
-                            date={date}
-                          />
+                          <LessonListWithDate data={schedule} date={date} />
                         </Suspense>
                       )}
                     </Card>

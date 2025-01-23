@@ -1,3 +1,34 @@
+@import '../../styles/colors.scss';
+
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  background-color: $color--white;
+}
+
+.container {
+  width: 100%;
+  padding: 0 40px;
+  margin: 20px 0;
+}
+
+.title {
+  text-align: center;
+  color: $color--text-dark;
+}
+
+.card_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+  width: 100%;
+
+  & > div {
+    width: 100%;
+  }
+}
+
 .list_item {
   cursor: pointer;
 }
@@ -23,14 +54,8 @@
 }
 
 .edit_icon {
-  &[icon-size='normal'] {
-    width: 16px;
-    height: 16px;
-  }
-  &[icon-size='large'] {
-    width: 24px;
-    height: 24px;
-  }
+  width: 24px;
+  height: 24px;
 }
 
 .card_title {

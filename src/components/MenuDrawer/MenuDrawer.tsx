@@ -84,64 +84,78 @@ export const MenuDrawer = ({
         onClose={onClose}
         open={isMenuActive}
       >
-        <Title level={3}>Выберите группу:</Title>
-        <Space direction="vertical">
-          <Space direction="horizontal">
-            <Text>БНТУ</Text>
-            <Select
-              showSearch
-              placeholder="Номер группы"
-              optionFilterProp="label"
-              onChange={(value) => {
-                handleChangeGroupNumber(value, 'bntu');
-              }}
-              options={bntuAllowedGroups}
-            />
-          </Space>
-          <Space direction="horizontal">
-            <Text>БГУИР</Text>
-            <Select
-              showSearch
-              placeholder="Номер группы"
-              optionFilterProp="label"
-              onChange={(value) => {
-                handleChangeGroupNumber(value, 'bsuir');
-              }}
-              options={bsuirAllowedGroups}
-            />
-          </Space>
-          {latestGroups.length > 0 ? (
-            <List
-              header={<Title level={4}>Добавленные:</Title>}
-              itemLayout="horizontal"
-              dataSource={latestGroups.slice(-5).reverse()}
-              renderItem={(group) => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={
-                      <Space direction="horizontal">
-                        <Text
-                          style={{ cursor: 'pointer' }}
-                          onClick={() =>
-                            handleUseGroupNumber(group.number, group.university)
-                          }
-                        >{`${group.number} `}</Text>
-                        <Text
-                          onClick={() => handleDeleteLatestGroup(group.number)}
-                          style={{ cursor: 'pointer' }}
-                          type="secondary"
-                        >
-                          x
-                        </Text>
-                      </Space>
-                    }
-                  />
-                </List.Item>
+        <Space direction="vertical" className={style.drawer_container}>
+          <Space direction="vertical">
+            <Title level={3}>Выберите группу:</Title>
+            <Space direction="vertical">
+              <Space direction="horizontal">
+                <Text>БНТУ</Text>
+                <Select
+                  showSearch
+                  placeholder="Номер группы"
+                  optionFilterProp="label"
+                  onChange={(value) => {
+                    handleChangeGroupNumber(value, 'bntu');
+                  }}
+                  options={bntuAllowedGroups}
+                />
+              </Space>
+              <Space direction="horizontal">
+                <Text>БГУИР</Text>
+                <Select
+                  showSearch
+                  placeholder="Номер группы"
+                  optionFilterProp="label"
+                  onChange={(value) => {
+                    handleChangeGroupNumber(value, 'bsuir');
+                  }}
+                  options={bsuirAllowedGroups}
+                />
+              </Space>
+              {latestGroups.length > 0 ? (
+                <List
+                  header={<Title level={4}>Добавленные:</Title>}
+                  itemLayout="horizontal"
+                  dataSource={latestGroups.slice(-5).reverse()}
+                  renderItem={(group) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <Space direction="horizontal">
+                            <Text
+                              style={{ cursor: 'pointer' }}
+                              onClick={() =>
+                                handleUseGroupNumber(
+                                  group.number,
+                                  group.university,
+                                )
+                              }
+                            >{`${group.number} `}</Text>
+                            <Text
+                              onClick={() =>
+                                handleDeleteLatestGroup(group.number)
+                              }
+                              style={{ cursor: 'pointer' }}
+                              type="secondary"
+                            >
+                              x
+                            </Text>
+                          </Space>
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
+              ) : (
+                <Text>Добавленных групп нет.</Text>
               )}
-            />
-          ) : (
-            <Text>Добавленных групп нет.</Text>
-          )}
+            </Space>
+          </Space>
+          <Space>
+            <Text strong>
+              <Link to={'/edit'}>Редактор расписания</Link>
+            </Text>
+          </Space>
         </Space>
       </Drawer>
       <VersionModal
