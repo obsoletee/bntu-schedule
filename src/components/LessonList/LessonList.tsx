@@ -4,19 +4,17 @@ import { DaySchedule } from '../../model/Schedule';
 
 import style from './LessonList.module.scss';
 import { icons } from '../../assets/icons';
-import { Suspense, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { setLesson } from '../../store/currentLessonReducer';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import LessonModal from '../LessonModal';
-import { CustomSpin } from '../CustomSpin/CustomSpin';
 import EditLessonModal from '../EditLessonModal';
-import { State } from '../../store';
 import DeleteLessonModal from '../DeleteLessonModal';
 import AddLessonModal from '../AddLessonModal';
 
 interface LessonListWithDateProps {
   items: DaySchedule[] | undefined;
-  iconSize?: 'normal' | 'large' | 'none';
+  iconSize?: 'normal' | 'large';
   addButton?: boolean;
   addModal?: boolean;
   editModal?: boolean;
@@ -24,8 +22,8 @@ interface LessonListWithDateProps {
 }
 
 export const LessonList = ({
+  iconSize = 'normal',
   items,
-  iconSize = 'none',
   addButton = false,
   addModal = false,
   editModal = false,
@@ -39,16 +37,9 @@ export const LessonList = ({
 
   const dispatch = useDispatch();
 
-  const currentLesson = useSelector(
-    (state: State) => state.currentLesson.currentLesson,
-  );
-
   const handleOpenModal = useCallback(
     (lessonInfo: DaySchedule) => {
       setIsModalOpen(true);
-      setIsEditModalOpen(false);
-      setIsDeleteModalOpen(false);
-      setIsAddModalOpen(false);
       dispatch(setLesson(lessonInfo));
     },
     [dispatch],
@@ -56,10 +47,7 @@ export const LessonList = ({
 
   const handleOpenEditModal = useCallback(
     (lessonInfo: DaySchedule) => {
-      setIsModalOpen(false);
       setIsEditModalOpen(true);
-      setIsDeleteModalOpen(false);
-      setIsAddModalOpen(false);
       dispatch(setLesson(lessonInfo));
     },
     [dispatch],
@@ -67,67 +55,50 @@ export const LessonList = ({
 
   const handleOpenDeleteModal = useCallback(
     (lessonInfo: DaySchedule) => {
-      setIsModalOpen(false);
-      setIsEditModalOpen(false);
       setIsDeleteModalOpen(true);
-      setIsAddModalOpen(false);
       dispatch(setLesson(lessonInfo));
     },
     [dispatch],
   );
 
-  const handleOpenAddModal = useCallback(() => {
+  const handleOpenAddModal = () => {
     setIsAddModalOpen(true);
-    setIsModalOpen(false);
-    setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false);
-  }, []);
+  };
 
   return (
     <>
-      {currentLesson ? (
-        <>
-          <Suspense fallback={<CustomSpin />}>
-            <LessonModal
-              isModalOpen={isModalOpen}
-              setIsModalOpen={setIsModalOpen}
-            />
-          </Suspense>
-          {addModal ? (
-            <Suspense fallback={<CustomSpin />}>
-              <AddLessonModal
-                isAddModalOpen={isAddModalOpen}
-                setIsAddModalOpen={setIsAddModalOpen}
-              />
-            </Suspense>
-          ) : (
-            <></>
-          )}
+      <>
+        <LessonModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+        />
 
-          {editModal ? (
-            <Suspense fallback={<CustomSpin />}>
-              <EditLessonModal
-                isEditModalOpen={isEditModalOpen}
-                setIsEditModalOpen={setIsEditModalOpen}
-              />
-            </Suspense>
-          ) : (
-            <></>
-          )}
-          {deleteModal ? (
-            <Suspense fallback={<CustomSpin />}>
-              <DeleteLessonModal
-                isDeleteModalOpen={isDeleteModalOpen}
-                setIsDeleteModalOpen={setIsDeleteModalOpen}
-              />
-            </Suspense>
-          ) : (
-            <></>
-          )}
-        </>
-      ) : (
-        <></>
-      )}
+        {addModal ? (
+          <AddLessonModal
+            isAddModalOpen={isAddModalOpen}
+            setIsAddModalOpen={setIsAddModalOpen}
+          />
+        ) : (
+          <></>
+        )}
+
+        {editModal ? (
+          <EditLessonModal
+            isEditModalOpen={isEditModalOpen}
+            setIsEditModalOpen={setIsEditModalOpen}
+          />
+        ) : (
+          <></>
+        )}
+        {deleteModal ? (
+          <DeleteLessonModal
+            isDeleteModalOpen={isDeleteModalOpen}
+            setIsDeleteModalOpen={setIsDeleteModalOpen}
+          />
+        ) : (
+          <></>
+        )}
+      </>
 
       <List
         className={style.list_item}
@@ -146,10 +117,9 @@ export const LessonList = ({
                   <Text>
                     {`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
                   </Text>
-                  {iconSize === 'none' ? (
-                    <></>
-                  ) : (
-                    <Space size={'large'}>
+
+                  <Space size={'large'}>
+                    {editModal ? (
                       <img
                         className={style.icon}
                         src={icons.editIcon}
@@ -160,6 +130,10 @@ export const LessonList = ({
                           handleOpenEditModal(item);
                         }}
                       />
+                    ) : (
+                      <></>
+                    )}
+                    {deleteModal ? (
                       <img
                         className={style.icon}
                         src={icons.binIcon}
@@ -170,8 +144,10 @@ export const LessonList = ({
                           handleOpenDeleteModal(item);
                         }}
                       />
-                    </Space>
-                  )}
+                    ) : (
+                      <></>
+                    )}
+                  </Space>
                 </div>
               }
               description={
@@ -193,13 +169,7 @@ export const LessonList = ({
         )}
       />
       {addButton ? (
-        <Button
-          onClick={() => {
-            handleOpenAddModal();
-          }}
-          className={style.button}
-          block
-        >
+        <Button onClick={handleOpenAddModal} className={style.button} block>
           Добавить занятие
         </Button>
       ) : (

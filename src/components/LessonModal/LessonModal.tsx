@@ -30,7 +30,9 @@ export const LessonModal = ({
   };
   return (
     <Modal
-      title={`${currentLesson?.subject.fullName} | ${currentLesson?.type}`}
+      title={`${currentLesson ? currentLesson.subject.fullName : ''} | ${
+        currentLesson ? currentLesson.type : ''
+      }`}
       open={isModalOpen}
       onOk={handleOk}
       okText="Ок"
@@ -40,9 +42,11 @@ export const LessonModal = ({
       <div className={style.container}>
         <div className={style.description_container}>
           <Text>
-            <b>{currentLesson?.teacher.fullName}</b>
+            <b>{currentLesson ? currentLesson.teacher.fullName : ''}</b>
           </Text>
-          <Text>{`Время: ${currentLesson?.startTime} - ${currentLesson?.endTime}`}</Text>
+          <Text>{`Время: ${currentLesson ? currentLesson.startTime : ''} - ${
+            currentLesson ? currentLesson.endTime : ''
+          }`}</Text>
           {currentLesson?.class && currentLesson?.korpus ? (
             <Text>{`Аудитория: ${currentLesson.class}-${currentLesson.korpus}к`}</Text>
           ) : (
@@ -50,27 +54,35 @@ export const LessonModal = ({
           )}
           <Text>
             Недели:{' '}
-            {currentLesson!.week.length > 0 ? (
-              <>
-                {currentLesson!.week.slice(0, -1).join(', ')}
-                {currentLesson!.week.length > 1
-                  ? `, ${currentLesson?.week[currentLesson.week.length - 1]}`
-                  : `${currentLesson?.week[0]}`}
-              </>
+            {currentLesson ? (
+              currentLesson.week.length > 0 ? (
+                <>
+                  {currentLesson!.week.slice(0, -1).join(', ')}
+                  {currentLesson!.week.length > 1
+                    ? `, ${currentLesson?.week[currentLesson.week.length - 1]}`
+                    : `${currentLesson?.week[0]}`}
+                </>
+              ) : (
+                'Нет данных.'
+              )
             ) : (
-              'Нет данных.'
+              ''
             )}
           </Text>
-          {currentLesson?.subgroup != '0' ? (
-            <Text type="danger">{`Подгруппа ${currentLesson?.subgroup}`}</Text>
+          {currentLesson ? (
+            currentLesson.subgroup != '0' ? (
+              <Text type="danger">{`Подгруппа ${currentLesson?.subgroup}`}</Text>
+            ) : (
+              <></>
+            )
           ) : (
-            <></>
+            ''
           )}
         </div>
         <div className={style.photo_wrapper}>
           <img
             src={teacherImages[avatarKey]}
-            alt={currentLesson?.teacher.fullName}
+            alt={currentLesson ? currentLesson.teacher.fullName : ''}
           />
         </div>
       </div>

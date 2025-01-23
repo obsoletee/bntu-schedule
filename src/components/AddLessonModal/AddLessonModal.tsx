@@ -92,7 +92,7 @@ export const AddLessonModal = ({
     <Modal
       title={
         <Space direction="vertical">
-          <Text strong type="warning">
+          <Text strong type="success">
             Добавление занятия
           </Text>
         </Space>
