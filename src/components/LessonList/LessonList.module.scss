@@ -22,7 +22,8 @@
   flex-direction: column;
 }
 
-.edit_icon {
+.icon {
+  transition: all 0.3s ease-in-out;
   &[icon-size='normal'] {
     width: 16px;
     height: 16px;
@@ -31,9 +32,19 @@
     width: 24px;
     height: 24px;
   }
+
+  &:hover {
+    transform: scale(1.15);
+  }
 }
 
 .card_title {
   display: flex;
   justify-content: space-between;
+}
+
+.button {
+  font-size: 1.5rem;
+  border-radius: 16px;
+  height: 4rem;
 }

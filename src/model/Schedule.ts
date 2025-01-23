@@ -15,7 +15,18 @@ export type DayOfWeek =
   | 'wednesday'
   | 'thursday'
   | 'friday'
-  | 'saturday';
+  | 'saturday'
+  | 'sunday';
+
+export const daysOfWeek: (keyof GroupSchedule)[] = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+];
 
 export interface DaySchedule {
   id: number;
@@ -31,7 +42,6 @@ export interface DaySchedule {
 }
 
 export interface GroupSchedule {
-  _id: string;
   group: string;
   monday: DaySchedule[];
   tuesday: DaySchedule[];
@@ -39,4 +49,5 @@ export interface GroupSchedule {
   thursday: DaySchedule[];
   friday: DaySchedule[];
   saturday: DaySchedule[];
+  sunday: DaySchedule[];
 }

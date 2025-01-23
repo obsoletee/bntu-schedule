@@ -1,4 +1,4 @@
-import { List, Typography } from 'antd';
+import { Button, List, Space, Typography } from 'antd';
 
 import { DaySchedule } from '../../model/Schedule';
 
@@ -11,19 +11,31 @@ import LessonModal from '../LessonModal';
 import { CustomSpin } from '../CustomSpin/CustomSpin';
 import EditLessonModal from '../EditLessonModal';
 import { State } from '../../store';
+import DeleteLessonModal from '../DeleteLessonModal';
+import AddLessonModal from '../AddLessonModal';
 
 interface LessonListWithDateProps {
   items: DaySchedule[] | undefined;
   iconSize?: 'normal' | 'large' | 'none';
+  addButton?: boolean;
+  addModal?: boolean;
+  editModal?: boolean;
+  deleteModal?: boolean;
 }
 
 export const LessonList = ({
   items,
   iconSize = 'none',
+  addButton = false,
+  addModal = false,
+  editModal = false,
+  deleteModal = false,
 }: LessonListWithDateProps) => {
   const { Text } = Typography;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -35,6 +47,8 @@ export const LessonList = ({
     (lessonInfo: DaySchedule) => {
       setIsModalOpen(true);
       setIsEditModalOpen(false);
+      setIsDeleteModalOpen(false);
+      setIsAddModalOpen(false);
       dispatch(setLesson(lessonInfo));
     },
     [dispatch],
@@ -44,10 +58,31 @@ export const LessonList = ({
     (lessonInfo: DaySchedule) => {
       setIsModalOpen(false);
       setIsEditModalOpen(true);
+      setIsDeleteModalOpen(false);
+      setIsAddModalOpen(false);
       dispatch(setLesson(lessonInfo));
     },
     [dispatch],
   );
+
+  const handleOpenDeleteModal = useCallback(
+    (lessonInfo: DaySchedule) => {
+      setIsModalOpen(false);
+      setIsEditModalOpen(false);
+      setIsDeleteModalOpen(true);
+      setIsAddModalOpen(false);
+      dispatch(setLesson(lessonInfo));
+    },
+    [dispatch],
+  );
+
+  const handleOpenAddModal = useCallback(() => {
+    setIsAddModalOpen(true);
+    setIsModalOpen(false);
+    setIsEditModalOpen(false);
+    setIsDeleteModalOpen(false);
+  }, []);
+
   return (
     <>
       {currentLesson ? (
@@ -58,12 +93,37 @@ export const LessonList = ({
               setIsModalOpen={setIsModalOpen}
             />
           </Suspense>
-          <Suspense fallback={<CustomSpin />}>
-            <EditLessonModal
-              isEditModalOpen={isEditModalOpen}
-              setIsEditModalOpen={setIsEditModalOpen}
-            />
-          </Suspense>
+          {addModal ? (
+            <Suspense fallback={<CustomSpin />}>
+              <AddLessonModal
+                isAddModalOpen={isAddModalOpen}
+                setIsAddModalOpen={setIsAddModalOpen}
+              />
+            </Suspense>
+          ) : (
+            <></>
+          )}
+
+          {editModal ? (
+            <Suspense fallback={<CustomSpin />}>
+              <EditLessonModal
+                isEditModalOpen={isEditModalOpen}
+                setIsEditModalOpen={setIsEditModalOpen}
+              />
+            </Suspense>
+          ) : (
+            <></>
+          )}
+          {deleteModal ? (
+            <Suspense fallback={<CustomSpin />}>
+              <DeleteLessonModal
+                isDeleteModalOpen={isDeleteModalOpen}
+                setIsDeleteModalOpen={setIsDeleteModalOpen}
+              />
+            </Suspense>
+          ) : (
+            <></>
+          )}
         </>
       ) : (
         <></>
@@ -89,16 +149,28 @@ export const LessonList = ({
                   {iconSize === 'none' ? (
                     <></>
                   ) : (
-                    <img
-                      className={style.edit_icon}
-                      src={icons.editIcon}
-                      icon-size={iconSize}
-                      alt="edit"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenEditModal(item);
-                      }}
-                    />
+                    <Space size={'large'}>
+                      <img
+                        className={style.icon}
+                        src={icons.editIcon}
+                        icon-size={iconSize}
+                        alt="edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditModal(item);
+                        }}
+                      />
+                      <img
+                        className={style.icon}
+                        src={icons.binIcon}
+                        icon-size={iconSize}
+                        alt="edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDeleteModal(item);
+                        }}
+                      />
+                    </Space>
                   )}
                 </div>
               }
@@ -120,6 +192,19 @@ export const LessonList = ({
           </List.Item>
         )}
       />
+      {addButton ? (
+        <Button
+          onClick={() => {
+            handleOpenAddModal();
+          }}
+          className={style.button}
+          block
+        >
+          Добавить занятие
+        </Button>
+      ) : (
+        <></>
+      )}
     </>
   );
 };

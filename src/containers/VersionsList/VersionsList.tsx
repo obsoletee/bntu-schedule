@@ -26,7 +26,7 @@ export const VersionsList = () => {
                 key={item.title}
                 title={
                   <div className={style.version_title}>
-                    <Text>Версия {item.title}: </Text>{' '}
+                    <Text strong>Версия {item.title}: </Text>{' '}
                     <Text type="secondary">{item.date}</Text>
                   </div>
                 }

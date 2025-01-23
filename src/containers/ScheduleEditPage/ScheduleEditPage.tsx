@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
 
-import { GroupSchedule } from '../../model/Schedule';
+import { DaySchedule, GroupSchedule } from '../../model/Schedule';
 import { State } from '../../store';
 
 import style from './ScheduleEditPage.module.scss';
@@ -13,22 +13,34 @@ import LessonList from '../../components/LessonList';
 
 export const ScheduleEditPage = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
-
-  const [schedule, setSchedule] = useState<GroupSchedule>();
   const { Text, Title } = Typography;
 
+  const [schedule, setSchedule] = useState<GroupSchedule>();
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://long-edy-obsoletee-6b4c05a7.koyeb.app/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
         );
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
         }
-        const result: GroupSchedule = await response.json();
-        setSchedule(result);
+
+        const result = await response.json();
+
+        const transformedResult: GroupSchedule = {
+          group: result.group,
+          monday: result.monday || [],
+          tuesday: result.tuesday || [],
+          wednesday: result.wednesday || [],
+          thursday: result.thursday || [],
+          friday: result.friday || [],
+          saturday: result.saturday || [],
+          sunday: result.sunday || [],
+        };
+
+        setSchedule(transformedResult);
       } catch (error) {
         console.error('Ошибка:', error);
       }
@@ -37,43 +49,38 @@ export const ScheduleEditPage = () => {
     fetchData();
   }, [groupInfo]);
 
-  const items: TabsProps['items'] = [
-    {
-      key: '1',
-      label: 'Понедельник',
-      children: <LessonList items={schedule?.monday} iconSize="large" />,
-    },
-    {
-      key: '2',
-      label: 'Вторник',
-      children: <LessonList items={schedule?.tuesday} iconSize="large" />,
-    },
-    {
-      key: '3',
-      label: 'Среда',
-      children: <LessonList items={schedule?.wednesday} iconSize="large" />,
-    },
-    {
-      key: '4',
-      label: 'Четверг',
-      children: <LessonList items={schedule?.thursday} iconSize="large" />,
-    },
-    {
-      key: '5',
-      label: 'Пятница',
-      children: <LessonList items={schedule?.friday} iconSize="large" />,
-    },
-    {
-      key: '6',
-      label: 'Суббота',
-      children: <LessonList items={schedule?.saturday} iconSize="large" />,
-    },
-    {
-      key: '7',
-      label: 'Воскресенье',
-      children: <></>,
-    },
+  const daysOfWeek: Array<{
+    key: string;
+    label: string;
+    day: keyof GroupSchedule;
+  }> = [
+    { key: '1', label: 'Понедельник', day: 'monday' },
+    { key: '2', label: 'Вторник', day: 'tuesday' },
+    { key: '3', label: 'Среда', day: 'wednesday' },
+    { key: '4', label: 'Четверг', day: 'thursday' },
+    { key: '5', label: 'Пятница', day: 'friday' },
+    { key: '6', label: 'Суббота', day: 'saturday' },
+    { key: '7', label: 'Воскресенье', day: 'sunday' },
   ];
+
+  const items: TabsProps['items'] = daysOfWeek.map(({ key, label, day }) => ({
+    key,
+    label,
+    children: (
+      <LessonList
+        addButton
+        addModal={true}
+        editModal={true}
+        deleteModal={true}
+        items={
+          day === 'sunday'
+            ? undefined
+            : (schedule?.[day] as DaySchedule[] | undefined)
+        }
+        iconSize="large"
+      />
+    ),
+  }));
 
   return (
     <div className={style.wrapper}>

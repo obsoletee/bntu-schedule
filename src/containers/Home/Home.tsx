@@ -77,7 +77,7 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `https://long-edy-obsoletee-6b4c05a7.koyeb.app/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
         );
 
         if (!response.ok) {

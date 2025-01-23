@@ -9,30 +9,25 @@ import {
   TimePicker,
   Typography,
 } from 'antd';
-import dayjs from 'dayjs';
 
-import style from './EditLessonModal.module.scss';
+import style from './AddLessonModal.module.scss';
 import { useSelector } from 'react-redux';
 import { State } from '../../store';
 
-interface EditLessonModalProps {
-  isEditModalOpen: boolean;
-  setIsEditModalOpen: Dispatch<SetStateAction<boolean>>;
+interface AddLessonModalProps {
+  isAddModalOpen: boolean;
+  setIsAddModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export const EditLessonModal = ({
-  isEditModalOpen,
-  setIsEditModalOpen,
-}: EditLessonModalProps) => {
+export const AddLessonModal = ({
+  isAddModalOpen,
+  setIsAddModalOpen,
+}: AddLessonModalProps) => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
   const [subjectList, setSubjectList] = useState([]);
   const [teacherList, setTeacherList] = useState([]);
   const { Text } = Typography;
   const format = 'HH:mm';
-
-  const currentLesson = useSelector(
-    (state: State) => state.currentLesson.currentLesson,
-  );
 
   const selectOptions = [
     {
@@ -86,11 +81,11 @@ export const EditLessonModal = ({
   }, []);
 
   const handleOk = () => {
-    setIsEditModalOpen(false);
+    setIsAddModalOpen(false);
   };
 
   const handleCancel = () => {
-    setIsEditModalOpen(false);
+    setIsAddModalOpen(false);
   };
 
   return (
@@ -98,13 +93,13 @@ export const EditLessonModal = ({
       title={
         <Space direction="vertical">
           <Text strong type="warning">
-            Редактирование занятия
+            Добавление занятия
           </Text>
         </Space>
       }
-      open={isEditModalOpen}
+      open={isAddModalOpen}
       onOk={handleOk}
-      okText="Подтвердить"
+      okText="Добавить"
       onCancel={handleCancel}
       cancelText="Отмена"
     >
@@ -115,47 +110,32 @@ export const EditLessonModal = ({
             placeholder="Выберите предмет"
             optionFilterProp="label"
             options={subjectList}
-            value={currentLesson?.subject.fullName}
           />
           <Select
             showSearch
             placeholder="Выберите тип занятия"
             optionFilterProp="label"
             options={selectOptions}
-            value={currentLesson?.type}
           />
           <Select
             showSearch
             placeholder="Выберите преподавателя"
             optionFilterProp="label"
             options={teacherList}
-            value={currentLesson?.teacher.fullName}
           />
           <Text>Время занятия:</Text>
-          <TimePicker.RangePicker
-            value={[
-              dayjs(currentLesson?.startTime, format),
-              dayjs(currentLesson?.endTime, format),
-            ]}
-            format={format}
-          />
-          <Input value={currentLesson?.class} addonBefore={`Аудитория:`} />
-          <Input
-            value={Number(currentLesson?.korpus)}
-            addonBefore={`Корпус:`}
-          />
+          <TimePicker.RangePicker format={format} />
+          <Input addonBefore={`Аудитория:`} />
+          <Input addonBefore={`Корпус:`} />
           <Checkbox.Group
             options={
               groupInfo.university === 'bsuir'
                 ? ['Неделя 1', 'Неделя 2', 'Неделя 3', 'Неделя 4']
                 : ['Неделя 1', 'Неделя 2']
             }
-            value={currentLesson?.week.map((weekNumber) => {
-              return `Неделя ${weekNumber}`;
-            })}
           ></Checkbox.Group>
 
-          <Radio.Group value={currentLesson?.subgroup}>
+          <Radio.Group>
             <Radio.Button value="0">Общая</Radio.Button>
             <Radio.Button value="1">Подгруппа 1</Radio.Button>
             <Radio.Button value="2">Подгруппа 2</Radio.Button>

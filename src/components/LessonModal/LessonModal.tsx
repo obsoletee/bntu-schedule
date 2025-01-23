@@ -33,7 +33,9 @@ export const LessonModal = ({
       title={`${currentLesson?.subject.fullName} | ${currentLesson?.type}`}
       open={isModalOpen}
       onOk={handleOk}
+      okText="Ок"
       onCancel={handleCancel}
+      cancelText="Назад"
     >
       <div className={style.container}>
         <div className={style.description_container}>
