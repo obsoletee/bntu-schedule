@@ -14,6 +14,7 @@ import { Home } from '../containers/Home';
 import { VersionsList } from '../containers/VersionsList';
 import ScheduleEditPage from '../containers/ScheduleEditPage';
 import Teachers from '../containers/Teachers';
+import Subjects from '../containers/Subjects';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,7 +23,7 @@ export const router = createBrowserRouter(
       <Route path={VERSIONS_LIST} element={<VersionsList />} />
       <Route path={EDIT_PAGE} element={<ScheduleEditPage />} />
       <Route path={TEACHERS_PAGE} element={<Teachers />} />
-      <Route path={SUBJECTS_PAGE} element={<></>} />
+      <Route path={SUBJECTS_PAGE} element={<Subjects />} />
     </>,
   ),
 );

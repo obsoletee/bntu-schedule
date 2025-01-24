@@ -2,44 +2,44 @@ import { Avatar, Button, Input, List, Popover, Space, Typography } from 'antd';
 import Header from '../../components/Header';
 import style from './Teachers.module.scss';
 import { useEffect, useState } from 'react';
-import { teacherImages } from '../../assets/images/teacherImages';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setTeachers,
+  addTeacher,
+  editTeacher,
+  deleteTeacher,
+  setLoading,
+} from '../../store/teachersReducer';
+import { State } from '../../store/index'; // Adjust the import based on your store structure
+import {
+  TeacherImageKeys,
+  teacherImages,
+} from '../../assets/images/teacherImages';
 import { icons } from '../../assets/icons';
 
-type TeacherImageKeys = keyof typeof teacherImages;
-
-interface TeacherList {
-  _id: string;
-  shortName: string;
-  fullName: string;
-  avatar: TeacherImageKeys;
-}
-
-interface NewTeacher {
-  fullName: string;
-  shortName: string;
-  avatar: string;
-}
-
 export const Teachers = () => {
-  const [newTeacher, setNewTeacher] = useState<NewTeacher>({
+  const dispatch = useDispatch();
+  const { teacherList, isLoading } = useSelector(
+    (state: State) => state.teachers,
+  );
+
+  const { Text } = Typography;
+  const [newTeacher, setNewTeacher] = useState({
     fullName: '',
     shortName: '',
     avatar: '',
   });
-  const [teacherList, setTeacherList] = useState<TeacherList[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [editingTeacherId, setEditingTeacherId] = useState<string | null>(null);
-
-  const { Text } = Typography;
+  const [visiblePopoverId, setVisiblePopoverId] = useState<string | null>(null);
 
   const fetchTeachers = async () => {
+    dispatch(setLoading(true));
     try {
-      setIsLoading(true);
       const response = await fetch('http://localhost:8000/teachers/');
       const data = await response.json();
-      setTeacherList(data);
+      dispatch(setTeachers(data));
     } finally {
-      setIsLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -52,20 +52,18 @@ export const Teachers = () => {
       try {
         const response = await fetch('http://localhost:8000/teachers', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newTeacher),
         });
         if (response.ok) {
           const addedTeacher = await response.json();
-          setTeacherList((prev) => [...prev, addedTeacher]);
+          dispatch(addTeacher(addedTeacher));
           setNewTeacher({ fullName: '', shortName: '', avatar: '' });
-        } else {
-          console.error('Ошибка при добавлении преподавателя');
         }
       } catch (error) {
         console.error('Ошибка:', error);
+      } finally {
+        fetchTeachers();
       }
     }
   };
@@ -82,23 +80,15 @@ export const Teachers = () => {
           `http://localhost:8000/teachers/${editingTeacherId}`,
           {
             method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newTeacher),
           },
         );
         if (response.ok) {
           const updatedTeacher = await response.json();
-          setTeacherList((prev) =>
-            prev.map((teacher) =>
-              teacher._id === editingTeacherId ? updatedTeacher : teacher,
-            ),
-          );
+          dispatch(editTeacher(updatedTeacher));
           setNewTeacher({ fullName: '', shortName: '', avatar: '' });
           setEditingTeacherId(null);
-        } else {
-          console.error('Ошибка при обновлении преподавателя');
         }
       } catch (error) {
         console.error('Ошибка:', error);
@@ -112,9 +102,7 @@ export const Teachers = () => {
         method: 'DELETE',
       });
       if (response.ok) {
-        setTeacherList((prev) => prev.filter((teacher) => teacher._id !== id));
-      } else {
-        console.error('Ошибка при удалении преподавателя');
+        dispatch(deleteTeacher(id));
       }
     } catch (error) {
       console.error('Ошибка:', error);
@@ -123,8 +111,7 @@ export const Teachers = () => {
 
   return (
     <div className={style.wrapper}>
-      <Header />
-
+      <Header title="Преподаватели" />
       <div className={style.container}>
         <Popover
           className={style.button}
@@ -155,10 +142,7 @@ export const Teachers = () => {
                 placeholder="Фамилия на латинице"
                 value={newTeacher.avatar}
                 onChange={(e) =>
-                  setNewTeacher((prev) => ({
-                    ...prev,
-                    avatar: e.target.value as TeacherImageKeys,
-                  }))
+                  setNewTeacher((prev) => ({ ...prev, avatar: e.target.value }))
                 }
               />
               <Button onClick={handleAddTeacher}>Добавить</Button>
@@ -167,9 +151,9 @@ export const Teachers = () => {
           trigger="click"
         >
           <Button
-            onClick={() => {
-              setNewTeacher({ fullName: '', shortName: '', avatar: '' });
-            }}
+            onClick={() =>
+              setNewTeacher({ fullName: '', shortName: '', avatar: '' })
+            }
           >
             Добавить преподавателя
           </Button>
@@ -186,16 +170,14 @@ export const Teachers = () => {
                 avatar={
                   <Avatar
                     src={
-                      teacherImages[item.avatar] || teacherImages.emptyAvatar
+                      teacherImages[item.avatar as TeacherImageKeys] ||
+                      teacherImages.emptyAvatar
                     }
                   />
                 }
                 title={
                   <Space size={'large'}>
-                    <Text style={{ fontSize: '24px' }} strong>
-                      {item.shortName}
-                    </Text>
-
+                    <Text strong>{item.shortName}</Text>
                     <div className={style.icon_container}>
                       <Popover
                         title={'Изменение преподавателя'}
@@ -227,15 +209,11 @@ export const Teachers = () => {
                               onChange={(e) =>
                                 setNewTeacher((prev) => ({
                                   ...prev,
-                                  avatar: e.target.value as TeacherImageKeys,
+                                  avatar: e.target.value,
                                 }))
                               }
                             />
-                            <Button
-                              onClick={async () => {
-                                await handleEditTeacher();
-                              }}
-                            >
+                            <Button onClick={handleEditTeacher}>
                               Изменить
                             </Button>
                           </Space>
@@ -248,7 +226,6 @@ export const Teachers = () => {
                           alt="edit"
                           onClick={(e) => {
                             e.stopPropagation();
-
                             setEditingTeacherId(item._id);
                             setNewTeacher({
                               fullName: item.fullName,
@@ -265,15 +242,20 @@ export const Teachers = () => {
                         content={
                           <Space>
                             <Button
-                              onClick={() => {
-                                handleDeleteTeacher(item._id);
-                              }}
+                              onClick={() => handleDeleteTeacher(item._id)}
+                              onMouseDown={(e) => e.preventDefault()}
                             >
                               <Text type="danger">Да</Text>
                             </Button>
                           </Space>
                         }
                         trigger="click"
+                        open={visiblePopoverId === item._id}
+                        onOpenChange={(visible) => {
+                          if (!visible) {
+                            setVisiblePopoverId(null);
+                          }
+                        }}
                       >
                         <img
                           className={style.binIcon}
@@ -281,6 +263,9 @@ export const Teachers = () => {
                           alt="delete"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setVisiblePopoverId(
+                              visiblePopoverId === item._id ? null : item._id,
+                            );
                           }}
                         />
                       </Popover>

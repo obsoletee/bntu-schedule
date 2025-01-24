@@ -51,3 +51,5 @@ export const teacherImages = {
   smirnov,
   tkalich,
 };
+
+export type TeacherImageKeys = keyof typeof teacherImages;

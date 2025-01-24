@@ -85,7 +85,7 @@ export const ScheduleEditPage = () => {
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<CustomSpin />}>
-        <Header />
+        <Header title="Редактор расписания" />
       </Suspense>
 
       <div className={style.container}>

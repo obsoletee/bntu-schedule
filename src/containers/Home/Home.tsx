@@ -97,7 +97,7 @@ export const Home = () => {
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<CustomSpin />}>
-        <Header />
+        <Header title="Расписание" />
       </Suspense>
 
       <div className={style.container}>

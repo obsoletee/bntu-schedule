@@ -3,10 +3,16 @@ import { currentGroupReducer } from './currentGroupReducer';
 import { latestGroupsReducer } from './latestGroupsReducer';
 import { currentLessonReducer } from './currentLessonReducer';
 import { DaySchedule } from '../model/Schedule';
+import teachersReducer, { Teacher } from './teachersReducer';
 
 export interface Action {
   type: string;
   payload: string;
+}
+
+export interface TeachersState {
+  teacherList: Teacher[];
+  isLoading: boolean;
 }
 
 export interface LatestGroup {
@@ -36,12 +42,14 @@ export interface State {
   currentGroup: CurrentGroupState;
   latestGroups: LatestGroupsState;
   currentLesson: LessonsState;
+  teachers: TeachersState;
 }
 
 const rootReducer = combineReducers({
   currentGroup: currentGroupReducer,
   latestGroups: latestGroupsReducer,
   currentLesson: currentLessonReducer,
+  teachers: teachersReducer,
 });
 
 export const store = createStore(rootReducer);

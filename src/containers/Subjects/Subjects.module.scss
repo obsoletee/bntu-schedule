@@ -1,0 +1,38 @@
+@import '../../styles/colors.scss';
+
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  background-color: $color--white;
+}
+
+.container {
+  width: 100%;
+  padding: 0 40px;
+  margin: 20px 0;
+}
+
+.button {
+  border-radius: 8px;
+  margin: 0 0 30px;
+}
+
+.editIcon,
+.binIcon {
+  transition: all 0.3s ease-in-out;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+}
+
+.icon_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}

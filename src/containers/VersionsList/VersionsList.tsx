@@ -13,7 +13,7 @@ export const VersionsList = () => {
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<CustomSpin />}>
-        <Header />
+        <Header title="Обновления" />
       </Suspense>
       <div className={style.container}>
         <Title level={3}>История изменений</Title>
