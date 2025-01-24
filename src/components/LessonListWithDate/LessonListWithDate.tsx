@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-import { DayOfWeek, DaySchedule, GroupSchedule } from '../../model/Schedule';
-import { State } from '../../store';
+import { DayOfWeek, DaySchedule } from '../../model/Schedule';
+import { ScheduleState, State } from '../../store';
 
 import { LessonList } from '../LessonList/LessonList';
+import {} from '../../store/scheduleReducer';
 
 interface ScheduleList {
   date: string;
@@ -14,31 +15,33 @@ interface ScheduleList {
   weekNumber: number;
 }
 interface LessonListWithDateProps {
-  data: GroupSchedule | undefined;
   date: ScheduleList;
 }
 
-export const LessonListWithDate = ({ data, date }: LessonListWithDateProps) => {
+export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
+  const schedule = useSelector(
+    (state: ScheduleState) => state.schedule.schedule || undefined,
+  );
   const [lessons, setLessons] = useState<DaySchedule[]>([]);
 
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
   useEffect(() => {
-    if (data) {
+    if (schedule) {
       const updatedLessons = groupInfo.subgroup
-        ? data[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
+        ? schedule[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
             (item) =>
               item.week.includes(date.weekNumber.toString()) &&
               (!item.subgroup.localeCompare(groupInfo.subgroup) ||
                 item.subgroup === '0'),
           ) || []
-        : data[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter((item) =>
-            item.week.includes(date.weekNumber.toString()),
+        : schedule[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
+            (item) => item.week.includes(date.weekNumber.toString()),
           ) || [];
 
       setLessons(updatedLessons);
     }
-  }, [groupInfo.subgroup, groupInfo.currentGroup, data, date]);
+  }, [groupInfo.subgroup, groupInfo.currentGroup, schedule, date]);
 
   return <LessonList items={lessons} />;
 };

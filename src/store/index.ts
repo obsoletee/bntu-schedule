@@ -1,10 +1,12 @@
-import { combineReducers, createStore } from 'redux';
+import { combineReducers } from 'redux';
 import { currentGroupReducer } from './currentGroupReducer';
 import { latestGroupsReducer } from './latestGroupsReducer';
 import { currentLessonReducer } from './currentLessonReducer';
 import { DaySchedule } from '../model/Schedule';
 import teachersReducer, { Teacher } from './teachersReducer';
 import subjectsReducer, { Subject } from './subjectsReducer';
+import scheduleReducer, { Schedule } from './scheduleReducer';
+import { configureStore } from '@reduxjs/toolkit';
 
 export interface Action {
   type: string;
@@ -18,6 +20,11 @@ export interface TeachersState {
 
 export interface SubjectsState {
   subjectList: Subject[];
+  isLoading: boolean;
+}
+
+export interface ScheduleState {
+  schedule: Schedule;
   isLoading: boolean;
 }
 
@@ -50,6 +57,7 @@ export interface State {
   currentLesson: LessonsState;
   teachers: TeachersState;
   subjects: SubjectsState;
+  schedule: ScheduleState;
 }
 
 const rootReducer = combineReducers({
@@ -58,6 +66,9 @@ const rootReducer = combineReducers({
   currentLesson: currentLessonReducer,
   teachers: teachersReducer,
   subjects: subjectsReducer,
+  schedule: scheduleReducer,
 });
 
-export const store = createStore(rootReducer);
+export const store = configureStore({
+  reducer: rootReducer,
+});

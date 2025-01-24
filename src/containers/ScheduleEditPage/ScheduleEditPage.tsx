@@ -1,12 +1,12 @@
 import { Tabs, TabsProps, Typography } from 'antd';
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
 
 import { DaySchedule, GroupSchedule } from '../../model/Schedule';
-import { State } from '../../store';
+import { ScheduleState, State } from '../../store';
 
 import style from './ScheduleEditPage.module.scss';
 import LessonList from '../../components/LessonList';
@@ -15,39 +15,9 @@ export const ScheduleEditPage = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
   const { Text, Title } = Typography;
 
-  const [schedule, setSchedule] = useState<GroupSchedule>();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Ошибка при получении данных');
-        }
-
-        const result = await response.json();
-
-        const transformedResult: GroupSchedule = {
-          group: result.group,
-          monday: result.monday || [],
-          tuesday: result.tuesday || [],
-          wednesday: result.wednesday || [],
-          thursday: result.thursday || [],
-          friday: result.friday || [],
-          saturday: result.saturday || [],
-          sunday: result.sunday || [],
-        };
-
-        setSchedule(transformedResult);
-      } catch (error) {
-        console.error('Ошибка:', error);
-      }
-    };
-
-    fetchData();
-  }, [groupInfo]);
+  const schedule = useSelector(
+    (state: ScheduleState) => state.schedule.schedule || undefined,
+  );
 
   const daysOfWeek: Array<{
     key: string;

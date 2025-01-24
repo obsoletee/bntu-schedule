@@ -99,7 +99,13 @@ export const LessonList = ({
           <></>
         )}
       </>
-
+      {addButton ? (
+        <Button onClick={handleOpenAddModal} className={style.button} block>
+          Добавить занятие
+        </Button>
+      ) : (
+        <></>
+      )}
       <List
         className={style.list_item}
         itemLayout="horizontal"
@@ -168,13 +174,6 @@ export const LessonList = ({
           </List.Item>
         )}
       />
-      {addButton ? (
-        <Button onClick={handleOpenAddModal} className={style.button} block>
-          Добавить занятие
-        </Button>
-      ) : (
-        <></>
-      )}
     </>
   );
 };

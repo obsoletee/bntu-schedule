@@ -42,6 +42,7 @@ export interface DaySchedule {
 }
 
 export interface GroupSchedule {
+  _id: string;
   group: string;
   monday: DaySchedule[];
   tuesday: DaySchedule[];

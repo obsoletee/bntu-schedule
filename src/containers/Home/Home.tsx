@@ -1,6 +1,6 @@
 import { Card, Carousel, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
@@ -15,6 +15,7 @@ import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Home.module.scss';
+import { setLoading, setSchedule } from '../../store/scheduleReducer';
 
 interface ScheduleList {
   date: string;
@@ -27,7 +28,8 @@ interface ScheduleList {
 export const Home = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
-  const [schedule, setSchedule] = useState<GroupSchedule>();
+  const dispatch = useDispatch();
+
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
 
   const { width } = useViewportSize();
@@ -75,6 +77,7 @@ export const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(setLoading(true));
       try {
         const response = await fetch(
           `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
@@ -84,15 +87,17 @@ export const Home = () => {
           throw new Error('Ошибка при получении данных');
         }
         const result: GroupSchedule = await response.json();
-        setSchedule(result);
+        dispatch(setSchedule(result));
       } catch (error) {
         console.error('Ошибка:', error);
+      } finally {
+        dispatch(setLoading(false));
       }
     };
 
     fetchData();
     generateSchedule();
-  }, [groupInfo, generateSchedule]);
+  }, [groupInfo, generateSchedule, dispatch]);
 
   return (
     <div className={style.wrapper}>
@@ -138,7 +143,7 @@ export const Home = () => {
                         <></>
                       ) : (
                         <Suspense fallback={<CustomSpin />}>
-                          <LessonListWithDate data={schedule} date={date} />
+                          <LessonListWithDate date={date} />
                         </Suspense>
                       )}
                     </Card>
