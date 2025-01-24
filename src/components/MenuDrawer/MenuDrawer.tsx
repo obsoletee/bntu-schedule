@@ -151,7 +151,13 @@ export const MenuDrawer = ({
               )}
             </Space>
           </Space>
-          <Space>
+          <Space direction="vertical">
+            <Text strong>
+              <Link to={'/subjects'}>Список предметов</Link>
+            </Text>
+            <Text strong>
+              <Link to={'/teachers'}>Список учителей</Link>
+            </Text>
             <Text strong>
               <Link to={'/edit'}>Редактор расписания</Link>
             </Text>

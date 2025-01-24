@@ -115,21 +115,21 @@ export const EditLessonModal = ({
             placeholder="Выберите предмет"
             optionFilterProp="label"
             options={subjectList}
-            value={currentLesson?.subject.fullName}
+            value={currentLesson ? currentLesson.subject.fullName : ''}
           />
           <Select
             showSearch
             placeholder="Выберите тип занятия"
             optionFilterProp="label"
             options={selectOptions}
-            value={currentLesson?.type}
+            value={currentLesson ? currentLesson.type : ''}
           />
           <Select
             showSearch
             placeholder="Выберите преподавателя"
             optionFilterProp="label"
             options={teacherList}
-            value={currentLesson?.teacher.fullName}
+            value={currentLesson ? currentLesson.teacher.fullName : ''}
           />
           <Text>Время занятия:</Text>
           <TimePicker.RangePicker
@@ -139,9 +139,12 @@ export const EditLessonModal = ({
             ]}
             format={format}
           />
-          <Input value={currentLesson?.class} addonBefore={`Аудитория:`} />
           <Input
-            value={Number(currentLesson?.korpus)}
+            value={currentLesson ? currentLesson.class : ''}
+            addonBefore={`Аудитория:`}
+          />
+          <Input
+            value={Number(currentLesson ? currentLesson.korpus : '')}
             addonBefore={`Корпус:`}
           />
           <Checkbox.Group
@@ -150,12 +153,16 @@ export const EditLessonModal = ({
                 ? ['Неделя 1', 'Неделя 2', 'Неделя 3', 'Неделя 4']
                 : ['Неделя 1', 'Неделя 2']
             }
-            value={currentLesson?.week.map((weekNumber) => {
-              return `Неделя ${weekNumber}`;
-            })}
+            value={
+              currentLesson
+                ? currentLesson.week.map((weekNumber) => {
+                    return `Неделя ${weekNumber}`;
+                  })
+                : []
+            }
           ></Checkbox.Group>
 
-          <Radio.Group value={currentLesson?.subgroup}>
+          <Radio.Group value={currentLesson ? currentLesson.subgroup : ''}>
             <Radio.Button value="0">Общая</Radio.Button>
             <Radio.Button value="1">Подгруппа 1</Radio.Button>
             <Radio.Button value="2">Подгруппа 2</Radio.Button>

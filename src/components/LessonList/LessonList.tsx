@@ -138,7 +138,7 @@ export const LessonList = ({
                         className={style.icon}
                         src={icons.binIcon}
                         icon-size={iconSize}
-                        alt="edit"
+                        alt="delete"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenDeleteModal(item);
