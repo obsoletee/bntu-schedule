@@ -2,39 +2,40 @@ import { Button, Input, List, Popover, Space, Typography } from 'antd';
 import Header from '../../components/Header';
 import style from './Subjects.module.scss';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setSubjects,
+  addSubject,
+  editSubject,
+  deleteSubject,
+  setLoading,
+} from '../../store/subjectsReducer';
+import { State } from '../../store/index';
 
 import { icons } from '../../assets/icons';
 
-interface SubjectList {
-  _id: string;
-  shortName: string;
-  fullName: string;
-}
-
-interface NewSubject {
-  fullName: string;
-  shortName: string;
-}
-
 export const Subjects = () => {
-  const [newSubject, setNewSubject] = useState<NewSubject>({
+  const dispatch = useDispatch();
+  const { subjectList, isLoading } = useSelector(
+    (state: State) => state.subjects,
+  );
+
+  const { Text } = Typography;
+  const [newSubject, setNewSubject] = useState({
     fullName: '',
     shortName: '',
   });
-  const [SubjectList, setSubjectList] = useState<SubjectList[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
-
-  const { Text } = Typography;
+  const [visiblePopoverId, setVisiblePopoverId] = useState<string | null>(null);
 
   const fetchSubjects = async () => {
+    dispatch(setLoading(true));
     try {
-      setIsLoading(true);
-      const response = await fetch('http://localhost:8000/Subjects/');
+      const response = await fetch('http://localhost:8000/subjects/');
       const data = await response.json();
-      setSubjectList(data);
+      dispatch(setSubjects(data));
     } finally {
-      setIsLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -45,22 +46,20 @@ export const Subjects = () => {
   const handleAddSubject = async () => {
     if (newSubject.shortName && newSubject.fullName) {
       try {
-        const response = await fetch('http://localhost:8000/Subjects/', {
+        const response = await fetch('http://localhost:8000/subjects', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newSubject),
         });
         if (response.ok) {
           const addedSubject = await response.json();
-          setSubjectList((prev) => [...prev, addedSubject]);
+          dispatch(addSubject(addedSubject));
           setNewSubject({ fullName: '', shortName: '' });
-        } else {
-          console.error('Ошибка при добавлении предмета');
         }
       } catch (error) {
         console.error('Ошибка:', error);
+      } finally {
+        fetchSubjects();
       }
     }
   };
@@ -69,26 +68,18 @@ export const Subjects = () => {
     if (editingSubjectId && newSubject.shortName && newSubject.fullName) {
       try {
         const response = await fetch(
-          `http://localhost:8000/Subjects/${editingSubjectId}`,
+          `http://localhost:8000/subjects/${editingSubjectId}`,
           {
             method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newSubject),
           },
         );
         if (response.ok) {
           const updatedSubject = await response.json();
-          setSubjectList((prev) =>
-            prev.map((Subject) =>
-              Subject._id === editingSubjectId ? updatedSubject : Subject,
-            ),
-          );
+          dispatch(editSubject(updatedSubject));
           setNewSubject({ fullName: '', shortName: '' });
           setEditingSubjectId(null);
-        } else {
-          console.error('Ошибка при обновлении предмета');
         }
       } catch (error) {
         console.error('Ошибка:', error);
@@ -98,13 +89,11 @@ export const Subjects = () => {
 
   const handleDeleteSubject = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/Subjects/${id}`, {
+      const response = await fetch(`http://localhost:8000/subjects/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
-        setSubjectList((prev) => prev.filter((Subject) => Subject._id !== id));
-      } else {
-        console.error('Ошибка при удалении предмета');
+        dispatch(deleteSubject(id));
       }
     } catch (error) {
       console.error('Ошибка:', error);
@@ -114,7 +103,6 @@ export const Subjects = () => {
   return (
     <div className={style.wrapper}>
       <Header title="Предметы" />
-
       <div className={style.container}>
         <Popover
           className={style.button}
@@ -147,9 +135,7 @@ export const Subjects = () => {
           trigger="click"
         >
           <Button
-            onClick={() => {
-              setNewSubject({ fullName: '', shortName: '' });
-            }}
+            onClick={() => setNewSubject({ fullName: '', shortName: '' })}
           >
             Добавить предмет
           </Button>
@@ -159,23 +145,20 @@ export const Subjects = () => {
           loading={isLoading}
           grid={{ column: 4, gutter: 0 }}
           itemLayout="horizontal"
-          dataSource={SubjectList}
+          dataSource={subjectList}
           renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
                 title={
                   <Space size={'large'}>
-                    <Text style={{ fontSize: '24px' }} strong>
-                      {item.shortName}
-                    </Text>
-
+                    <Text strong>{item.shortName}</Text>
                     <div className={style.icon_container}>
                       <Popover
-                        title={'Изменение предмета'}
+                        title={'Редактирование предмета'}
                         content={
                           <Space direction="vertical">
                             <Input
-                              placeholder="Полное название"
+                              placeholder="Полное назваие"
                               value={newSubject.fullName}
                               onChange={(e) =>
                                 setNewSubject((prev) => ({
@@ -194,11 +177,7 @@ export const Subjects = () => {
                                 }))
                               }
                             />
-                            <Button
-                              onClick={async () => {
-                                await handleEditSubject();
-                              }}
-                            >
+                            <Button onClick={handleEditSubject}>
                               Изменить
                             </Button>
                           </Space>
@@ -224,15 +203,20 @@ export const Subjects = () => {
                         content={
                           <Space>
                             <Button
-                              onClick={() => {
-                                handleDeleteSubject(item._id);
-                              }}
+                              onClick={() => handleDeleteSubject(item._id)}
+                              onMouseDown={(e) => e.preventDefault()}
                             >
                               <Text type="danger">Да</Text>
                             </Button>
                           </Space>
                         }
                         trigger="click"
+                        open={visiblePopoverId === item._id}
+                        onOpenChange={(visible) => {
+                          if (!visible) {
+                            setVisiblePopoverId(null);
+                          }
+                        }}
                       >
                         <img
                           className={style.binIcon}
@@ -240,6 +224,9 @@ export const Subjects = () => {
                           alt="delete"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setVisiblePopoverId(
+                              visiblePopoverId === item._id ? null : item._id,
+                            );
                           }}
                         />
                       </Popover>
