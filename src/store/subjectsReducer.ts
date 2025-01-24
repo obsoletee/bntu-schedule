@@ -8,12 +8,12 @@ export interface Subject {
 
 interface SubjectState {
   subjectList: Subject[];
-  isLoading: boolean;
+  isSubjectsLoading: boolean;
 }
 
 const initialState: SubjectState = {
   subjectList: [],
-  isLoading: false,
+  isSubjectsLoading: false,
 };
 
 const subjectsSlice = createSlice({
@@ -39,8 +39,8 @@ const subjectsSlice = createSlice({
         (subject) => subject._id !== action.payload,
       );
     },
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
+    setSubjectsLoading(state, action: PayloadAction<boolean>) {
+      state.isSubjectsLoading = action.payload;
     },
   },
 });
@@ -50,6 +50,6 @@ export const {
   addSubject,
   editSubject,
   deleteSubject,
-  setLoading,
+  setSubjectsLoading,
 } = subjectsSlice.actions;
 export default subjectsSlice.reducer;

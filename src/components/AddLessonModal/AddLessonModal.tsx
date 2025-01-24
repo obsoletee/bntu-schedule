@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import {
   Checkbox,
   Input,
@@ -13,6 +13,17 @@ import {
 import style from './AddLessonModal.module.scss';
 import { useSelector } from 'react-redux';
 import { State } from '../../store';
+import { useDispatch } from 'react-redux';
+import {
+  setSubjects,
+  setSubjectsLoading,
+  Subject,
+} from '../../store/subjectsReducer';
+import {
+  setTeachers,
+  setTeachersLoading,
+  Teacher,
+} from '../../store/teachersReducer';
 
 interface AddLessonModalProps {
   isAddModalOpen: boolean;
@@ -24,8 +35,7 @@ export const AddLessonModal = ({
   setIsAddModalOpen,
 }: AddLessonModalProps) => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
-  const [subjectList, setSubjectList] = useState([]);
-  const [teacherList, setTeacherList] = useState([]);
+
   const { Text } = Typography;
   const format = 'HH:mm';
 
@@ -44,41 +54,53 @@ export const AddLessonModal = ({
     },
   ];
 
-  const fetchSubjects = async () => {
-    const response = await fetch('http://localhost:8000/subjects/');
+  const dispatch = useDispatch();
 
-    const data = await response.json();
-    const formattedSubjects = data.map(
-      (subject: { _id: number; shortName: string; fullName: string }) => ({
-        value: subject._id,
-        label: subject.fullName,
-      }),
-    );
-
-    setSubjectList(formattedSubjects);
-  };
-
-  const fetchTeachers = async () => {
-    const response = await fetch('http://localhost:8000/teachers/');
-    const data = await response.json();
-    const formattedTeachers = data.map(
-      (teacher: {
-        _id: number;
-        shortName: string;
-        fullName: string;
-        avatar: string;
-      }) => ({
-        value: teacher._id,
-        label: teacher.fullName,
-      }),
-    );
-    setTeacherList(formattedTeachers);
-  };
+  const { subjectList, isSubjectsLoading } = useSelector(
+    (state: State) => state.subjects,
+  );
+  const { teacherList, isTeachersLoading } = useSelector(
+    (state: State) => state.teachers,
+  );
 
   useEffect(() => {
+    const fetchSubjects = async () => {
+      dispatch(setSubjectsLoading(true));
+      try {
+        const response = await fetch(`http://localhost:8000/subjects/`);
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: Subject[] = await response.json();
+        dispatch(setSubjects(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setSubjectsLoading(false));
+      }
+    };
+
+    const fetchTeachers = async () => {
+      dispatch(setTeachersLoading(true));
+      try {
+        const response = await fetch(`http://localhost:8000/teachers/`);
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: Teacher[] = await response.json();
+        dispatch(setTeachers(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setTeachersLoading(false));
+      }
+    };
+
     fetchSubjects();
     fetchTeachers();
-  }, []);
+  }, [groupInfo, dispatch]);
 
   const handleOk = () => {
     setIsAddModalOpen(false);
@@ -106,10 +128,13 @@ export const AddLessonModal = ({
       <div className={style.container}>
         <div className={style.description_container}>
           <Select
+            loading={isSubjectsLoading}
             showSearch
             placeholder="Выберите предмет"
             optionFilterProp="label"
-            options={subjectList}
+            options={subjectList.map((subject) => {
+              return { ...subject, label: subject.fullName };
+            })}
           />
           <Select
             showSearch
@@ -118,10 +143,13 @@ export const AddLessonModal = ({
             options={selectOptions}
           />
           <Select
+            loading={isTeachersLoading}
             showSearch
             placeholder="Выберите преподавателя"
             optionFilterProp="label"
-            options={teacherList}
+            options={teacherList.map((teacher) => {
+              return { ...teacher, label: teacher.fullName };
+            })}
           />
           <Text>Время занятия:</Text>
           <TimePicker.RangePicker format={format} />

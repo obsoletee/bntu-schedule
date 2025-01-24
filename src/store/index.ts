@@ -15,17 +15,17 @@ export interface Action {
 
 export interface TeachersState {
   teacherList: Teacher[];
-  isLoading: boolean;
+  isTeachersLoading: boolean;
 }
 
 export interface SubjectsState {
   subjectList: Subject[];
-  isLoading: boolean;
+  isSubjectsLoading: boolean;
 }
 
 export interface ScheduleState {
   schedule: Schedule;
-  isLoading: boolean;
+  isScheduleLoading: boolean;
 }
 
 export interface LatestGroup {

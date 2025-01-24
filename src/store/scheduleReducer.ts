@@ -3,12 +3,12 @@ import { GroupSchedule } from '../model/Schedule';
 
 export interface Schedule {
   schedule: GroupSchedule | undefined;
-  isLoading: boolean;
+  isScheduleLoading: boolean;
 }
 
 const initialState: Schedule = {
   schedule: undefined,
-  isLoading: false,
+  isScheduleLoading: false,
 };
 
 const scheduleSlice = createSlice({
@@ -18,11 +18,11 @@ const scheduleSlice = createSlice({
     setSchedule(state, action: PayloadAction<GroupSchedule>) {
       state.schedule = action.payload;
     },
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
+    setScheduleLoading(state, action: PayloadAction<boolean>) {
+      state.isScheduleLoading = action.payload;
     },
   },
 });
 
-export const { setSchedule, setLoading } = scheduleSlice.actions;
+export const { setSchedule, setScheduleLoading } = scheduleSlice.actions;
 export default scheduleSlice.reducer;

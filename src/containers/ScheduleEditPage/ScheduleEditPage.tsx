@@ -1,5 +1,5 @@
 import { Tabs, TabsProps, Typography } from 'antd';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
@@ -10,6 +10,8 @@ import { ScheduleState, State } from '../../store';
 
 import style from './ScheduleEditPage.module.scss';
 import LessonList from '../../components/LessonList';
+import { useDispatch } from 'react-redux';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 
 export const ScheduleEditPage = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
@@ -32,6 +34,30 @@ export const ScheduleEditPage = () => {
     { key: '6', label: 'Суббота', day: 'saturday' },
     { key: '7', label: 'Воскресенье', day: 'sunday' },
   ];
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(setScheduleLoading(true));
+      try {
+        const response = await fetch(
+          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: GroupSchedule = await response.json();
+        dispatch(setSchedule(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setScheduleLoading(false));
+      }
+    };
+
+    fetchData();
+  }, [groupInfo, dispatch]);
 
   const items: TabsProps['items'] = daysOfWeek.map(({ key, label, day }) => ({
     key,

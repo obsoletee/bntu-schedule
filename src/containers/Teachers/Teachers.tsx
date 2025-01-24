@@ -8,7 +8,7 @@ import {
   addTeacher,
   editTeacher,
   deleteTeacher,
-  setLoading,
+  setTeachersLoading,
 } from '../../store/teachersReducer';
 import { State } from '../../store/index'; // Adjust the import based on your store structure
 import {
@@ -19,7 +19,7 @@ import { icons } from '../../assets/icons';
 
 export const Teachers = () => {
   const dispatch = useDispatch();
-  const { teacherList, isLoading } = useSelector(
+  const { teacherList, isTeachersLoading } = useSelector(
     (state: State) => state.teachers,
   );
 
@@ -33,13 +33,13 @@ export const Teachers = () => {
   const [visiblePopoverId, setVisiblePopoverId] = useState<string | null>(null);
 
   const fetchTeachers = async () => {
-    dispatch(setLoading(true));
+    dispatch(setTeachersLoading(true));
     try {
       const response = await fetch('http://localhost:8000/teachers/');
       const data = await response.json();
       dispatch(setTeachers(data));
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setTeachersLoading(false));
     }
   };
 
@@ -160,7 +160,7 @@ export const Teachers = () => {
         </Popover>
         <List
           size="large"
-          loading={isLoading}
+          loading={isTeachersLoading}
           grid={{ column: 4, gutter: 0 }}
           itemLayout="horizontal"
           dataSource={teacherList}

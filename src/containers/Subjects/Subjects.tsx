@@ -8,7 +8,7 @@ import {
   addSubject,
   editSubject,
   deleteSubject,
-  setLoading,
+  setSubjectsLoading,
 } from '../../store/subjectsReducer';
 import { State } from '../../store/index';
 
@@ -16,7 +16,7 @@ import { icons } from '../../assets/icons';
 
 export const Subjects = () => {
   const dispatch = useDispatch();
-  const { subjectList, isLoading } = useSelector(
+  const { subjectList, isSubjectsLoading } = useSelector(
     (state: State) => state.subjects,
   );
 
@@ -29,13 +29,13 @@ export const Subjects = () => {
   const [visiblePopoverId, setVisiblePopoverId] = useState<string | null>(null);
 
   const fetchSubjects = async () => {
-    dispatch(setLoading(true));
+    dispatch(setSubjectsLoading(true));
     try {
       const response = await fetch('http://localhost:8000/subjects/');
       const data = await response.json();
       dispatch(setSubjects(data));
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setSubjectsLoading(false));
     }
   };
 
@@ -142,7 +142,7 @@ export const Subjects = () => {
         </Popover>
         <List
           size="large"
-          loading={isLoading}
+          loading={isSubjectsLoading}
           grid={{ column: 4, gutter: 0 }}
           itemLayout="horizontal"
           dataSource={subjectList}

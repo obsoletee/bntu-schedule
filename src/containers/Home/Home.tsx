@@ -15,7 +15,7 @@ import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Home.module.scss';
-import { setLoading, setSchedule } from '../../store/scheduleReducer';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 
 interface ScheduleList {
   date: string;
@@ -77,7 +77,7 @@ export const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(setLoading(true));
+      dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
           `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
@@ -91,7 +91,7 @@ export const Home = () => {
       } catch (error) {
         console.error('Ошибка:', error);
       } finally {
-        dispatch(setLoading(false));
+        dispatch(setScheduleLoading(false));
       }
     };
 
