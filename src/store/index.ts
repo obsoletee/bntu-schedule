@@ -7,6 +7,7 @@ import teachersReducer, { Teacher } from './teachersReducer';
 import subjectsReducer, { Subject } from './subjectsReducer';
 import scheduleReducer, { Schedule } from './scheduleReducer';
 import { configureStore } from '@reduxjs/toolkit';
+import { activeDayOfWeekReducer } from './activeDayOfWeek';
 
 export interface Action {
   type: string;
@@ -39,6 +40,10 @@ export interface CurrentGroupState {
   subgroup: string;
 }
 
+export interface ActiveDayOfWeekState {
+  activeDayOfWeek: string;
+}
+
 export interface VersionState {
   version: string;
 }
@@ -58,6 +63,7 @@ export interface State {
   teachers: TeachersState;
   subjects: SubjectsState;
   schedule: ScheduleState;
+  activeDayOfWeek: ActiveDayOfWeekState;
 }
 
 const rootReducer = combineReducers({
@@ -67,6 +73,7 @@ const rootReducer = combineReducers({
   teachers: teachersReducer,
   subjects: subjectsReducer,
   schedule: scheduleReducer,
+  activeDayOfWeek: activeDayOfWeekReducer,
 });
 
 export const store = configureStore({

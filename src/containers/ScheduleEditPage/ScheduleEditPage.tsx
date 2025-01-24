@@ -21,6 +21,10 @@ export const ScheduleEditPage = () => {
     (state: ScheduleState) => state.schedule.schedule || undefined,
   );
 
+  const activeDayOfWeek = useSelector(
+    (state: State) => state.activeDayOfWeek.activeDayOfWeek,
+  );
+
   const daysOfWeek: Array<{
     key: string;
     label: string;
@@ -90,7 +94,16 @@ export const ScheduleEditPage = () => {
             <div className={style.title}>
               <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
             </div>
-            <Tabs centered size="large" defaultActiveKey="1" items={items} />
+            <Tabs
+              activeKey={activeDayOfWeek}
+              onChange={(value) => {
+                dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: value });
+              }}
+              centered
+              size="large"
+              defaultActiveKey="1"
+              items={items}
+            />
           </>
         ) : (
           <Text type="danger">Сперва выберите группу.</Text>
