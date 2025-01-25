@@ -29,7 +29,7 @@ export const daysOfWeek: (keyof GroupSchedule)[] = [
 ];
 
 export interface DaySchedule {
-  id: number;
+  id: string;
   startTime: string;
   endTime: string;
   type: string;

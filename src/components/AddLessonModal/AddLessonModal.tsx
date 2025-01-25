@@ -25,8 +25,9 @@ import {
   setTeachersLoading,
   Teacher,
 } from '../../store/teachersReducer';
-import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { setSchedule } from '../../store/scheduleReducer';
 import { GroupSchedule } from '../../model/Schedule';
+import { generateUniqueId } from '../../utils/special';
 
 interface AddLessonModalProps {
   isAddModalOpen: boolean;
@@ -39,7 +40,12 @@ export const AddLessonModal = ({
 }: AddLessonModalProps) => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
+  const { activeDayOfWeek } = useSelector(
+    (state: State) => state.activeDayOfWeek,
+  );
+
   const [formData, setFormData] = useState({
+    id: generateUniqueId(),
     subject: {
       shortName: '',
       fullName: '',
@@ -55,7 +61,7 @@ export const AddLessonModal = ({
     class: '',
     korpus: '',
     subgroup: '0',
-    week: [1],
+    week: ['1'],
   });
   const { Text } = Typography;
   const format = 'HH:mm';
@@ -84,9 +90,7 @@ export const AddLessonModal = ({
     (state: State) => state.teachers,
   );
 
-  // const { schedule, isScheduleLoading } = useSelector(
-  //   (state: State) => state.schedule,
-  // );
+  const { schedule } = useSelector((state: State) => state.schedule);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -123,32 +127,64 @@ export const AddLessonModal = ({
       }
     };
 
-    const fetchData = async () => {
-      dispatch(setScheduleLoading(true));
-      try {
-        const response = await fetch(
-          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Ошибка при получении данных');
-        }
-        const result: GroupSchedule = await response.json();
-        dispatch(setSchedule(result));
-      } catch (error) {
-        console.error('Ошибка:', error);
-      } finally {
-        dispatch(setScheduleLoading(false));
-      }
-    };
-
-    fetchData();
     fetchSubjects();
     fetchTeachers();
   }, [groupInfo, dispatch]);
 
-  const handleOk = () => {
-    setIsAddModalOpen(false);
+  const patchSchedule = async (currentDay: keyof GroupSchedule) => {
+    const response = await fetch(
+      `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...schedule,
+          [currentDay]: [...(schedule?.[currentDay] ?? []), formData],
+        }),
+      },
+    );
+    const result = await response.json();
+    dispatch(setSchedule(result));
+  };
+
+  const handleOk = async () => {
+    try {
+      switch (activeDayOfWeek) {
+        case '1': {
+          await patchSchedule('monday');
+          break;
+        }
+        case '2': {
+          await patchSchedule('tuesday');
+          break;
+        }
+        case '3': {
+          await patchSchedule('wednesday');
+          break;
+        }
+        case '4': {
+          await patchSchedule('thursday');
+          break;
+        }
+        case '5': {
+          await patchSchedule('friday');
+          break;
+        }
+        case '6': {
+          await patchSchedule('saturday');
+          break;
+        }
+        case '7': {
+          await patchSchedule('sunday');
+          break;
+        }
+      }
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error('Ошибка:', error);
+    }
   };
 
   const handleCancel = () => {
@@ -195,7 +231,6 @@ export const AddLessonModal = ({
     }
   };
 
-  console.log(formData);
   return (
     <Modal
       title={
@@ -329,7 +364,11 @@ export const AddLessonModal = ({
               }));
             }}
             value={formData.week}
-            options={groupInfo.university === 'bsuir' ? [1, 2, 3, 4] : [1, 2]}
+            options={
+              groupInfo.university === 'bsuir'
+                ? ['1', '2', '3', '4']
+                : ['1', '2']
+            }
           ></Checkbox.Group>
 
           <Radio.Group

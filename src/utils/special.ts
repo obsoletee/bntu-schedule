@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export const deepEqual = (obj1: any, obj2: any): boolean => {
   // Проверка на идентичность
   if (obj1 === obj2) return true;
@@ -27,4 +29,8 @@ export const deepEqual = (obj1: any, obj2: any): boolean => {
   }
 
   return true;
+};
+
+export const generateUniqueId = (): string => {
+  return uuidv4();
 };

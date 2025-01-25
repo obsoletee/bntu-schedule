@@ -1,9 +1,11 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { Modal, Typography } from 'antd';
 import { useSelector } from 'react-redux';
+
 import { State } from '../../store';
-import { DaySchedule, daysOfWeek, GroupSchedule } from '../../model/Schedule';
-import { deepEqual } from '../../utils/special';
+import { DaySchedule, GroupSchedule } from '../../model/Schedule';
+import { useDispatch } from 'react-redux';
+import { setSchedule } from '../../store/scheduleReducer';
 
 interface DeleteLessonModalProps {
   isDeleteModalOpen: boolean;
@@ -15,74 +17,74 @@ export const DeleteLessonModal = ({
   setIsDeleteModalOpen,
 }: DeleteLessonModalProps) => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
-  const [schedule, setSchedule] = useState<GroupSchedule>();
-  const currentLesson = useSelector(
-    (state: State) => state.currentLesson.currentLesson,
+
+  const { activeDayOfWeek } = useSelector(
+    (state: State) => state.activeDayOfWeek,
   );
+  const dispatch = useDispatch();
+  const { currentLesson } = useSelector((state: State) => state.currentLesson);
+  const { schedule } = useSelector((state: State) => state.schedule);
 
   const { Text } = Typography;
 
+  const patchSchedule = async (currentDay: keyof GroupSchedule) => {
+    const response = await fetch(
+      `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...schedule,
+          [currentDay]:
+            (schedule?.[currentDay] as DaySchedule[] | undefined)?.filter(
+              (lesson) => lesson.id !== (currentLesson ? currentLesson.id : ''),
+            ) ?? [],
+        }),
+      },
+    );
+    const result = await response.json();
+    dispatch(setSchedule(result));
+  };
+
   const handleOk = async () => {
     try {
-      if (schedule) {
-        const updatedSchedule = daysOfWeek.reduce((acc, day) => {
-          const lessons = schedule[day];
-
-          if (Array.isArray(lessons)) {
-            acc[day] = lessons.filter(
-              (lesson: DaySchedule) => !deepEqual(lesson, currentLesson),
-            );
-          }
-
-          return acc;
-        }, {} as Partial<Record<keyof GroupSchedule, DaySchedule[]>>);
-
-        const finalSchedule: GroupSchedule = {
-          ...schedule,
-          ...updatedSchedule,
-        } as GroupSchedule;
-
-        const response = await fetch(
-          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(finalSchedule),
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error('Ошибка при обновлении расписания');
+      switch (activeDayOfWeek) {
+        case '1': {
+          await patchSchedule('monday');
+          break;
         }
-      } else {
-        throw new Error(`Данные для не являются массивом`);
+        case '2': {
+          await patchSchedule('tuesday');
+          break;
+        }
+        case '3': {
+          await patchSchedule('wednesday');
+          break;
+        }
+        case '4': {
+          await patchSchedule('thursday');
+          break;
+        }
+        case '5': {
+          await patchSchedule('friday');
+          break;
+        }
+        case '6': {
+          await patchSchedule('saturday');
+          break;
+        }
+        case '7': {
+          await patchSchedule('sunday');
+          break;
+        }
       }
+      setIsDeleteModalOpen(false);
     } catch (error) {
       console.error('Ошибка:', error);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Ошибка при получении данных');
-        }
-        const result: GroupSchedule = await response.json();
-        setSchedule(result);
-      } catch (error) {
-        console.error('Ошибка:', error);
-      }
-    };
-
-    fetchData();
-  }, [groupInfo]);
 
   const handleCancel = () => {
     setIsDeleteModalOpen(false);

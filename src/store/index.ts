@@ -24,11 +24,6 @@ export interface SubjectsState {
   isSubjectsLoading: boolean;
 }
 
-export interface ScheduleState {
-  schedule: Schedule;
-  isScheduleLoading: boolean;
-}
-
 export interface LatestGroup {
   number: string;
   university: string;
@@ -62,7 +57,7 @@ export interface State {
   currentLesson: LessonsState;
   teachers: TeachersState;
   subjects: SubjectsState;
-  schedule: ScheduleState;
+  schedule: Schedule;
   activeDayOfWeek: ActiveDayOfWeekState;
 }
 

@@ -6,7 +6,7 @@ import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
 
 import { DaySchedule, GroupSchedule } from '../../model/Schedule';
-import { ScheduleState, State } from '../../store';
+import { State } from '../../store';
 
 import style from './ScheduleEditPage.module.scss';
 import LessonList from '../../components/LessonList';
@@ -17,9 +17,7 @@ export const ScheduleEditPage = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
   const { Text, Title } = Typography;
 
-  const schedule = useSelector(
-    (state: ScheduleState) => state.schedule.schedule || undefined,
-  );
+  const { schedule } = useSelector((state: State) => state.schedule);
 
   const activeDayOfWeek = useSelector(
     (state: State) => state.activeDayOfWeek.activeDayOfWeek,
