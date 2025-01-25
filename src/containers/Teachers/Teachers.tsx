@@ -10,7 +10,7 @@ import {
   deleteTeacher,
   setTeachersLoading,
 } from '../../store/teachersReducer';
-import { State } from '../../store/index'; // Adjust the import based on your store structure
+import { State } from '../../store/index';
 import {
   TeacherImageKeys,
   teacherImages,

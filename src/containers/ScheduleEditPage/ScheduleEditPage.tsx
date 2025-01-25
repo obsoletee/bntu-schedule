@@ -87,7 +87,7 @@ export const ScheduleEditPage = () => {
       </Suspense>
 
       <div className={style.container}>
-        {groupInfo ? (
+        {groupInfo.currentGroup ? (
           <>
             <div className={style.title}>
               <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
