@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { DayOfWeek, DaySchedule } from '../../model/Schedule';
-import { ScheduleState, State } from '../../store';
+import { State } from '../../store';
 
 import { LessonList } from '../LessonList/LessonList';
 import {} from '../../store/scheduleReducer';
@@ -19,9 +19,7 @@ interface LessonListWithDateProps {
 }
 
 export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
-  const schedule = useSelector(
-    (state: ScheduleState) => state.schedule.schedule || undefined,
-  );
+  const { schedule } = useSelector((state: State) => state.schedule);
   const [lessons, setLessons] = useState<DaySchedule[]>([]);
 
   const groupInfo = useSelector((state: State) => state.currentGroup);
