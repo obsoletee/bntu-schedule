@@ -199,8 +199,9 @@ export const Teachers = () => {
                   avatar={
                     <Avatar
                       src={
-                        teacherImages[item.avatar as TeacherImageKeys] ||
-                        teacherImages.emptyAvatar
+                        teacherImages[
+                          item.avatar.toLowerCase() as TeacherImageKeys
+                        ] || teacherImages.emptyAvatar
                       }
                     />
                   }
