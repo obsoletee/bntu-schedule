@@ -302,9 +302,7 @@ export const Teachers = () => {
                       </div>
                     </Space>
                   }
-                  description={
-                    <Text type="secondary">ФИО: {item.fullName}</Text>
-                  }
+                  description={<Text type="secondary">{item.fullName}</Text>}
                 />
               </List.Item>
             )}

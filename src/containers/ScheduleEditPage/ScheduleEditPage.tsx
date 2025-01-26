@@ -21,8 +21,8 @@ export const ScheduleEditPage = () => {
 
   const { schedule } = useSelector((state: State) => state.schedule);
 
-  const activeDayOfWeek = useSelector(
-    (state: State) => state.activeDayOfWeek.activeDayOfWeek,
+  const { activeDayOfWeek } = useSelector(
+    (state: State) => state.activeDayOfWeek,
   );
 
   const daysOfWeek: Array<{
