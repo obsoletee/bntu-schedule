@@ -199,8 +199,9 @@ export const Teachers = () => {
                   avatar={
                     <Avatar
                       src={
-                        teacherImages[item.avatar as TeacherImageKeys] ||
-                        teacherImages.emptyAvatar
+                        teacherImages[
+                          item.avatar.toLowerCase() as TeacherImageKeys
+                        ] || teacherImages.emptyAvatar
                       }
                     />
                   }
@@ -301,9 +302,7 @@ export const Teachers = () => {
                       </div>
                     </Space>
                   }
-                  description={
-                    <Text type="secondary">ФИО: {item.fullName}</Text>
-                  }
+                  description={<Text type="secondary">{item.fullName}</Text>}
                 />
               </List.Item>
             )}

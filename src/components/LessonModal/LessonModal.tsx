@@ -19,7 +19,8 @@ export const LessonModal = ({
   const currentLesson = useSelector(
     (state: State) => state.currentLesson.currentLesson,
   );
-  const avatarKey = currentLesson?.teacher.avatar as keyof typeof teacherImages;
+  const avatarKey =
+    currentLesson?.teacher.avatar.toLowerCase() as keyof typeof teacherImages;
 
   const handleOk = () => {
     setIsModalOpen(false);

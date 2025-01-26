@@ -48,6 +48,7 @@ export const MenuDrawer = ({
       type: 'CHANGE_GROUP_NUMBER',
       payload: { currentGroup: value, university: university },
     });
+    dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: '1' });
     setIsMenuActive(false);
   };
 
