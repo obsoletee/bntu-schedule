@@ -150,40 +150,46 @@ export const AddLessonModal = ({
   };
 
   const handleOk = async () => {
-    try {
-      switch (activeDayOfWeek) {
-        case '1': {
-          await patchSchedule('monday');
-          break;
+    if (formData.startTime === '' || formData.endTime === '') {
+      alert('Заполните поля "Время начала" и "Время окончания"');
+    } else if (formData.subject.fullName === '') {
+      alert('Выберите предмет');
+    } else {
+      try {
+        switch (activeDayOfWeek) {
+          case '1': {
+            await patchSchedule('monday');
+            break;
+          }
+          case '2': {
+            await patchSchedule('tuesday');
+            break;
+          }
+          case '3': {
+            await patchSchedule('wednesday');
+            break;
+          }
+          case '4': {
+            await patchSchedule('thursday');
+            break;
+          }
+          case '5': {
+            await patchSchedule('friday');
+            break;
+          }
+          case '6': {
+            await patchSchedule('saturday');
+            break;
+          }
+          case '7': {
+            await patchSchedule('sunday');
+            break;
+          }
         }
-        case '2': {
-          await patchSchedule('tuesday');
-          break;
-        }
-        case '3': {
-          await patchSchedule('wednesday');
-          break;
-        }
-        case '4': {
-          await patchSchedule('thursday');
-          break;
-        }
-        case '5': {
-          await patchSchedule('friday');
-          break;
-        }
-        case '6': {
-          await patchSchedule('saturday');
-          break;
-        }
-        case '7': {
-          await patchSchedule('sunday');
-          break;
-        }
+        setIsAddModalOpen(false);
+      } catch (error) {
+        console.error('Ошибка:', error);
       }
-      setIsAddModalOpen(false);
-    } catch (error) {
-      console.error('Ошибка:', error);
     }
   };
 

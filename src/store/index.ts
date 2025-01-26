@@ -48,7 +48,7 @@ export interface LatestGroupsState {
 }
 
 export interface LessonsState {
-  currentLesson?: DaySchedule;
+  currentLesson: DaySchedule;
 }
 
 export interface State {

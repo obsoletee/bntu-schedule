@@ -4,7 +4,7 @@ interface ActiveDayOfWeekAction {
 }
 
 const defaultState = {
-  activeDayOfWeek: localStorage.getItem('activeDayOfWeek') || '',
+  activeDayOfWeek: localStorage.getItem('activeDayOfWeek') || '1',
 };
 
 export const activeDayOfWeekReducer = (

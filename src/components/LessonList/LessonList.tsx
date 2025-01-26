@@ -1,11 +1,9 @@
 import { Button, List, Space, Typography } from 'antd';
-
 import { DaySchedule } from '../../model/Schedule';
-
 import style from './LessonList.module.scss';
 import { icons } from '../../assets/icons';
 import { useCallback, useState } from 'react';
-import { setLesson } from '../../store/currentLessonReducer';
+import { setCurrentLesson } from '../../store/currentLessonReducer';
 import { useDispatch } from 'react-redux';
 import LessonModal from '../LessonModal';
 import EditLessonModal from '../EditLessonModal';
@@ -40,7 +38,7 @@ export const LessonList = ({
   const handleOpenModal = useCallback(
     (lessonInfo: DaySchedule) => {
       setIsModalOpen(true);
-      dispatch(setLesson(lessonInfo));
+      dispatch(setCurrentLesson(lessonInfo));
     },
     [dispatch],
   );
@@ -48,7 +46,7 @@ export const LessonList = ({
   const handleOpenEditModal = useCallback(
     (lessonInfo: DaySchedule) => {
       setIsEditModalOpen(true);
-      dispatch(setLesson(lessonInfo));
+      dispatch(setCurrentLesson(lessonInfo));
     },
     [dispatch],
   );
@@ -56,7 +54,7 @@ export const LessonList = ({
   const handleOpenDeleteModal = useCallback(
     (lessonInfo: DaySchedule) => {
       setIsDeleteModalOpen(true);
-      dispatch(setLesson(lessonInfo));
+      dispatch(setCurrentLesson(lessonInfo));
     },
     [dispatch],
   );
@@ -65,56 +63,45 @@ export const LessonList = ({
     setIsAddModalOpen(true);
   };
 
+  // Сортировка items по полю startTime
+  const sortedItems = items?.slice().sort((a, b) => {
+    return a.startTime.localeCompare(b.startTime);
+  });
+
   return (
     <>
-      <>
-        <LessonModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
+      <LessonModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      {addModal && (
+        <AddLessonModal
+          isAddModalOpen={isAddModalOpen}
+          setIsAddModalOpen={setIsAddModalOpen}
         />
-
-        {addModal ? (
-          <AddLessonModal
-            isAddModalOpen={isAddModalOpen}
-            setIsAddModalOpen={setIsAddModalOpen}
-          />
-        ) : (
-          <></>
-        )}
-
-        {editModal ? (
-          <EditLessonModal
-            isEditModalOpen={isEditModalOpen}
-            setIsEditModalOpen={setIsEditModalOpen}
-          />
-        ) : (
-          <></>
-        )}
-        {deleteModal ? (
-          <DeleteLessonModal
-            isDeleteModalOpen={isDeleteModalOpen}
-            setIsDeleteModalOpen={setIsDeleteModalOpen}
-          />
-        ) : (
-          <></>
-        )}
-      </>
-      {addButton ? (
+      )}
+      {editModal && (
+        <EditLessonModal
+          isEditModalOpen={isEditModalOpen}
+          setIsEditModalOpen={setIsEditModalOpen}
+        />
+      )}
+      {deleteModal && (
+        <DeleteLessonModal
+          isDeleteModalOpen={isDeleteModalOpen}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+        />
+      )}
+      {addButton && (
         <Button onClick={handleOpenAddModal} className={style.button} block>
           Добавить занятие
         </Button>
-      ) : (
-        <></>
       )}
       <List
         className={style.list_item}
         itemLayout="horizontal"
-        dataSource={items}
-        locale={{ emptyText: `В этот день занятий нет.` }}
+        dataSource={sortedItems}
+        locale={{ emptyText: 'В этот день занятий нет.' }}
         renderItem={(item: DaySchedule) => (
           <List.Item key={item.id} onClick={() => handleOpenModal(item)}>
             <List.Item.Meta
-              key={item.id}
               avatar={
                 <div className={style.status} lesson-type={item.type}></div>
               }
@@ -123,9 +110,8 @@ export const LessonList = ({
                   <Text>
                     {`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
                   </Text>
-
                   <Space size={'large'}>
-                    {editModal ? (
+                    {editModal && (
                       <img
                         className={style.icon}
                         src={icons.editIcon}
@@ -136,10 +122,8 @@ export const LessonList = ({
                           handleOpenEditModal(item);
                         }}
                       />
-                    ) : (
-                      <></>
                     )}
-                    {deleteModal ? (
+                    {deleteModal && (
                       <img
                         className={style.icon}
                         src={icons.binIcon}
@@ -150,8 +134,6 @@ export const LessonList = ({
                           handleOpenDeleteModal(item);
                         }}
                       />
-                    ) : (
-                      <></>
                     )}
                   </Space>
                 </div>
@@ -160,11 +142,9 @@ export const LessonList = ({
                 <div className={style.list_description}>
                   {item.class && item.korpus ? (
                     <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
-                  ) : (
-                    <></>
-                  )}
+                  ) : null}
                   <Text type="secondary">
-                    {item.subgroup != '0'
+                    {item.subgroup !== '0'
                       ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
                       : `${item.teacher.shortName}`}
                   </Text>
