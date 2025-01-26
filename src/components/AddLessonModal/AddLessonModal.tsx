@@ -28,6 +28,7 @@ import {
 import { setSchedule } from '../../store/scheduleReducer';
 import { GroupSchedule } from '../../model/Schedule';
 import { generateUniqueId } from '../../utils/special';
+import { API } from '../../model/apiConst';
 
 interface AddLessonModalProps {
   isAddModalOpen: boolean;
@@ -96,7 +97,7 @@ export const AddLessonModal = ({
     const fetchSubjects = async () => {
       dispatch(setSubjectsLoading(true));
       try {
-        const response = await fetch(`http://localhost:8000/subjects/`);
+        const response = await fetch(`${API.url}/subjects/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -113,7 +114,7 @@ export const AddLessonModal = ({
     const fetchTeachers = async () => {
       dispatch(setTeachersLoading(true));
       try {
-        const response = await fetch(`http://localhost:8000/teachers/`);
+        const response = await fetch(`${API.url}/teachers/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -133,7 +134,7 @@ export const AddLessonModal = ({
 
   const patchSchedule = async (currentDay: keyof GroupSchedule) => {
     const response = await fetch(
-      `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+      `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
       {
         method: 'PATCH',
         headers: {

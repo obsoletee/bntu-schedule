@@ -16,6 +16,7 @@ import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Home.module.scss';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { API } from '../../model/apiConst';
 
 interface ScheduleList {
   date: string;
@@ -80,7 +81,7 @@ export const Home = () => {
       dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
         );
 
         if (!response.ok) {

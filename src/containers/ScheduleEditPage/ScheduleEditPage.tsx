@@ -12,6 +12,8 @@ import style from './ScheduleEditPage.module.scss';
 import LessonList from '../../components/LessonList';
 import { useDispatch } from 'react-redux';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { useViewportSize } from '../../hooks/useViewportSize';
+import { API } from '../../model/apiConst';
 
 export const ScheduleEditPage = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
@@ -43,7 +45,7 @@ export const ScheduleEditPage = () => {
       dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
         );
 
         if (!response.ok) {
@@ -61,6 +63,7 @@ export const ScheduleEditPage = () => {
     fetchData();
   }, [groupInfo, dispatch]);
 
+  const { width } = useViewportSize();
   const items: TabsProps['items'] = daysOfWeek.map(({ key, label, day }) => ({
     key,
     label,
@@ -97,7 +100,7 @@ export const ScheduleEditPage = () => {
               onChange={(value) => {
                 dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: value });
               }}
-              centered
+              centered={width < 768 ? false : true}
               size="large"
               defaultActiveKey="1"
               items={items}

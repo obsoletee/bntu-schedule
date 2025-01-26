@@ -9,6 +9,7 @@ import LessonModal from '../LessonModal';
 import EditLessonModal from '../EditLessonModal';
 import DeleteLessonModal from '../DeleteLessonModal';
 import AddLessonModal from '../AddLessonModal';
+import { useViewportSize } from '../../hooks/useViewportSize';
 
 interface LessonListWithDateProps {
   items: DaySchedule[] | undefined;
@@ -32,6 +33,7 @@ export const LessonList = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { width } = useViewportSize();
 
   const dispatch = useDispatch();
 
@@ -63,7 +65,6 @@ export const LessonList = ({
     setIsAddModalOpen(true);
   };
 
-  // Сортировка items по полю startTime
   const sortedItems = items?.slice().sort((a, b) => {
     return a.startTime.localeCompare(b.startTime);
   });
@@ -110,7 +111,7 @@ export const LessonList = ({
                   <Text>
                     {`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
                   </Text>
-                  <Space size={'large'}>
+                  <Space size={width < 768 ? 'small' : 'large'}>
                     {editModal && (
                       <img
                         className={style.icon}

@@ -6,6 +6,7 @@ import { State } from '../../store';
 import { DaySchedule, GroupSchedule } from '../../model/Schedule';
 import { useDispatch } from 'react-redux';
 import { setSchedule } from '../../store/scheduleReducer';
+import { API } from '../../model/apiConst';
 
 interface DeleteLessonModalProps {
   isDeleteModalOpen: boolean;
@@ -29,7 +30,7 @@ export const DeleteLessonModal = ({
 
   const patchSchedule = async (currentDay: keyof GroupSchedule) => {
     const response = await fetch(
-      `http://localhost:8000/${groupInfo.university}/group${groupInfo.currentGroup}`,
+      `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
       {
         method: 'PATCH',
         headers: {
@@ -100,7 +101,7 @@ export const DeleteLessonModal = ({
       cancelText="Отмена"
     >
       <div>
-        <Text>Вы уверены, что хотите безвозвратно удалить этот элемент?</Text>
+        <Text>Вы уверены, что хотите безвозвратно удалить это занятие?</Text>
       </div>
     </Modal>
   );
