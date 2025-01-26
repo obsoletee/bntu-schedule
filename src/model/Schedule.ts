@@ -9,8 +9,27 @@ export interface Teacher {
   avatar: string;
 }
 
+export type DayOfWeek =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
+export const daysOfWeek: (keyof GroupSchedule)[] = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+];
+
 export interface DaySchedule {
-  id: number;
+  id: string;
   startTime: string;
   endTime: string;
   type: string;
@@ -31,4 +50,5 @@ export interface GroupSchedule {
   thursday: DaySchedule[];
   friday: DaySchedule[];
   saturday: DaySchedule[];
+  sunday: DaySchedule[];
 }

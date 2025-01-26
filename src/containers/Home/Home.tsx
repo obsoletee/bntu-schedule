@@ -1,19 +1,22 @@
 import { Card, Carousel, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
 const Filter = lazy(() => import('../../components/Filter'));
-const LessonList = lazy(() => import('../../components/LessonList'));
-const LessonModal = lazy(() => import('../../components/LessonModal'));
+const LessonListWithDate = lazy(
+  () => import('../../components/LessonListWithDate'),
+);
 
-import { DaySchedule, GroupSchedule } from '../../model/Schedule';
+import { GroupSchedule } from '../../model/Schedule';
 import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
 import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Home.module.scss';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { API } from '../../model/apiConst';
 
 interface ScheduleList {
   date: string;
@@ -26,17 +29,12 @@ interface ScheduleList {
 export const Home = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
-  const [schedule, setSchedule] = useState<GroupSchedule>();
+  const dispatch = useDispatch();
+
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
-  const [lessonsInfo, setLessonsInfo] = useState<DaySchedule>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { width } = useViewportSize();
   const { Text, Title } = Typography;
-
-  const handleOpenModal = useCallback((lessonInfo: DaySchedule) => {
-    setIsModalOpen(true);
-    setLessonsInfo(lessonInfo);
-  }, []);
 
   const generateSchedule = useCallback(() => {
     const startDate = new Date();
@@ -80,43 +78,36 @@ export const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `https://elaborate-antonina-obsoletee-b8b3bfb1.koyeb.app/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
         );
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
         }
         const result: GroupSchedule = await response.json();
-        setSchedule(result);
+        dispatch(setSchedule(result));
       } catch (error) {
         console.error('Ошибка:', error);
+      } finally {
+        dispatch(setScheduleLoading(false));
       }
     };
 
     fetchData();
     generateSchedule();
-  }, [groupInfo, generateSchedule]);
+  }, [groupInfo, generateSchedule, dispatch]);
 
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<CustomSpin />}>
-        <Header />
+        <Header title="Расписание" />
       </Suspense>
-      {lessonsInfo ? (
-        <Suspense fallback={<CustomSpin />}>
-          <LessonModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-            data={lessonsInfo}
-          />
-        </Suspense>
-      ) : (
-        <></>
-      )}
+
       <div className={style.container}>
-        {groupInfo ? (
+        {groupInfo.currentGroup ? (
           <>
             <div className={style.title}>
               <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
@@ -153,11 +144,7 @@ export const Home = () => {
                         <></>
                       ) : (
                         <Suspense fallback={<CustomSpin />}>
-                          <LessonList
-                            data={schedule}
-                            handleOpenModal={handleOpenModal}
-                            date={date}
-                          />
+                          <LessonListWithDate date={date} />
                         </Suspense>
                       )}
                     </Card>

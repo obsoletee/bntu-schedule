@@ -15,7 +15,11 @@ interface currentState {
   studyWeekNumber: number;
 }
 
-export const Header = () => {
+interface HeaderProps {
+  title: string;
+}
+
+export const Header = ({ title }: HeaderProps) => {
   const [currentState, setCurrentState] = useState<currentState>({
     currentDate: '',
     studyWeekNumber: 0,
@@ -46,7 +50,7 @@ export const Header = () => {
       <div className={style.container}>
         <div className={style.info}>
           <Title level={3}>
-            <Link to={HOME}>Расписание</Link>
+            <Link to={HOME}>{title}</Link>
           </Title>
           <Text>Сегодня: {currentState.currentDate}</Text>
           <Text>Неделя: {currentState.studyWeekNumber}</Text>

@@ -1,24 +1,25 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Modal, Typography } from 'antd';
 
-import { DaySchedule } from '../../model/Schedule';
-
 import style from './LessonModal.module.scss';
 import { teacherImages } from '../../assets/images/teacherImages';
+import { useSelector } from 'react-redux';
+import { State } from '../../store';
 
 interface LessonModalProps {
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  data: DaySchedule;
 }
 
 export const LessonModal = ({
   isModalOpen,
   setIsModalOpen,
-  data,
 }: LessonModalProps) => {
   const { Text } = Typography;
-  const avatarKey = data.teacher.avatar as keyof typeof teacherImages;
+  const currentLesson = useSelector(
+    (state: State) => state.currentLesson.currentLesson,
+  );
+  const avatarKey = currentLesson?.teacher.avatar as keyof typeof teacherImages;
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -29,43 +30,60 @@ export const LessonModal = ({
   };
   return (
     <Modal
-      title={`${data.subject.fullName} | ${data.type}`}
+      title={`${currentLesson ? currentLesson.subject.fullName : ''} | ${
+        currentLesson ? currentLesson.type : ''
+      }`}
       open={isModalOpen}
       onOk={handleOk}
+      okText="Ок"
       onCancel={handleCancel}
+      cancelText="Назад"
     >
       <div className={style.container}>
         <div className={style.description_container}>
           <Text>
-            <b>{data.teacher.fullName}</b>
+            <b>{currentLesson ? currentLesson.teacher.fullName : ''}</b>
           </Text>
-          <Text>{`Время: ${data.startTime} - ${data.endTime}`}</Text>
-          {data.class && data.korpus ? (
-            <Text>{`Аудитория: ${data.class}-${data.korpus}к`}</Text>
+          <Text>{`Время: ${currentLesson ? currentLesson.startTime : ''} - ${
+            currentLesson ? currentLesson.endTime : ''
+          }`}</Text>
+          {currentLesson?.class && currentLesson?.korpus ? (
+            <Text>{`Аудитория: ${currentLesson.class}-${currentLesson.korpus}к`}</Text>
           ) : (
             <></>
           )}
           <Text>
             Недели:{' '}
-            {data.week.length > 0 ? (
-              <>
-                {data.week.slice(0, -1).join(', ')}
-                {data.week.length > 1
-                  ? `, ${data.week[data.week.length - 1]}`
-                  : `${data.week[0]}`}
-              </>
+            {currentLesson ? (
+              currentLesson.week.length > 0 ? (
+                <>
+                  {currentLesson!.week.slice(0, -1).join(', ')}
+                  {currentLesson!.week.length > 1
+                    ? `, ${currentLesson?.week[currentLesson.week.length - 1]}`
+                    : `${currentLesson?.week[0]}`}
+                </>
+              ) : (
+                'Нет данных.'
+              )
             ) : (
-              'Нет данных.'
+              ''
             )}
           </Text>
-          {data.subgroup != '0' ? (
-            <Text type="danger">{`Подгруппа ${data.subgroup}`}</Text>
+          {currentLesson ? (
+            currentLesson.subgroup != '0' ? (
+              <Text type="danger">{`Подгруппа ${currentLesson?.subgroup}`}</Text>
+            ) : (
+              <></>
+            )
           ) : (
-            <></>
+            ''
           )}
         </div>
         <div className={style.photo_wrapper}>
-          <img src={teacherImages[avatarKey]} alt={data.teacher.fullName} />
+          <img
+            src={teacherImages[avatarKey]}
+            alt={currentLesson ? currentLesson.teacher.fullName : ''}
+          />
         </div>
       </div>
     </Modal>

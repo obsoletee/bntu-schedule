@@ -1,92 +1,160 @@
-import { List, Typography } from 'antd';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-
-import { DaySchedule, GroupSchedule } from '../../model/Schedule';
-import { State } from '../../store';
-
+import { Button, List, Space, Typography } from 'antd';
+import { DaySchedule } from '../../model/Schedule';
 import style from './LessonList.module.scss';
+import { icons } from '../../assets/icons';
+import { useCallback, useState } from 'react';
+import { setCurrentLesson } from '../../store/currentLessonReducer';
+import { useDispatch } from 'react-redux';
+import LessonModal from '../LessonModal';
+import EditLessonModal from '../EditLessonModal';
+import DeleteLessonModal from '../DeleteLessonModal';
+import AddLessonModal from '../AddLessonModal';
+import { useViewportSize } from '../../hooks/useViewportSize';
 
-interface ScheduleList {
-  date: string;
-  dayOfWeekEN: string;
-  dayOfWeekRU: string;
-  shortDayOfWeekRU: string;
-  weekNumber: number;
+interface LessonListWithDateProps {
+  items: DaySchedule[] | undefined;
+  iconSize?: 'normal' | 'large';
+  addButton?: boolean;
+  addModal?: boolean;
+  editModal?: boolean;
+  deleteModal?: boolean;
 }
-interface LessonListProps {
-  data: GroupSchedule | undefined;
-  date: ScheduleList;
-  handleOpenModal: (lessonInfo: DaySchedule) => void;
-}
-
-type DayOfWeek =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday';
 
 export const LessonList = ({
-  data,
-  date,
-  handleOpenModal,
-}: LessonListProps) => {
+  iconSize = 'normal',
+  items,
+  addButton = false,
+  addModal = false,
+  editModal = false,
+  deleteModal = false,
+}: LessonListWithDateProps) => {
   const { Text } = Typography;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { width } = useViewportSize();
 
-  const [lessons, setLessons] = useState<DaySchedule[]>([]);
+  const dispatch = useDispatch();
 
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const handleOpenModal = useCallback(
+    (lessonInfo: DaySchedule) => {
+      setIsModalOpen(true);
+      dispatch(setCurrentLesson(lessonInfo));
+    },
+    [dispatch],
+  );
 
-  useEffect(() => {
-    if (data) {
-      const updatedLessons = groupInfo.subgroup
-        ? data[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
-            (item) =>
-              item.week.includes(date.weekNumber.toString()) &&
-              (!item.subgroup.localeCompare(groupInfo.subgroup) ||
-                item.subgroup === '0'),
-          ) || []
-        : data[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter((item) =>
-            item.week.includes(date.weekNumber.toString()),
-          ) || [];
+  const handleOpenEditModal = useCallback(
+    (lessonInfo: DaySchedule) => {
+      setIsEditModalOpen(true);
+      dispatch(setCurrentLesson(lessonInfo));
+    },
+    [dispatch],
+  );
 
-      setLessons(updatedLessons);
-    }
-  }, [groupInfo.subgroup, groupInfo.currentGroup, data, date]);
+  const handleOpenDeleteModal = useCallback(
+    (lessonInfo: DaySchedule) => {
+      setIsDeleteModalOpen(true);
+      dispatch(setCurrentLesson(lessonInfo));
+    },
+    [dispatch],
+  );
+
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const sortedItems = items?.slice().sort((a, b) => {
+    return a.startTime.localeCompare(b.startTime);
+  });
 
   return (
-    <List
-      className={style.list_item}
-      itemLayout="horizontal"
-      dataSource={lessons}
-      locale={{ emptyText: `В этот день занятий нет.` }}
-      renderItem={(item: DaySchedule) => (
-        <List.Item key={item.id} onClick={() => handleOpenModal(item)}>
-          <List.Item.Meta
-            key={item.id}
-            avatar={
-              <div className={style.status} lesson-type={item.type}></div>
-            }
-            title={`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
-            description={
-              <div className={style.list_description}>
-                {item.class && item.korpus ? (
-                  <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
-                ) : (
-                  <></>
-                )}
-                <Text type="secondary">
-                  {item.subgroup != '0'
-                    ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
-                    : `${item.teacher.shortName}`}
-                </Text>
-              </div>
-            }
-          />
-        </List.Item>
+    <>
+      <LessonModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      {addModal && (
+        <AddLessonModal
+          isAddModalOpen={isAddModalOpen}
+          setIsAddModalOpen={setIsAddModalOpen}
+        />
       )}
-    />
+      {editModal && (
+        <EditLessonModal
+          isEditModalOpen={isEditModalOpen}
+          setIsEditModalOpen={setIsEditModalOpen}
+        />
+      )}
+      {deleteModal && (
+        <DeleteLessonModal
+          isDeleteModalOpen={isDeleteModalOpen}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+        />
+      )}
+      {addButton && (
+        <Button onClick={handleOpenAddModal} className={style.button} block>
+          Добавить занятие
+        </Button>
+      )}
+      <List
+        className={style.list_item}
+        itemLayout="horizontal"
+        dataSource={sortedItems}
+        locale={{ emptyText: 'В этот день занятий нет.' }}
+        renderItem={(item: DaySchedule) => (
+          <List.Item key={item.id} onClick={() => handleOpenModal(item)}>
+            <List.Item.Meta
+              avatar={
+                <div className={style.status} lesson-type={item.type}></div>
+              }
+              title={
+                <div className={style.card_title}>
+                  <Text>
+                    {`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
+                  </Text>
+                  <Space size={width < 768 ? 'small' : 'large'}>
+                    {editModal && (
+                      <img
+                        className={style.icon}
+                        src={icons.editIcon}
+                        icon-size={iconSize}
+                        alt="edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEditModal(item);
+                        }}
+                      />
+                    )}
+                    {deleteModal && (
+                      <img
+                        className={style.icon}
+                        src={icons.binIcon}
+                        icon-size={iconSize}
+                        alt="delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDeleteModal(item);
+                        }}
+                      />
+                    )}
+                  </Space>
+                </div>
+              }
+              description={
+                <div className={style.list_description}>
+                  {item.class && item.korpus ? (
+                    <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
+                  ) : null}
+                  <Text type="secondary">
+                    {item.subgroup !== '0'
+                      ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
+                      : `${item.teacher.shortName}`}
+                  </Text>
+                </div>
+              }
+            />
+          </List.Item>
+        )}
+      />
+    </>
   );
 };

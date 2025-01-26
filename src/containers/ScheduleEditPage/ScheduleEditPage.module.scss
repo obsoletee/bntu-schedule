@@ -1,0 +1,72 @@
+@import '../../styles/colors.scss';
+
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  background-color: $color--white;
+}
+
+.container {
+  width: 100%;
+  padding: 0 40px;
+  margin: 20px 0;
+
+  @media (max-width: 1024px) {
+    padding: 0 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 10px;
+  }
+}
+
+.title {
+  text-align: center;
+  color: $color--text-dark;
+}
+
+.card_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+  width: 100%;
+
+  & > div {
+    width: 100%;
+  }
+}
+
+.list_item {
+  cursor: pointer;
+}
+
+.status {
+  display: block;
+  width: 2px;
+  height: 80px;
+  &[lesson-type='Лекция'] {
+    background-color: green;
+  }
+  &[lesson-type='Практика'] {
+    background-color: yellow;
+  }
+  &[lesson-type='Лаба'] {
+    background-color: red;
+  }
+}
+
+.list_description {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit_icon {
+  width: 24px;
+  height: 24px;
+}
+
+.card_title {
+  display: flex;
+  justify-content: space-between;
+}
