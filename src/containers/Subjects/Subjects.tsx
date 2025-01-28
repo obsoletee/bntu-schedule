@@ -151,15 +151,17 @@ export const Subjects = () => {
             Добавить предмет
           </Button>
         </Popover>
-        <SubjectList
-          newSubject={newSubject}
-          handleEditSubject={handleEditSubject}
-          visiblePopoverId={visiblePopoverId}
-          setVisiblePopoverId={setVisiblePopoverId}
-          handleDeleteSubject={handleDeleteSubject}
-          setNewSubject={setNewSubject}
-          setEditingSubjectId={setEditingSubjectId}
-        />
+        <Suspense fallback={<CustomSpin />}>
+          <SubjectList
+            newSubject={newSubject}
+            handleEditSubject={handleEditSubject}
+            visiblePopoverId={visiblePopoverId}
+            setVisiblePopoverId={setVisiblePopoverId}
+            handleDeleteSubject={handleDeleteSubject}
+            setNewSubject={setNewSubject}
+            setEditingSubjectId={setEditingSubjectId}
+          />
+        </Suspense>
       </div>
     </div>
   );
