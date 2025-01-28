@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
 import {
   Checkbox,
   Input,
@@ -10,16 +10,21 @@ import {
   Typography,
 } from 'antd';
 import dayjs from 'dayjs';
-
-import style from './EditLessonModal.module.scss';
-import { useSelector } from 'react-redux';
 import { State } from '../../store';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+
+import { API } from '../../model/apiConst';
+import {
+  DaySchedule,
+  GroupSchedule,
+  lessonTypeList,
+} from '../../model/Schedule';
 import {
   clearCurrentLesson,
   setCurrentLesson,
 } from '../../store/currentLessonReducer';
-import { DaySchedule, GroupSchedule } from '../../model/Schedule';
-import { useDispatch } from 'react-redux';
+import { setSchedule } from '../../store/scheduleReducer';
 import {
   setSubjects,
   setSubjectsLoading,
@@ -30,9 +35,8 @@ import {
   setTeachersLoading,
   Teacher,
 } from '../../store/teachersReducer';
-import { setSchedule } from '../../store/scheduleReducer';
-import { API } from '../../model/apiConst';
 
+import style from './EditLessonModal.module.scss';
 interface EditLessonModalProps {
   isEditModalOpen: boolean;
   setIsEditModalOpen: Dispatch<SetStateAction<boolean>>;
@@ -42,34 +46,19 @@ export const EditLessonModal = ({
   isEditModalOpen,
   setIsEditModalOpen,
 }: EditLessonModalProps) => {
-  const groupInfo = useSelector((state: State) => state.currentGroup);
-  const { subjectList } = useSelector((state: State) => state.subjects);
-  const { teacherList } = useSelector((state: State) => state.teachers);
+  const dispatch = useDispatch();
+
+  const { Text } = Typography;
+  const format = 'HH:mm';
 
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
-  const { Text } = Typography;
-  const format = 'HH:mm';
-
-  const dispatch = useDispatch();
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
+  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { subjectList } = useSelector((state: State) => state.subjects);
+  const { teacherList } = useSelector((state: State) => state.teachers);
   const { schedule } = useSelector((state: State) => state.schedule);
-
-  const selectOptions = [
-    {
-      value: 'Лекция',
-      label: 'Лекция',
-    },
-    {
-      value: 'Практика',
-      label: 'Практика',
-    },
-    {
-      value: 'Лаба',
-      label: 'Лаба',
-    },
-  ];
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -110,35 +99,35 @@ export const EditLessonModal = ({
     fetchTeachers();
   }, [groupInfo, dispatch]);
 
-  const patchSchedule = async (currentDay: keyof GroupSchedule) => {
-    const response = await fetch(
-      `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
+  const handleOk = useCallback(async () => {
+    const patchSchedule = async (currentDay: keyof GroupSchedule) => {
+      const response = await fetch(
+        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...schedule,
+            [currentDay]: [
+              ...((schedule?.[currentDay] as DaySchedule[]) ?? []).map(
+                (lesson) =>
+                  lesson.id === currentLesson.id ? currentLesson : lesson,
+              ),
+              ...(schedule?.[currentDay] &&
+              (schedule[currentDay] as DaySchedule[]).some(
+                (lesson) => lesson.id === currentLesson.id,
+              )
+                ? []
+                : [currentLesson]),
+            ],
+          }),
         },
-        body: JSON.stringify({
-          ...schedule,
-          [currentDay]: [
-            ...((schedule?.[currentDay] as DaySchedule[]) ?? []).map((lesson) =>
-              lesson.id === currentLesson.id ? currentLesson : lesson,
-            ),
-            ...(schedule?.[currentDay] &&
-            (schedule[currentDay] as DaySchedule[]).some(
-              (lesson) => lesson.id === currentLesson.id,
-            )
-              ? []
-              : [currentLesson]),
-          ],
-        }),
-      },
-    );
-    const result = await response.json();
-    dispatch(setSchedule(result));
-  };
-
-  const handleOk = async () => {
+      );
+      const result = await response.json();
+      dispatch(setSchedule(result));
+    };
     if (currentLesson.startTime === '' || currentLesson.endTime === '') {
       alert('Заполните поля "Время начала" и "Время окончания"');
     } else if (currentLesson.subject.fullName === '') {
@@ -180,58 +169,68 @@ export const EditLessonModal = ({
         console.error('Ошибка:', error);
       }
     }
-  };
+  }, [
+    activeDayOfWeek,
+    currentLesson,
+    dispatch,
+    groupInfo,
+    setIsEditModalOpen,
+    schedule,
+  ]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     dispatch(clearCurrentLesson());
     setIsEditModalOpen(false);
-  };
+  }, [setIsEditModalOpen, dispatch]);
 
-  const handleChange = (value: string, key: string) => {
-    switch (key) {
-      case 'subject':
-        dispatch(
-          setCurrentLesson({
-            ...currentLesson,
-            subject: {
-              shortName: subjectList.filter(
-                (subject) => subject.fullName === value,
-              )[0].shortName,
-              fullName: subjectList.filter(
-                (subject) => subject.fullName === value,
-              )[0].fullName,
-            },
-          }),
-        );
-        break;
-      case 'teacher':
-        dispatch(
-          setCurrentLesson({
-            ...currentLesson,
-            teacher: {
-              shortName: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].shortName,
-              fullName: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].fullName,
-              avatar: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].avatar,
-            },
-          }),
-        );
-        break;
-      case 'type': {
-        dispatch(
-          setCurrentLesson({
-            ...currentLesson,
-            type: value,
-          }),
-        );
+  const handleChange = useCallback(
+    (value: string, key: string) => {
+      switch (key) {
+        case 'subject':
+          dispatch(
+            setCurrentLesson({
+              ...currentLesson,
+              subject: {
+                shortName: subjectList.filter(
+                  (subject) => subject.fullName === value,
+                )[0].shortName,
+                fullName: subjectList.filter(
+                  (subject) => subject.fullName === value,
+                )[0].fullName,
+              },
+            }),
+          );
+          break;
+        case 'teacher':
+          dispatch(
+            setCurrentLesson({
+              ...currentLesson,
+              teacher: {
+                shortName: teacherList.filter(
+                  (teacher) => teacher.fullName === value,
+                )[0].shortName,
+                fullName: teacherList.filter(
+                  (teacher) => teacher.fullName === value,
+                )[0].fullName,
+                avatar: teacherList.filter(
+                  (teacher) => teacher.fullName === value,
+                )[0].avatar,
+              },
+            }),
+          );
+          break;
+        case 'type': {
+          dispatch(
+            setCurrentLesson({
+              ...currentLesson,
+              type: value,
+            }),
+          );
+        }
       }
-    }
-  };
+    },
+    [currentLesson, dispatch, subjectList, teacherList],
+  );
 
   return (
     <Modal
@@ -270,7 +269,7 @@ export const EditLessonModal = ({
             showSearch
             placeholder="Выберите тип занятия"
             optionFilterProp="label"
-            options={selectOptions}
+            options={lessonTypeList}
             value={currentLesson.type}
             onChange={(value) => {
               handleChange(value, 'type');

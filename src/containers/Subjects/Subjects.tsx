@@ -1,44 +1,36 @@
+import { Button, Input, Popover, Space } from 'antd';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { API } from '../../model/apiConst';
+import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 import {
-  Button,
-  ConfigProvider,
-  Input,
-  List,
-  Popover,
-  Space,
-  Typography,
-} from 'antd';
-import Header from '../../components/Header';
-import style from './Subjects.module.scss';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  setSubjects,
-  editSubject,
   deleteSubject,
+  editSubject,
+  setSubjects,
   setSubjectsLoading,
 } from '../../store/subjectsReducer';
-import { State } from '../../store/index';
 
-import { icons } from '../../assets/icons';
-import { useViewportSize } from '../../hooks/useViewportSize';
-import { API } from '../../model/apiConst';
+const Header = lazy(() => import('../../components/Header'));
+const SubjectList = lazy(() => import('./SubjectList'));
+
+import style from './Subjects.module.scss';
 
 export const Subjects = () => {
   const dispatch = useDispatch();
-  const { subjectList, isSubjectsLoading } = useSelector(
-    (state: State) => state.subjects,
-  );
 
-  const { Text } = Typography;
+  const [editingSubjectId, setEditingSubjectId] = useState<string | undefined>(
+    undefined,
+  );
   const [newSubject, setNewSubject] = useState({
     fullName: '',
     shortName: '',
   });
-  const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
-  const [visiblePopoverId, setVisiblePopoverId] = useState<string | null>(null);
-  const { width } = useViewportSize();
+  const [visiblePopoverId, setVisiblePopoverId] = useState<string | undefined>(
+    undefined,
+  );
 
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     dispatch(setSubjectsLoading(true));
     try {
       const response = await fetch(`${API.url}/subjects/`);
@@ -47,11 +39,11 @@ export const Subjects = () => {
     } finally {
       dispatch(setSubjectsLoading(false));
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     fetchSubjects();
-  }, []);
+  }, [fetchSubjects]);
 
   const handleAddSubject = async () => {
     if (newSubject.shortName && newSubject.fullName) {
@@ -70,7 +62,7 @@ export const Subjects = () => {
     }
   };
 
-  const handleEditSubject = async () => {
+  const handleEditSubject = useCallback(async () => {
     if (editingSubjectId && newSubject.shortName && newSubject.fullName) {
       try {
         const response = await fetch(
@@ -84,31 +76,39 @@ export const Subjects = () => {
         if (response.ok) {
           const updatedSubject = await response.json();
           dispatch(editSubject(updatedSubject));
-          setNewSubject({ fullName: '', shortName: '' });
-          setEditingSubjectId(null);
+          setNewSubject({
+            fullName: '',
+            shortName: '',
+          });
+          setEditingSubjectId(undefined);
         }
       } catch (error) {
         console.error('Ошибка:', error);
       }
     }
-  };
+  }, [dispatch, editingSubjectId, newSubject]);
 
-  const handleDeleteSubject = async (id: string) => {
-    try {
-      const response = await fetch(`${API.url}/subjects/${id}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        dispatch(deleteSubject(id));
+  const handleDeleteSubject = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch(`${API.url}/subjects/${id}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          dispatch(deleteSubject(id));
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
       }
-    } catch (error) {
-      console.error('Ошибка:', error);
-    }
-  };
+    },
+    [dispatch],
+  );
 
   return (
     <div className={style.wrapper}>
-      <Header title="Предметы" />
+      <Suspense fallback={<CustomSpin />}>
+        <Header title="Предметы" />
+      </Suspense>
       <div className={style.container}>
         <Popover
           className={style.button}
@@ -141,125 +141,25 @@ export const Subjects = () => {
           trigger="click"
         >
           <Button
-            onClick={() => setNewSubject({ fullName: '', shortName: '' })}
+            onClick={() =>
+              setNewSubject({
+                fullName: '',
+                shortName: '',
+              })
+            }
           >
             Добавить предмет
           </Button>
         </Popover>
-        <ConfigProvider
-          theme={{
-            components: {
-              List: {
-                itemPaddingLG: width < 768 ? '16px 8px' : '16px 24px',
-              },
-            },
-          }}
-        >
-          <List
-            size="large"
-            loading={isSubjectsLoading}
-            grid={
-              width > 1024
-                ? { column: 4, gutter: 0 }
-                : width > 768
-                ? { column: 2, gutter: 0 }
-                : { column: 1, gutter: 0 }
-            }
-            itemLayout="horizontal"
-            dataSource={subjectList}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  title={
-                    <Space size={'large'}>
-                      <Text strong>{item.shortName}</Text>
-                      <div className={style.icon_container}>
-                        <Popover
-                          title={'Редактирование предмета'}
-                          content={
-                            <Space direction="vertical">
-                              <Input
-                                placeholder="Полное назваие"
-                                value={newSubject.fullName}
-                                onChange={(e) =>
-                                  setNewSubject((prev) => ({
-                                    ...prev,
-                                    fullName: e.target.value,
-                                  }))
-                                }
-                              />
-                              <Input
-                                placeholder="Сокращенное название"
-                                value={newSubject.shortName}
-                                onChange={(e) =>
-                                  setNewSubject((prev) => ({
-                                    ...prev,
-                                    shortName: e.target.value,
-                                  }))
-                                }
-                              />
-                              <Button onClick={handleEditSubject}>
-                                Изменить
-                              </Button>
-                            </Space>
-                          }
-                          trigger="click"
-                        >
-                          <img
-                            className={style.editIcon}
-                            src={icons.editIcon}
-                            alt="edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingSubjectId(item._id);
-                              setNewSubject({
-                                fullName: item.fullName,
-                                shortName: item.shortName,
-                              });
-                            }}
-                          />
-                        </Popover>
-                        <Popover
-                          title={'Вы уверены, что хотите удалить этот предмет?'}
-                          content={
-                            <Space>
-                              <Button
-                                onClick={() => handleDeleteSubject(item._id)}
-                                onMouseDown={(e) => e.preventDefault()}
-                              >
-                                <Text type="danger">Да</Text>
-                              </Button>
-                            </Space>
-                          }
-                          trigger="click"
-                          open={visiblePopoverId === item._id}
-                          onOpenChange={(visible) => {
-                            if (!visible) {
-                              setVisiblePopoverId(null);
-                            }
-                          }}
-                        >
-                          <img
-                            className={style.binIcon}
-                            src={icons.binIcon}
-                            alt="delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setVisiblePopoverId(
-                                visiblePopoverId === item._id ? null : item._id,
-                              );
-                            }}
-                          />
-                        </Popover>
-                      </div>
-                    </Space>
-                  }
-                  description={<Text type="secondary">{item.fullName}</Text>}
-                />
-              </List.Item>
-            )}
-          />
-        </ConfigProvider>
+        <SubjectList
+          newSubject={newSubject}
+          handleEditSubject={handleEditSubject}
+          visiblePopoverId={visiblePopoverId}
+          setVisiblePopoverId={setVisiblePopoverId}
+          handleDeleteSubject={handleDeleteSubject}
+          setNewSubject={setNewSubject}
+          setEditingSubjectId={setEditingSubjectId}
+        />
       </div>
     </div>
   );

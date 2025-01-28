@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom';
 import { Typography } from 'antd';
 import { lazy, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-const MenuDrawer = lazy(() => import('../MenuDrawer'));
 import { HOME } from '../../routes';
 import { State } from '../../store';
 import { updateDateTime } from '../../utils/common';
+
+const MenuDrawer = lazy(() => import('../MenuDrawer'));
 
 import style from './Header.module.scss';
 
@@ -20,15 +21,15 @@ interface HeaderProps {
 }
 
 export const Header = ({ title }: HeaderProps) => {
+  const { Title, Text } = Typography;
+
+  const groupInfo = useSelector((state: State) => state.currentGroup);
+
   const [currentState, setCurrentState] = useState<currentState>({
     currentDate: '',
     studyWeekNumber: 0,
   });
-
-  const groupInfo = useSelector((state: State) => state.currentGroup);
-
   const [isMenuActive, setIsMenuActive] = useState(false);
-  const { Title, Text } = Typography;
 
   useEffect(() => {
     const { formattedDate, studyWeekNumber } = updateDateTime(

@@ -1,4 +1,5 @@
 import { Space, Typography } from 'antd';
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { buttons } from './buttons';
@@ -11,12 +12,15 @@ export const Filter = () => {
   const dispatch = useDispatch();
   const groupInfo = useSelector((state: State) => state.currentGroup);
 
-  const handleSubgroupChange = (value: string) => {
-    dispatch({
-      type: 'CHANGE_SUBGROUP',
-      payload: { subgroup: value },
-    });
-  };
+  const handleSubgroupChange = useCallback(
+    (value: string) => {
+      dispatch({
+        type: 'CHANGE_SUBGROUP',
+        payload: { subgroup: value },
+      });
+    },
+    [dispatch],
+  );
 
   return (
     <Space direction="horizontal">

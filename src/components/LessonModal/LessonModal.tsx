@@ -1,10 +1,12 @@
-import { Dispatch, SetStateAction } from 'react';
-import { Modal, Typography } from 'antd';
+import { Modal, Typography, Image, Flex } from 'antd';
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+
+import { teacherImages } from '../../assets/images/teacherImages';
+import { State } from '../../store';
 
 import style from './LessonModal.module.scss';
-import { teacherImages } from '../../assets/images/teacherImages';
-import { useSelector } from 'react-redux';
-import { State } from '../../store';
+import { useViewportSize } from '../../hooks/useViewportSize';
 
 interface LessonModalProps {
   isModalOpen: boolean;
@@ -15,25 +17,38 @@ export const LessonModal = ({
   isModalOpen,
   setIsModalOpen,
 }: LessonModalProps) => {
-  const { Text } = Typography;
+  const { Text, Title } = Typography;
+
+  const { width } = useViewportSize();
+
   const currentLesson = useSelector(
     (state: State) => state.currentLesson.currentLesson,
   );
-  const avatarKey =
-    currentLesson?.teacher.avatar.toLowerCase() as keyof typeof teacherImages;
+  const avatarKey = useMemo(() => {
+    return currentLesson?.teacher.avatar.toLowerCase() as keyof typeof teacherImages;
+  }, [currentLesson?.teacher.avatar]);
 
-  const handleOk = () => {
+  const handleOk = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, [setIsModalOpen]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, [setIsModalOpen]);
+
   return (
     <Modal
-      title={`${currentLesson ? currentLesson.subject.fullName : ''} | ${
-        currentLesson ? currentLesson.type : ''
-      }`}
+      title={
+        <Flex vertical gap={0}>
+          <Title level={4}>{`${
+            currentLesson ? currentLesson.subject.fullName : ''
+          }`}</Title>
+          <Text
+            lesson-type={currentLesson.type}
+            className={style.lessonType}
+          >{`${currentLesson ? currentLesson.type : ''}`}</Text>
+        </Flex>
+      }
       open={isModalOpen}
       onOk={handleOk}
       okText="Ок"
@@ -72,7 +87,7 @@ export const LessonModal = ({
           </Text>
           {currentLesson ? (
             currentLesson.subgroup != '0' ? (
-              <Text type="danger">{`Подгруппа ${currentLesson?.subgroup}`}</Text>
+              <Text strong>{`Подгруппа ${currentLesson?.subgroup}`}</Text>
             ) : (
               <></>
             )
@@ -80,12 +95,17 @@ export const LessonModal = ({
             ''
           )}
         </div>
-        <div className={style.photo_wrapper}>
-          <img
-            src={teacherImages[avatarKey]}
-            alt={currentLesson ? currentLesson.teacher.fullName : ''}
-          />
-        </div>
+        {width > 360 ? (
+          <div className={style.photo_wrapper}>
+            <Image
+              className={style.avatar}
+              src={teacherImages[avatarKey]}
+              alt={currentLesson ? currentLesson.teacher.fullName : ''}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
     </Modal>
   );
