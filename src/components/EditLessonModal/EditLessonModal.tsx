@@ -19,24 +19,19 @@ import {
   DaySchedule,
   GroupSchedule,
   lessonTypeList,
+  Subject,
+  Teacher,
 } from '../../model/Schedule';
 import {
   clearCurrentLesson,
   setCurrentLesson,
 } from '../../store/currentLessonReducer';
 import { setSchedule } from '../../store/scheduleReducer';
-import {
-  setSubjects,
-  setSubjectsLoading,
-  Subject,
-} from '../../store/subjectsReducer';
-import {
-  setTeachers,
-  setTeachersLoading,
-  Teacher,
-} from '../../store/teachersReducer';
+import { setSubjects, setSubjectsLoading } from '../../store/subjectsReducer';
+import { setTeachers, setTeachersLoading } from '../../store/teachersReducer';
 
 import style from './EditLessonModal.module.scss';
+
 interface EditLessonModalProps {
   isEditModalOpen: boolean;
   setIsEditModalOpen: Dispatch<SetStateAction<boolean>>;
@@ -191,6 +186,9 @@ export const EditLessonModal = ({
             setCurrentLesson({
               ...currentLesson,
               subject: {
+                _id: subjectList.filter(
+                  (subject) => subject.fullName === value,
+                )[0]._id,
                 shortName: subjectList.filter(
                   (subject) => subject.fullName === value,
                 )[0].shortName,
@@ -206,6 +204,9 @@ export const EditLessonModal = ({
             setCurrentLesson({
               ...currentLesson,
               teacher: {
+                _id: teacherList.filter(
+                  (teacher) => teacher.fullName === value,
+                )[0]._id,
                 shortName: teacherList.filter(
                   (teacher) => teacher.fullName === value,
                 )[0].shortName,

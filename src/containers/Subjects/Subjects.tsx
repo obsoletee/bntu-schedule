@@ -1,4 +1,4 @@
-import { Button, Input, Popover, Space } from 'antd';
+import { Button } from 'antd';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -6,26 +6,22 @@ import { API } from '../../model/apiConst';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 import {
   deleteSubject,
-  editSubject,
   setSubjects,
   setSubjectsLoading,
 } from '../../store/subjectsReducer';
 
+const AddItemModal = lazy(() => import('../../components/AddItemModal'));
 const Header = lazy(() => import('../../components/Header'));
 const SubjectList = lazy(() => import('./SubjectList'));
 
 import style from './Subjects.module.scss';
+import { setCurrentSubject } from '../../store/currentSubjectReducer';
 
 export const Subjects = () => {
   const dispatch = useDispatch();
 
-  const [editingSubjectId, setEditingSubjectId] = useState<string | undefined>(
-    undefined,
-  );
-  const [newSubject, setNewSubject] = useState({
-    fullName: '',
-    shortName: '',
-  });
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+
   const [visiblePopoverId, setVisiblePopoverId] = useState<string | undefined>(
     undefined,
   );
@@ -44,49 +40,6 @@ export const Subjects = () => {
   useEffect(() => {
     fetchSubjects();
   }, [fetchSubjects]);
-
-  const handleAddSubject = async () => {
-    if (newSubject.shortName && newSubject.fullName) {
-      try {
-        await fetch(`${API.url}/subjects`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newSubject),
-        });
-      } catch (error) {
-        console.error('Ошибка:', error);
-      } finally {
-        setNewSubject({ fullName: '', shortName: '' });
-        fetchSubjects();
-      }
-    }
-  };
-
-  const handleEditSubject = useCallback(async () => {
-    if (editingSubjectId && newSubject.shortName && newSubject.fullName) {
-      try {
-        const response = await fetch(
-          `${API.url}/subjects/${editingSubjectId}`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newSubject),
-          },
-        );
-        if (response.ok) {
-          const updatedSubject = await response.json();
-          dispatch(editSubject(updatedSubject));
-          setNewSubject({
-            fullName: '',
-            shortName: '',
-          });
-          setEditingSubjectId(undefined);
-        }
-      } catch (error) {
-        console.error('Ошибка:', error);
-      }
-    }
-  }, [dispatch, editingSubjectId, newSubject]);
 
   const handleDeleteSubject = useCallback(
     async (id: string) => {
@@ -110,56 +63,32 @@ export const Subjects = () => {
         <Header title="Предметы" />
       </Suspense>
       <div className={style.container}>
-        <Popover
+        <Button
           className={style.button}
-          title={'Добавление предмета'}
-          content={
-            <Space direction="vertical">
-              <Input
-                placeholder="Полное название"
-                value={newSubject.fullName}
-                onChange={(e) =>
-                  setNewSubject((prev) => ({
-                    ...prev,
-                    fullName: e.target.value,
-                  }))
-                }
-              />
-              <Input
-                placeholder="Сокращенное название"
-                value={newSubject.shortName}
-                onChange={(e) =>
-                  setNewSubject((prev) => ({
-                    ...prev,
-                    shortName: e.target.value,
-                  }))
-                }
-              />
-              <Button onClick={handleAddSubject}>Добавить</Button>
-            </Space>
-          }
-          trigger="click"
-        >
-          <Button
-            onClick={() =>
-              setNewSubject({
+          onClick={() => {
+            dispatch(
+              setCurrentSubject({
+                _id: '',
                 fullName: '',
                 shortName: '',
-              })
-            }
-          >
-            Добавить предмет
-          </Button>
-        </Popover>
+              }),
+            );
+            setIsAddItemModalOpen(true);
+          }}
+        >
+          Добавить предмет
+        </Button>
+        <Suspense fallback={<CustomSpin />}>
+          <AddItemModal
+            isAddItemModalOpen={isAddItemModalOpen}
+            setIsAddItemModalOpen={setIsAddItemModalOpen}
+          />
+        </Suspense>
         <Suspense fallback={<CustomSpin />}>
           <SubjectList
-            newSubject={newSubject}
-            handleEditSubject={handleEditSubject}
             visiblePopoverId={visiblePopoverId}
             setVisiblePopoverId={setVisiblePopoverId}
             handleDeleteSubject={handleDeleteSubject}
-            setNewSubject={setNewSubject}
-            setEditingSubjectId={setEditingSubjectId}
           />
         </Suspense>
       </div>

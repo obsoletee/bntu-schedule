@@ -1,13 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TeacherImageKeys } from '../assets/images/teacherImages';
 
-export interface Teacher {
-  _id: string;
-  shortName: string;
-  fullName: string;
-  avatar: TeacherImageKeys;
-}
-
+import { Teacher } from '../model/Schedule';
 interface TeachersState {
   teacherList: Teacher[];
   isTeachersLoading: boolean;

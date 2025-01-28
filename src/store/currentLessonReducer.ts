@@ -1,4 +1,3 @@
-// Пример редьюсера
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DaySchedule } from '../model/Schedule';
 
@@ -11,11 +10,12 @@ const initialState: CurrentLessonState = {
     id: '',
     startTime: '',
     endTime: '',
-    subject: { shortName: '', fullName: '' },
+    subject: { _id: '', shortName: '', fullName: '' },
     teacher: {
+      _id: '',
       shortName: '',
       fullName: '',
-      avatar: '',
+      avatar: 'emptyAvatar',
     },
     type: '',
     class: '',
@@ -37,11 +37,12 @@ const currentLessonSlice = createSlice({
         id: '',
         startTime: '',
         endTime: '',
-        subject: { shortName: '', fullName: '' },
+        subject: { _id: '', shortName: '', fullName: '' },
         teacher: {
+          _id: '',
           shortName: '',
           fullName: '',
-          avatar: '',
+          avatar: 'emptyAvatar',
         },
         type: '',
         class: '',

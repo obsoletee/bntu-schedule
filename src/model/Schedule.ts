@@ -1,3 +1,5 @@
+import { TeacherImageKeys } from '../assets/images/teacherImages';
+
 export interface LessonType {
   label: string;
   value: string;
@@ -42,16 +44,17 @@ export const daysOfWeek: Array<{
 ];
 
 export interface Subject {
+  _id: string;
   shortName: string;
   fullName: string;
 }
 
 export interface Teacher {
+  _id: string;
   shortName: string;
   fullName: string;
-  avatar: string;
+  avatar: TeacherImageKeys;
 }
-
 export interface DaySchedule {
   id: string;
   startTime: string;

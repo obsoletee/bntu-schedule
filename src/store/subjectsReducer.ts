@@ -1,10 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export interface Subject {
-  _id: string;
-  shortName: string;
-  fullName: string;
-}
+import { Subject } from '../model/Schedule';
 
 interface SubjectState {
   subjectList: Subject[];

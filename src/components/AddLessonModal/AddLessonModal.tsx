@@ -20,18 +20,15 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { API } from '../../model/apiConst';
 import { generateUniqueId } from '../../utils/special';
-import { GroupSchedule, lessonTypeList } from '../../model/Schedule';
-import { setSchedule } from '../../store/scheduleReducer';
 import {
-  setSubjects,
-  setSubjectsLoading,
+  GroupSchedule,
+  lessonTypeList,
   Subject,
-} from '../../store/subjectsReducer';
-import {
-  setTeachers,
-  setTeachersLoading,
   Teacher,
-} from '../../store/teachersReducer';
+} from '../../model/Schedule';
+import { setSchedule } from '../../store/scheduleReducer';
+import { setSubjects, setSubjectsLoading } from '../../store/subjectsReducer';
+import { setTeachers, setTeachersLoading } from '../../store/teachersReducer';
 import { State } from '../../store';
 
 import style from './AddLessonModal.module.scss';

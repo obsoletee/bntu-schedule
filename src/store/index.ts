@@ -2,12 +2,14 @@ import { combineReducers } from 'redux';
 import { currentGroupReducer } from './currentGroupReducer';
 import { latestGroupsReducer } from './latestGroupsReducer';
 import { currentLessonReducer } from './currentLessonReducer';
-import { DaySchedule } from '../model/Schedule';
-import teachersReducer, { Teacher } from './teachersReducer';
-import subjectsReducer, { Subject } from './subjectsReducer';
+import { DaySchedule, Subject, Teacher } from '../model/Schedule';
+import teachersReducer from './teachersReducer';
+import subjectsReducer from './subjectsReducer';
 import scheduleReducer, { Schedule } from './scheduleReducer';
 import { configureStore } from '@reduxjs/toolkit';
 import { activeDayOfWeekReducer } from './activeDayOfWeek';
+import { currentTeacherReducer } from './currentTeacherReducer';
+import { currentSubjectReducer } from './currentSubjectReducer';
 
 export interface Action {
   type: string;
@@ -47,17 +49,26 @@ export interface LatestGroupsState {
   latestGroups: LatestGroup[];
 }
 
-export interface LessonsState {
+export interface CurrentLessonsState {
   currentLesson: DaySchedule;
+}
+
+export interface CurrentTeacherState {
+  currentTeacher: Teacher;
+}
+export interface CurrentSubjectState {
+  currentSubject: Subject;
 }
 
 export interface State {
   currentGroup: CurrentGroupState;
   latestGroups: LatestGroupsState;
-  currentLesson: LessonsState;
+  currentLesson: CurrentLessonsState;
   teachers: TeachersState;
   subjects: SubjectsState;
   schedule: Schedule;
+  currentTeacher: CurrentTeacherState;
+  currentSubject: CurrentSubjectState;
   activeDayOfWeek: ActiveDayOfWeekState;
 }
 
@@ -69,6 +80,8 @@ const rootReducer = combineReducers({
   subjects: subjectsReducer,
   schedule: scheduleReducer,
   activeDayOfWeek: activeDayOfWeekReducer,
+  currentTeaher: currentTeacherReducer,
+  currentSubject: currentSubjectReducer,
 });
 
 export const store = configureStore({
