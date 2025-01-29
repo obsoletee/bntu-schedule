@@ -15,7 +15,8 @@ const Header = lazy(() => import('../../components/Header'));
 const SubjectList = lazy(() => import('./SubjectList'));
 
 import style from './Subjects.module.scss';
-import { setCurrentSubject } from '../../store/currentSubjectReducer';
+import { clearCurrentSubject } from '../../store/currentSubjectReducer';
+import { clearCurrentTeacher } from '../../store/currentTeacherReducer';
 
 export const Subjects = () => {
   const dispatch = useDispatch();
@@ -66,13 +67,8 @@ export const Subjects = () => {
         <Button
           className={style.button}
           onClick={() => {
-            dispatch(
-              setCurrentSubject({
-                _id: '',
-                fullName: '',
-                shortName: '',
-              }),
-            );
+            dispatch(clearCurrentSubject());
+            dispatch(clearCurrentTeacher());
             setIsAddItemModalOpen(true);
           }}
         >

@@ -16,6 +16,7 @@ const Header = lazy(() => import('../../components/Header'));
 const TeacherList = lazy(() => import('./TeacherList'));
 
 import style from './Teachers.module.scss';
+import { clearCurrentSubject } from '../../store/currentSubjectReducer';
 
 export const Teachers = () => {
   const dispatch = useDispatch();
@@ -65,8 +66,9 @@ export const Teachers = () => {
         <Button
           className={style.button}
           onClick={() => {
-            setIsAddItemModalOpen(true);
+            dispatch(clearCurrentSubject());
             dispatch(clearCurrentTeacher());
+            setIsAddItemModalOpen(true);
           }}
         >
           Добавить преподавателя

@@ -35,11 +35,15 @@ export const AddItemModal = ({
   const { Text } = Typography;
   const dispatch = useDispatch();
 
+  const currentPath = useMemo(() => {
+    return window.location.pathname;
+  }, []);
+
   const { currentSubject } = useSelector(
-    (state: State) => state.currentSubject || {},
+    (state: State) => state.currentSubject,
   );
   const { currentTeacher } = useSelector(
-    (state: State) => state.currentTeacher || {},
+    (state: State) => state.currentTeacher,
   );
 
   const fetchTeachers = useCallback(async () => {
@@ -78,7 +82,7 @@ export const AddItemModal = ({
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
   } = useMemo(() => {
-    if (currentSubject !== undefined) {
+    if (currentPath === '/subjects') {
       return {
         value: 'subject',
         fullNamePlaceholder: 'Полное название',
@@ -86,7 +90,7 @@ export const AddItemModal = ({
         avatarPlaceholder: '',
       };
     }
-    if (currentTeacher !== undefined) {
+    if (currentPath === '/teachers') {
       return {
         value: 'teacher',
         fullNamePlaceholder: 'ФИО',
@@ -100,17 +104,13 @@ export const AddItemModal = ({
       shortNamePlaceholder: '',
       avatarPlaceholder: '',
     };
-  }, [currentSubject, currentTeacher]);
+  }, [currentPath]);
 
   const handleOk = useCallback(async () => {
     try {
       switch (currentEntity.value) {
         case 'subject': {
-          if (
-            currentSubject &&
-            currentSubject.fullName &&
-            currentSubject.shortName
-          ) {
+          if (currentSubject.fullName && currentSubject.shortName) {
             const response = await fetch(`${API.url}/subjects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -128,19 +128,16 @@ export const AddItemModal = ({
         }
 
         case 'teacher': {
-          if (
-            currentTeacher &&
-            currentTeacher.fullName &&
-            currentTeacher.shortName &&
-            currentTeacher.avatar
-          ) {
+          if (currentTeacher.fullName && currentTeacher.shortName) {
             const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 fullName: currentTeacher.fullName,
                 shortName: currentTeacher.shortName,
-                avatar: currentTeacher.avatar,
+                avatar: currentTeacher.avatar
+                  ? currentTeacher.avatar
+                  : 'emptyAvatar',
               }),
             });
             if (response.ok) {
@@ -202,7 +199,7 @@ export const AddItemModal = ({
     >
       <div className={style.container}>
         <div className={style.description_container}>
-          {currentEntity.value === 'teacher' && currentTeacher ? (
+          {currentEntity.value === 'teacher' ? (
             <Space direction="vertical">
               <Input
                 value={currentTeacher.fullName}
@@ -230,7 +227,7 @@ export const AddItemModal = ({
                 }}
               />
             </Space>
-          ) : currentEntity.value === 'subject' && currentSubject ? (
+          ) : currentEntity.value === 'subject' ? (
             <Space direction="vertical">
               <Input
                 value={currentSubject.fullName}

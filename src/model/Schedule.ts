@@ -55,6 +55,7 @@ export interface Teacher {
   fullName: string;
   avatar: TeacherImageKeys;
 }
+
 export interface DaySchedule {
   id: string;
   startTime: string;

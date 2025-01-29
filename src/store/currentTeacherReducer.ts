@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import { Teacher } from '../model/Schedule';
 
 interface CurrentTeacherState {

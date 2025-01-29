@@ -80,7 +80,7 @@ const rootReducer = combineReducers({
   subjects: subjectsReducer,
   schedule: scheduleReducer,
   activeDayOfWeek: activeDayOfWeekReducer,
-  currentTeaher: currentTeacherReducer,
+  currentTeacher: currentTeacherReducer,
   currentSubject: currentSubjectReducer,
 });
 
