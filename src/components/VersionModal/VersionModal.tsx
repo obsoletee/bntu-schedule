@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { Modal, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 
@@ -20,13 +20,20 @@ export const VersionModal = ({
 }: VersionModalProps) => {
   const { Text } = Typography;
 
-  const handleOk = () => {
+  const handleOk = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, [setIsModalOpen]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, [setIsModalOpen]);
+
+  const changesList = useMemo(() => {
+    return data.changes
+      .slice(-5)
+      .reverse()
+      .map((item) => <Text key={item}>- {item}</Text>);
+  }, [Text, data.changes]);
 
   return (
     <Modal
@@ -35,14 +42,7 @@ export const VersionModal = ({
       onOk={handleOk}
       onCancel={handleCancel}
     >
-      <div className={style.description_container}>
-        {data.changes
-          .slice(-5)
-          .reverse()
-          .map((item) => (
-            <Text key={item}>- {item}</Text>
-          ))}
-      </div>
+      <div className={style.description_container}>{changesList}</div>
       <Link to={VERSIONS_LIST}>История обновлений</Link>
     </Modal>
   );

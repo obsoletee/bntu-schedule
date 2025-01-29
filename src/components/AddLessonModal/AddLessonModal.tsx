@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   Checkbox,
   Input,
@@ -9,26 +8,30 @@ import {
   TimePicker,
   Typography,
 } from 'antd';
-
-import style from './AddLessonModal.module.scss';
-import { useSelector } from 'react-redux';
-import { State } from '../../store';
-import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import {
-  setSubjects,
-  setSubjectsLoading,
-  Subject,
-} from '../../store/subjectsReducer';
-import {
-  setTeachers,
-  setTeachersLoading,
-  Teacher,
-} from '../../store/teachersReducer';
-import { setSchedule } from '../../store/scheduleReducer';
-import { GroupSchedule } from '../../model/Schedule';
-import { generateUniqueId } from '../../utils/special';
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 import { API } from '../../model/apiConst';
+import { generateUniqueId } from '../../utils/special';
+import {
+  GroupSchedule,
+  lessonTypeList,
+  Subject,
+  Teacher,
+} from '../../model/Schedule';
+import { setSchedule } from '../../store/scheduleReducer';
+import { setSubjects, setSubjectsLoading } from '../../store/subjectsReducer';
+import { setTeachers, setTeachersLoading } from '../../store/teachersReducer';
+import { State } from '../../store';
+
+import style from './AddLessonModal.module.scss';
 
 interface AddLessonModalProps {
   isAddModalOpen: boolean;
@@ -39,11 +42,23 @@ export const AddLessonModal = ({
   isAddModalOpen,
   setIsAddModalOpen,
 }: AddLessonModalProps) => {
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const dispatch = useDispatch();
 
+  const { Text } = Typography;
+  const format = 'HH:mm';
+
+  const groupInfo = useSelector((state: State) => state.currentGroup);
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
+  const { subjectList, isSubjectsLoading } = useSelector(
+    (state: State) => state.subjects,
+  );
+  const { teacherList, isTeachersLoading } = useSelector(
+    (state: State) => state.teachers,
+  );
+
+  const { schedule } = useSelector((state: State) => state.schedule);
 
   const [formData, setFormData] = useState({
     id: generateUniqueId(),
@@ -64,34 +79,6 @@ export const AddLessonModal = ({
     subgroup: '0',
     week: ['1'],
   });
-  const { Text } = Typography;
-  const format = 'HH:mm';
-
-  const selectOptions = [
-    {
-      value: 'Лекция',
-      label: 'Лекция',
-    },
-    {
-      value: 'Практика',
-      label: 'Практика',
-    },
-    {
-      value: 'Лаба',
-      label: 'Лаба',
-    },
-  ];
-
-  const dispatch = useDispatch();
-
-  const { subjectList, isSubjectsLoading } = useSelector(
-    (state: State) => state.subjects,
-  );
-  const { teacherList, isTeachersLoading } = useSelector(
-    (state: State) => state.teachers,
-  );
-
-  const { schedule } = useSelector((state: State) => state.schedule);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -132,25 +119,24 @@ export const AddLessonModal = ({
     fetchTeachers();
   }, [groupInfo, dispatch]);
 
-  const patchSchedule = async (currentDay: keyof GroupSchedule) => {
-    const response = await fetch(
-      `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
+  const handleOk = useCallback(async () => {
+    const patchSchedule = async (currentDay: keyof GroupSchedule) => {
+      const response = await fetch(
+        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...schedule,
+            [currentDay]: [...(schedule?.[currentDay] ?? []), formData],
+          }),
         },
-        body: JSON.stringify({
-          ...schedule,
-          [currentDay]: [...(schedule?.[currentDay] ?? []), formData],
-        }),
-      },
-    );
-    const result = await response.json();
-    dispatch(setSchedule(result));
-  };
-
-  const handleOk = async () => {
+      );
+      const result = await response.json();
+      dispatch(setSchedule(result));
+    };
     if (formData.startTime === '' || formData.endTime === '') {
       alert('Заполните поля "Время начала" и "Время окончания"');
     } else if (formData.subject.fullName === '') {
@@ -188,55 +174,84 @@ export const AddLessonModal = ({
           }
         }
         setIsAddModalOpen(false);
+        setFormData({
+          id: generateUniqueId(),
+          subject: {
+            shortName: '',
+            fullName: '',
+          },
+          teacher: {
+            shortName: '',
+            fullName: '',
+            avatar: '',
+          },
+          startTime: '',
+          endTime: '',
+          type: '',
+          class: '',
+          korpus: '',
+          subgroup: '0',
+          week: ['1'],
+        });
       } catch (error) {
         console.error('Ошибка:', error);
       }
     }
-  };
+  }, [
+    activeDayOfWeek,
+    dispatch,
+    formData,
+    groupInfo,
+    schedule,
+    setIsAddModalOpen,
+  ]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setIsAddModalOpen(false);
-  };
+  }, [setIsAddModalOpen]);
 
-  const handleChange = (value: string, key: string) => {
-    switch (key) {
-      case 'subject':
-        setFormData((prev) => ({
-          ...prev,
-          subject: {
-            shortName: subjectList.filter(
-              (subject) => subject.fullName === value,
-            )[0].shortName,
-            fullName: subjectList.filter(
-              (subject) => subject.fullName === value,
-            )[0].fullName,
-          },
-        }));
-        break;
-      case 'teacher':
-        setFormData((prev) => ({
-          ...prev,
-          teacher: {
-            shortName: teacherList.filter(
-              (teacher) => teacher.fullName === value,
-            )[0].shortName,
-            fullName: teacherList.filter(
-              (teacher) => teacher.fullName === value,
-            )[0].fullName,
-            avatar: teacherList.filter(
-              (teacher) => teacher.fullName === value,
-            )[0].avatar,
-          },
-        }));
-        break;
-      case 'type': {
-        setFormData((prev) => ({
-          ...prev,
-          type: value,
-        }));
+  const handleChange = useCallback(
+    (value: string, key: string) => {
+      switch (key) {
+        case 'subject':
+          setFormData((prev) => ({
+            ...prev,
+            subject: {
+              shortName: subjectList.filter(
+                (subject) => subject.fullName === value,
+              )[0].shortName,
+              fullName: subjectList.filter(
+                (subject) => subject.fullName === value,
+              )[0].fullName,
+            },
+          }));
+          break;
+        case 'teacher':
+          setFormData((prev) => ({
+            ...prev,
+            teacher: {
+              shortName: teacherList.filter(
+                (teacher) => teacher.fullName === value,
+              )[0].shortName,
+              fullName: teacherList.filter(
+                (teacher) => teacher.fullName === value,
+              )[0].fullName,
+              avatar: teacherList.filter(
+                (teacher) => teacher.fullName === value,
+              )[0].avatar,
+            },
+          }));
+          break;
+        case 'type': {
+          setFormData((prev) => ({
+            ...prev,
+            type: value,
+          }));
+        }
       }
-    }
-  };
+    },
+    [subjectList, teacherList],
+  );
 
   return (
     <Modal
@@ -278,7 +293,7 @@ export const AddLessonModal = ({
             showSearch
             placeholder="Выберите тип занятия"
             optionFilterProp="label"
-            options={selectOptions}
+            options={lessonTypeList}
             onChange={(value) => {
               handleChange(value, 'type');
             }}

@@ -1,12 +1,12 @@
-import { Dispatch, SetStateAction } from 'react';
 import { Modal, Typography } from 'antd';
+import { Dispatch, SetStateAction, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { State } from '../../store';
-import { DaySchedule, GroupSchedule } from '../../model/Schedule';
-import { useDispatch } from 'react-redux';
-import { setSchedule } from '../../store/scheduleReducer';
 import { API } from '../../model/apiConst';
+import { DaySchedule, GroupSchedule } from '../../model/Schedule';
+import { setSchedule } from '../../store/scheduleReducer';
+import { State } from '../../store';
+import { useDispatch } from 'react-redux';
 
 interface DeleteLessonModalProps {
   isDeleteModalOpen: boolean;
@@ -17,39 +17,42 @@ export const DeleteLessonModal = ({
   isDeleteModalOpen,
   setIsDeleteModalOpen,
 }: DeleteLessonModalProps) => {
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const dispatch = useDispatch();
+
+  const { Text } = Typography;
 
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
-  const dispatch = useDispatch();
+
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
+
+  const groupInfo = useSelector((state: State) => state.currentGroup);
+
   const { schedule } = useSelector((state: State) => state.schedule);
 
-  const { Text } = Typography;
-
-  const patchSchedule = async (currentDay: keyof GroupSchedule) => {
-    const response = await fetch(
-      `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
+  const handleOk = useCallback(async () => {
+    const patchSchedule = async (currentDay: keyof GroupSchedule) => {
+      const response = await fetch(
+        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...schedule,
+            [currentDay]:
+              (schedule?.[currentDay] as DaySchedule[] | undefined)?.filter(
+                (lesson) =>
+                  lesson.id !== (currentLesson ? currentLesson.id : ''),
+              ) ?? [],
+          }),
         },
-        body: JSON.stringify({
-          ...schedule,
-          [currentDay]:
-            (schedule?.[currentDay] as DaySchedule[] | undefined)?.filter(
-              (lesson) => lesson.id !== (currentLesson ? currentLesson.id : ''),
-            ) ?? [],
-        }),
-      },
-    );
-    const result = await response.json();
-    dispatch(setSchedule(result));
-  };
-
-  const handleOk = async () => {
+      );
+      const result = await response.json();
+      dispatch(setSchedule(result));
+    };
     try {
       switch (activeDayOfWeek) {
         case '1': {
@@ -85,11 +88,18 @@ export const DeleteLessonModal = ({
     } catch (error) {
       console.error('Ошибка:', error);
     }
-  };
+  }, [
+    activeDayOfWeek,
+    currentLesson,
+    dispatch,
+    groupInfo,
+    schedule,
+    setIsDeleteModalOpen,
+  ]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setIsDeleteModalOpen(false);
-  };
+  }, [setIsDeleteModalOpen]);
 
   return (
     <Modal

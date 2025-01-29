@@ -1,3 +1,5 @@
+@import '../../styles/colors.scss';
+
 .container {
   padding: 10px 0;
   display: flex;
@@ -7,15 +9,35 @@
   & .description_container {
     display: flex;
     flex-direction: column;
-    width: 60%;
+    flex-grow: 1;
+
+    @media (max-width: 375px) {
+      width: 100%;
+    }
   }
 
   & .photo_wrapper {
-    width: 150px;
+    max-width: 40%;
+    height: 100%;
 
-    & > img {
+    & .avatar {
       width: 100%;
-      border-radius: 30px;
+      border-radius: 20px;
     }
+  }
+}
+
+.lessonType {
+  &[lesson-type='Лекция'] {
+    color: green;
+    text-shadow: 0.5px 0px 0px $color--text-dark;
+  }
+  &[lesson-type='Практика'] {
+    color: rgb(226, 226, 0);
+    text-shadow: 0.5px 0px 0px $color--text-dark;
+  }
+  &[lesson-type='Лаба'] {
+    color: red;
+    text-shadow: 0.5px 0px 0px $color--text-dark;
   }
 }

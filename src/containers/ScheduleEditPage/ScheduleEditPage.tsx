@@ -2,18 +2,18 @@ import { Tabs, TabsProps, Typography } from 'antd';
 import { lazy, Suspense, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
+import { API } from '../../model/apiConst';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
-const Header = lazy(() => import('../../components/Header'));
-
-import { DaySchedule, GroupSchedule } from '../../model/Schedule';
+import { DaySchedule, daysOfWeek, GroupSchedule } from '../../model/Schedule';
 import { State } from '../../store';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { useDispatch } from 'react-redux';
+import { useViewportSize } from '../../hooks/useViewportSize';
+
+const Header = lazy(() => import('../../components/Header'));
+const LessonList = lazy(() => import('../../components/LessonList'));
 
 import style from './ScheduleEditPage.module.scss';
-import LessonList from '../../components/LessonList';
-import { useDispatch } from 'react-redux';
-import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
-import { useViewportSize } from '../../hooks/useViewportSize';
-import { API } from '../../model/apiConst';
 
 export const ScheduleEditPage = () => {
   const groupInfo = useSelector((state: State) => state.currentGroup);
@@ -24,20 +24,6 @@ export const ScheduleEditPage = () => {
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
-
-  const daysOfWeek: Array<{
-    key: string;
-    label: string;
-    day: keyof GroupSchedule;
-  }> = [
-    { key: '1', label: 'Понедельник', day: 'monday' },
-    { key: '2', label: 'Вторник', day: 'tuesday' },
-    { key: '3', label: 'Среда', day: 'wednesday' },
-    { key: '4', label: 'Четверг', day: 'thursday' },
-    { key: '5', label: 'Пятница', day: 'friday' },
-    { key: '6', label: 'Суббота', day: 'saturday' },
-    { key: '7', label: 'Воскресенье', day: 'sunday' },
-  ];
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -68,18 +54,19 @@ export const ScheduleEditPage = () => {
     key,
     label,
     children: (
-      <LessonList
-        addButton
-        addModal={true}
-        editModal={true}
-        deleteModal={true}
-        items={
-          day === 'sunday'
-            ? undefined
-            : (schedule?.[day] as DaySchedule[] | undefined)
-        }
-        iconSize="large"
-      />
+      <Suspense fallback={<CustomSpin />}>
+        <LessonList
+          addButton
+          addModal={true}
+          editModal={true}
+          deleteModal={true}
+          items={
+            day === 'sunday'
+              ? undefined
+              : (schedule?.[day] as DaySchedule[] | undefined)
+          }
+        />
+      </Suspense>
     ),
   }));
 

@@ -2,21 +2,21 @@ import { Card, Carousel, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { API } from '../../model/apiConst';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
+import { GroupSchedule } from '../../model/Schedule';
+import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
+import { State } from '../../store';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { useViewportSize } from '../../hooks/useViewportSize';
+
 const Header = lazy(() => import('../../components/Header'));
 const Filter = lazy(() => import('../../components/Filter'));
 const LessonListWithDate = lazy(
   () => import('../../components/LessonListWithDate'),
 );
 
-import { GroupSchedule } from '../../model/Schedule';
-import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
-import { State } from '../../store';
-import { useViewportSize } from '../../hooks/useViewportSize';
-
 import style from './Home.module.scss';
-import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
-import { API } from '../../model/apiConst';
 
 interface ScheduleList {
   date: string;
@@ -27,14 +27,15 @@ interface ScheduleList {
 }
 
 export const Home = () => {
-  const groupInfo = useSelector((state: State) => state.currentGroup);
-
   const dispatch = useDispatch();
 
-  const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
+  const { Text, Title } = Typography;
 
   const { width } = useViewportSize();
-  const { Text, Title } = Typography;
+
+  const groupInfo = useSelector((state: State) => state.currentGroup);
+
+  const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
 
   const generateSchedule = useCallback(() => {
     const startDate = new Date();

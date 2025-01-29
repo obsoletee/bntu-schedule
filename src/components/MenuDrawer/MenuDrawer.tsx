@@ -1,5 +1,11 @@
-import { Dispatch, SetStateAction, useState } from 'react';
 import { Drawer, Space, Select, List, Typography } from 'antd';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -20,49 +26,67 @@ export const MenuDrawer = ({
   isMenuActive,
   setIsMenuActive,
 }: MenuDrawerProps) => {
-  const { Title, Text } = Typography;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const latestVersion = versions.slice(-1)[0];
   const dispatch = useDispatch();
+
+  const { Title, Text } = Typography;
+
   const latestGroups = useSelector(
     (state: State) => state.latestGroups.latestGroups,
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleChangeGroupNumber = (value: string, university: string) => {
-    dispatch({
-      type: 'CHANGE_GROUP_NUMBER',
-      payload: { currentGroup: value, university: university },
-    });
+  const latestVersion = useMemo(() => {
+    return versions.slice(-1)[0];
+  }, []);
 
-    if (!latestGroups.some((group) => group.number === value)) {
+  const latestGroupsReversed = useMemo(() => {
+    return latestGroups.slice(-5).reverse();
+  }, [latestGroups]);
+
+  const handleChangeGroupNumber = useCallback(
+    (value: string, university: string) => {
       dispatch({
-        type: 'ADD_LATEST_GROUPS',
-        payload: { number: value, university: university },
+        type: 'CHANGE_GROUP_NUMBER',
+        payload: { currentGroup: value, university: university },
       });
-    }
 
+      if (!latestGroups.some((group) => group.number === value)) {
+        dispatch({
+          type: 'ADD_LATEST_GROUPS',
+          payload: { number: value, university: university },
+        });
+      }
+
+      setIsMenuActive(false);
+    },
+    [dispatch, latestGroups, setIsMenuActive],
+  );
+  const handleUseGroupNumber = useCallback(
+    (value: string, university: string) => {
+      dispatch({
+        type: 'CHANGE_GROUP_NUMBER',
+        payload: { currentGroup: value, university: university },
+      });
+      dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: '1' });
+      setIsMenuActive(false);
+    },
+    [dispatch, setIsMenuActive],
+  );
+
+  const handleDeleteLatestGroup = useCallback(
+    (value: string) => {
+      dispatch({ type: 'REMOVE_LATEST_GROUPS', payload: value });
+    },
+    [dispatch],
+  );
+
+  const onClose = useCallback(() => {
     setIsMenuActive(false);
-  };
-  const handleUseGroupNumber = (value: string, university: string) => {
-    dispatch({
-      type: 'CHANGE_GROUP_NUMBER',
-      payload: { currentGroup: value, university: university },
-    });
-    dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: '1' });
-    setIsMenuActive(false);
-  };
+  }, [setIsMenuActive]);
 
-  const handleDeleteLatestGroup = (value: string) => {
-    dispatch({ type: 'REMOVE_LATEST_GROUPS', payload: value });
-  };
-
-  const onClose = () => {
-    setIsMenuActive(false);
-  };
-
-  const changesHandle = () => {
+  const changesHandle = useCallback(() => {
     setIsModalOpen(true);
-  };
+  }, []);
 
   return (
     <>
@@ -117,7 +141,7 @@ export const MenuDrawer = ({
                 <List
                   header={<Title level={4}>Добавленные:</Title>}
                   itemLayout="horizontal"
-                  dataSource={latestGroups.slice(-5).reverse()}
+                  dataSource={latestGroupsReversed}
                   renderItem={(group) => (
                     <List.Item>
                       <List.Item.Meta

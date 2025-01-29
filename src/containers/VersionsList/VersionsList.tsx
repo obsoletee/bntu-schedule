@@ -1,10 +1,10 @@
 import { List, Typography } from 'antd';
 import { lazy, Suspense } from 'react';
 
-const Header = lazy(() => import('../../components/Header'));
-
 import { versions } from '../../model/version';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
+
+const Header = lazy(() => import('../../components/Header'));
 
 import style from './VersionList.module.scss';
 

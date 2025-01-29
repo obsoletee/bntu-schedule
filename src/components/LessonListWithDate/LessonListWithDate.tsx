@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
+import { CustomSpin } from '../CustomSpin/CustomSpin';
 import { DayOfWeek, DaySchedule } from '../../model/Schedule';
 import { State } from '../../store';
 
-import { LessonList } from '../LessonList/LessonList';
-import {} from '../../store/scheduleReducer';
+const LessonList = lazy(() => import('../LessonList'));
 
 interface ScheduleList {
   date: string;
@@ -19,10 +19,10 @@ interface LessonListWithDateProps {
 }
 
 export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
-  const { schedule } = useSelector((state: State) => state.schedule);
-  const [lessons, setLessons] = useState<DaySchedule[]>([]);
-
   const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { schedule } = useSelector((state: State) => state.schedule);
+
+  const [lessons, setLessons] = useState<DaySchedule[]>([]);
 
   useEffect(() => {
     if (schedule) {
@@ -41,5 +41,9 @@ export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
     }
   }, [groupInfo.subgroup, groupInfo.currentGroup, schedule, date]);
 
-  return <LessonList items={lessons} />;
+  return (
+    <Suspense fallback={<CustomSpin />}>
+      <LessonList items={lessons} />
+    </Suspense>
+  );
 };

@@ -1,12 +1,8 @@
-export interface Subject {
-  shortName: string;
-  fullName: string;
-}
+import { TeacherImageKeys } from '../assets/images/teacherImages';
 
-export interface Teacher {
-  shortName: string;
-  fullName: string;
-  avatar: string;
+export interface LessonType {
+  label: string;
+  value: string;
 }
 
 export type DayOfWeek =
@@ -18,16 +14,47 @@ export type DayOfWeek =
   | 'saturday'
   | 'sunday';
 
-export const daysOfWeek: (keyof GroupSchedule)[] = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday',
+export const lessonTypeList = [
+  {
+    value: 'Лекция',
+    label: 'Лекция',
+  },
+  {
+    value: 'Практика',
+    label: 'Практика',
+  },
+  {
+    value: 'Лаба',
+    label: 'Лаба',
+  },
 ];
 
+export const daysOfWeek: Array<{
+  key: string;
+  label: string;
+  day: DayOfWeek;
+}> = [
+  { key: '1', label: 'Понедельник', day: 'monday' },
+  { key: '2', label: 'Вторник', day: 'tuesday' },
+  { key: '3', label: 'Среда', day: 'wednesday' },
+  { key: '4', label: 'Четверг', day: 'thursday' },
+  { key: '5', label: 'Пятница', day: 'friday' },
+  { key: '6', label: 'Суббота', day: 'saturday' },
+  { key: '7', label: 'Воскресенье', day: 'sunday' },
+];
+
+export interface Subject {
+  _id: string;
+  shortName: string;
+  fullName: string;
+}
+
+export interface Teacher {
+  _id: string;
+  shortName: string;
+  fullName: string;
+  avatar: TeacherImageKeys;
+}
 export interface DaySchedule {
   id: string;
   startTime: string;

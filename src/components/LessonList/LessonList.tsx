@@ -1,19 +1,23 @@
 import { Button, List, Space, Typography } from 'antd';
-import { DaySchedule } from '../../model/Schedule';
-import style from './LessonList.module.scss';
-import { icons } from '../../assets/icons';
-import { useCallback, useState } from 'react';
-import { setCurrentLesson } from '../../store/currentLessonReducer';
+import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
+import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import LessonModal from '../LessonModal';
-import EditLessonModal from '../EditLessonModal';
-import DeleteLessonModal from '../DeleteLessonModal';
-import AddLessonModal from '../AddLessonModal';
+
+import { CustomSpin } from '../CustomSpin/CustomSpin';
+import { DaySchedule } from '../../model/Schedule';
+import { setCurrentLesson } from '../../store/currentLessonReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
+
+const AddLessonModal = lazy(() => import('../AddLessonModal'));
+const DeleteLessonModal = lazy(() => import('../DeleteLessonModal'));
+const EditLessonModal = lazy(() => import('../EditLessonModal'));
+const LessonModal = lazy(() => import('../LessonModal'));
+
+import style from './LessonList.module.scss';
 
 interface LessonListWithDateProps {
   items: DaySchedule[] | undefined;
-  iconSize?: 'normal' | 'large';
   addButton?: boolean;
   addModal?: boolean;
   editModal?: boolean;
@@ -21,21 +25,22 @@ interface LessonListWithDateProps {
 }
 
 export const LessonList = ({
-  iconSize = 'normal',
   items,
   addButton = false,
   addModal = false,
   editModal = false,
   deleteModal = false,
 }: LessonListWithDateProps) => {
+  const dispatch = useDispatch();
+
   const { Text } = Typography;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const { width } = useViewportSize();
 
-  const dispatch = useDispatch();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = useCallback(
     (lessonInfo: DaySchedule) => {
@@ -61,34 +66,48 @@ export const LessonList = ({
     [dispatch],
   );
 
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = useCallback(() => {
     setIsAddModalOpen(true);
-  };
+  }, []);
 
-  const sortedItems = items?.slice().sort((a, b) => {
-    return a.startTime.localeCompare(b.startTime);
-  });
+  const sortedItems = useMemo(() => {
+    const newItems = items?.slice().sort((a, b) => {
+      return a.startTime.localeCompare(b.startTime);
+    });
+    return newItems;
+  }, [items]);
 
   return (
     <>
-      <LessonModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-      {addModal && (
-        <AddLessonModal
-          isAddModalOpen={isAddModalOpen}
-          setIsAddModalOpen={setIsAddModalOpen}
+      <Suspense fallback={<CustomSpin />}>
+        <LessonModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
         />
+      </Suspense>
+      {addModal && (
+        <Suspense fallback={<CustomSpin />}>
+          <AddLessonModal
+            isAddModalOpen={isAddModalOpen}
+            setIsAddModalOpen={setIsAddModalOpen}
+          />
+        </Suspense>
       )}
       {editModal && (
-        <EditLessonModal
-          isEditModalOpen={isEditModalOpen}
-          setIsEditModalOpen={setIsEditModalOpen}
-        />
+        <Suspense fallback={<CustomSpin />}>
+          <EditLessonModal
+            isEditModalOpen={isEditModalOpen}
+            setIsEditModalOpen={setIsEditModalOpen}
+          />
+        </Suspense>
       )}
       {deleteModal && (
-        <DeleteLessonModal
-          isDeleteModalOpen={isDeleteModalOpen}
-          setIsDeleteModalOpen={setIsDeleteModalOpen}
-        />
+        <Suspense fallback={<CustomSpin />}>
+          <DeleteLessonModal
+            isDeleteModalOpen={isDeleteModalOpen}
+            setIsDeleteModalOpen={setIsDeleteModalOpen}
+          />
+        </Suspense>
       )}
       {addButton && (
         <Button onClick={handleOpenAddModal} className={style.button} block>
@@ -113,10 +132,8 @@ export const LessonList = ({
                   </Text>
                   <Space size={width < 768 ? 'small' : 'large'}>
                     {editModal && (
-                      <img
+                      <EditOutlined
                         className={style.icon}
-                        src={icons.editIcon}
-                        icon-size={iconSize}
                         alt="edit"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -125,10 +142,8 @@ export const LessonList = ({
                       />
                     )}
                     {deleteModal && (
-                      <img
+                      <DeleteOutlined
                         className={style.icon}
-                        src={icons.binIcon}
-                        icon-size={iconSize}
                         alt="delete"
                         onClick={(e) => {
                           e.stopPropagation();
