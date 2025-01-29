@@ -100,7 +100,7 @@ export const LessonModal = ({
             <Image
               className={style.avatar}
               src={teacherImages[avatarKey]}
-              alt={currentLesson ? currentLesson.teacher.fullName : ''}
+              fallback={teacherImages.emptyAvatar}
             />
           </div>
         ) : (
