@@ -31,11 +31,15 @@ export const EditItemModal = ({
 
   const { Text } = Typography;
 
+  const currentPath = useMemo(() => {
+    return window.location.pathname;
+  }, []);
+
   const { currentSubject } = useSelector(
-    (state: State) => state.currentSubject || {},
+    (state: State) => state.currentSubject,
   );
   const { currentTeacher } = useSelector(
-    (state: State) => state.currentTeacher || {},
+    (state: State) => state.currentTeacher,
   );
 
   const currentEntity: {
@@ -44,7 +48,7 @@ export const EditItemModal = ({
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
   } = useMemo(() => {
-    if (currentSubject !== undefined) {
+    if (currentPath === '/subjects') {
       return {
         value: 'subject',
         fullNamePlaceholder: 'Полное название',
@@ -52,7 +56,7 @@ export const EditItemModal = ({
         avatarPlaceholder: '',
       };
     }
-    if (currentTeacher !== undefined) {
+    if (currentPath === '/teachers') {
       return {
         value: 'teacher',
         fullNamePlaceholder: 'ФИО',
@@ -66,17 +70,13 @@ export const EditItemModal = ({
       shortNamePlaceholder: '',
       avatarPlaceholder: '',
     };
-  }, [currentSubject, currentTeacher]);
+  }, [currentPath]);
 
   const handleOk = useCallback(async () => {
     try {
       switch (currentEntity.value) {
         case 'subject': {
-          if (
-            currentSubject &&
-            currentSubject.fullName &&
-            currentSubject.shortName
-          ) {
+          if (currentSubject.fullName && currentSubject.shortName) {
             const response = await fetch(
               `${API.url}/subjects/${currentSubject._id}`,
               {
@@ -96,7 +96,6 @@ export const EditItemModal = ({
 
         case 'teacher': {
           if (
-            currentTeacher &&
             currentTeacher.fullName &&
             currentTeacher.shortName &&
             currentTeacher.avatar
@@ -168,7 +167,7 @@ export const EditItemModal = ({
     >
       <div className={style.container}>
         <div className={style.description_container}>
-          {currentEntity.value === 'teacher' && currentTeacher ? (
+          {currentEntity.value === 'teacher' ? (
             <Space direction="vertical">
               <Input
                 value={currentTeacher.fullName}
@@ -196,7 +195,7 @@ export const EditItemModal = ({
                 }}
               />
             </Space>
-          ) : currentEntity.value === 'subject' && currentSubject ? (
+          ) : currentEntity.value === 'subject' ? (
             <Space direction="vertical">
               <Input
                 value={currentSubject.fullName}
