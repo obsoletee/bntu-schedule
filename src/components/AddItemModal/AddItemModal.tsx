@@ -39,6 +39,8 @@ export const AddItemModal = ({
     return window.location.pathname;
   }, []);
 
+  const { teacherList } = useSelector((state: State) => state.teachers);
+  const { subjectList } = useSelector((state: State) => state.subjects);
   const { currentSubject } = useSelector(
     (state: State) => state.currentSubject,
   );
@@ -110,6 +112,16 @@ export const AddItemModal = ({
     try {
       switch (currentEntity.value) {
         case 'subject': {
+          if (
+            subjectList.filter(
+              (subject) =>
+                subject.fullName.toLowerCase().trimEnd().trimStart() ===
+                currentSubject.fullName.toLowerCase().trimEnd().trimStart(),
+            ).length === 0
+          ) {
+            alert('Этот предмет уже добавлен');
+            break;
+          }
           if (currentSubject.fullName && currentSubject.shortName) {
             const response = await fetch(`${API.url}/subjects`, {
               method: 'POST',
@@ -128,6 +140,16 @@ export const AddItemModal = ({
         }
 
         case 'teacher': {
+          if (
+            teacherList.filter(
+              (teacher) =>
+                teacher.fullName.toLowerCase().trimEnd().trimStart() ===
+                currentTeacher.fullName.toLowerCase().trimEnd().trimStart(),
+            ).length === 0
+          ) {
+            alert('Этот преподаватель уже добавлен');
+            break;
+          }
           if (currentTeacher.fullName && currentTeacher.shortName) {
             const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
@@ -154,6 +176,7 @@ export const AddItemModal = ({
       setIsAddItemModalOpen(false);
     }
   }, [
+    teacherList,
     currentEntity,
     currentSubject,
     currentTeacher,

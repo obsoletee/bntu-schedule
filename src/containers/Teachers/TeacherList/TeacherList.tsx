@@ -108,9 +108,6 @@ export const TeacherList = ({
         ) : (
           <List
             pagination={{
-              onChange: (page) => {
-                console.log(page);
-              },
               pageSize: 10,
               position: 'bottom',
               align: 'center',
