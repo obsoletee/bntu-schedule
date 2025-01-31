@@ -80,6 +80,7 @@ export const Subjects = () => {
             setIsAddItemModalOpen={setIsAddItemModalOpen}
           />
         </Suspense>
+
         <Suspense fallback={<CustomSpin />}>
           <SubjectList
             visiblePopoverId={visiblePopoverId}

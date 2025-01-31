@@ -1,4 +1,4 @@
-import { Modal, Typography, Image, Flex } from 'antd';
+import { Modal, Typography, Flex, Image } from 'antd';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -95,12 +95,12 @@ export const LessonModal = ({
             ''
           )}
         </div>
-        {width > 360 ? (
+        {width > 240 ? (
           <div className={style.photo_wrapper}>
             <Image
               className={style.avatar}
               src={teacherImages[avatarKey]}
-              alt={currentLesson ? currentLesson.teacher.fullName : ''}
+              fallback={teacherImages.emptyAvatar}
             />
           </div>
         ) : (

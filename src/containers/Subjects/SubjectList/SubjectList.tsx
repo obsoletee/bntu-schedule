@@ -1,18 +1,35 @@
-import { Button, ConfigProvider, List, Popover, Space, Typography } from 'antd';
+import {
+  Button,
+  ConfigProvider,
+  Input,
+  List,
+  Popover,
+  Space,
+  Typography,
+} from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
-import { Dispatch, lazy, SetStateAction, Suspense, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import {
+  Dispatch,
+  lazy,
+  SetStateAction,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { CustomSpin } from '../../../components/CustomSpin/CustomSpin';
+import { setCurrentSubject } from '../../../store/currentSubjectReducer';
 import { State } from '../../../store';
 import { useViewportSize } from '../../../hooks/useViewportSize';
-import { useSelector } from 'react-redux';
+import Worker from '../../../webworkers/subjectSearchWorker?worker';
 
 const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
 import style from './SubjectList.module.scss';
-import { setCurrentSubject } from '../../../store/currentSubjectReducer';
 
 interface SubjectListProps {
   handleDeleteSubject: (id: string) => Promise<void>;
@@ -27,16 +44,45 @@ export const SubjectList = ({
 }: SubjectListProps) => {
   const dispatch = useDispatch();
   const { Text } = Typography;
+  const { Search } = Input;
   const { width } = useViewportSize();
-
-  const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
 
   const { subjectList, isSubjectsLoading } = useSelector(
     (state: State) => state.subjects,
   );
 
+  const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredSubjects, setFilteredSubjects] = useState(subjectList);
+  const [isPending, startTransition] = useTransition();
+
+  const worker = useMemo(() => {
+    return new Worker();
+  }, []);
+
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredSubjects(subjectList);
+      return;
+    }
+
+    worker.postMessage({ subjects: subjectList, query: searchQuery });
+
+    worker.onmessage = (event) => {
+      startTransition(() => {
+        setFilteredSubjects(event.data);
+      });
+    };
+  }, [searchQuery, subjectList, worker]);
+
   return (
     <>
+      <Search
+        placeholder="Поиск"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={style.search_input}
+      />
       <ConfigProvider
         theme={{
           components: {
@@ -46,75 +92,84 @@ export const SubjectList = ({
           },
         }}
       >
-        <List
-          size="large"
-          loading={isSubjectsLoading}
-          grid={
-            width > 1024
-              ? { column: 4, gutter: 0 }
-              : width > 768
-              ? { column: 2, gutter: 0 }
-              : { column: 1, gutter: 0 }
-          }
-          itemLayout="horizontal"
-          dataSource={subjectList}
-          renderItem={(item) => (
-            <List.Item>
-              <List.Item.Meta
-                title={
-                  <Space size={'large'}>
-                    <Text strong>{item.shortName}</Text>
-                    <div className={style.icon_container}>
-                      <EditOutlined
-                        className={style.editIcon}
-                        alt="edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          dispatch(setCurrentSubject(item));
-                          setIsEditItemModalOpen(true);
-                        }}
-                      />
-                      <Popover
-                        title={'Вы уверены, что хотите удалить этот предмет?'}
-                        content={
-                          <Space>
-                            <Button
-                              onClick={() => handleDeleteSubject(item._id)}
-                              onMouseDown={(e) => e.preventDefault()}
-                            >
-                              <Text type="danger">Да</Text>
-                            </Button>
-                          </Space>
-                        }
-                        trigger="click"
-                        open={visiblePopoverId === item._id}
-                        onOpenChange={(visible) => {
-                          if (!visible) {
-                            setVisiblePopoverId(undefined);
-                          }
-                        }}
-                      >
-                        <DeleteOutlined
-                          className={style.binIcon}
-                          alt="delete"
+        {isPending ? (
+          <CustomSpin />
+        ) : (
+          <List
+            pagination={{
+              pageSize: 10,
+              position: 'bottom',
+              align: 'center',
+            }}
+            size="large"
+            loading={isSubjectsLoading}
+            grid={
+              width > 1024
+                ? { column: 4, gutter: 0 }
+                : width > 768
+                ? { column: 2, gutter: 0 }
+                : { column: 1, gutter: 0 }
+            }
+            itemLayout="horizontal"
+            dataSource={filteredSubjects}
+            renderItem={(item) => (
+              <List.Item>
+                <List.Item.Meta
+                  title={
+                    <Space size={'large'}>
+                      <Text strong>{item.shortName}</Text>
+                      <div className={style.icon_container}>
+                        <EditOutlined
+                          className={style.editIcon}
+                          alt="edit"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setVisiblePopoverId(
-                              visiblePopoverId === item._id
-                                ? undefined
-                                : item._id,
-                            );
+                            dispatch(setCurrentSubject(item));
+                            setIsEditItemModalOpen(true);
                           }}
                         />
-                      </Popover>
-                    </div>
-                  </Space>
-                }
-                description={<Text type="secondary">{item.fullName}</Text>}
-              />
-            </List.Item>
-          )}
-        />
+                        <Popover
+                          title={'Вы уверены, что хотите удалить этот предмет?'}
+                          content={
+                            <Space>
+                              <Button
+                                onClick={() => handleDeleteSubject(item._id)}
+                                onMouseDown={(e) => e.preventDefault()}
+                              >
+                                <Text type="danger">Да</Text>
+                              </Button>
+                            </Space>
+                          }
+                          trigger="click"
+                          open={visiblePopoverId === item._id}
+                          onOpenChange={(visible) => {
+                            if (!visible) {
+                              setVisiblePopoverId(undefined);
+                            }
+                          }}
+                        >
+                          <DeleteOutlined
+                            className={style.binIcon}
+                            alt="delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setVisiblePopoverId(
+                                visiblePopoverId === item._id
+                                  ? undefined
+                                  : item._id,
+                              );
+                            }}
+                          />
+                        </Popover>
+                      </div>
+                    </Space>
+                  }
+                  description={<Text type="secondary">{item.fullName}</Text>}
+                />
+              </List.Item>
+            )}
+          />
+        )}
       </ConfigProvider>
       <Suspense fallback={<CustomSpin />}>
         <EditItemModal
