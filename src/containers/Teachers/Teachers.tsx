@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, Flex, Typography } from 'antd';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -9,17 +9,21 @@ import {
   deleteTeacher,
   setTeachersLoading,
 } from '../../store/teachersReducer';
+import { clearCurrentSubject } from '../../store/currentSubjectReducer';
 import { clearCurrentTeacher } from '../../store/currentTeacherReducer';
+import { Link } from 'react-router-dom';
+import { SUBJECTS_PAGE } from '../../routes';
 
 const AddItemModal = lazy(() => import('../../components/AddItemModal'));
 const Header = lazy(() => import('../../components/Header'));
 const TeacherList = lazy(() => import('./TeacherList'));
 
 import style from './Teachers.module.scss';
-import { clearCurrentSubject } from '../../store/currentSubjectReducer';
 
 export const Teachers = () => {
   const dispatch = useDispatch();
+
+  const { Text } = Typography;
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [visiblePopoverId, setVisiblePopoverId] = useState<string | undefined>(
@@ -63,16 +67,25 @@ export const Teachers = () => {
         <Header title="Преподаватели" />
       </Suspense>
       <div className={style.container}>
-        <Button
-          className={style.button}
-          onClick={() => {
-            dispatch(clearCurrentSubject());
-            dispatch(clearCurrentTeacher());
-            setIsAddItemModalOpen(true);
-          }}
+        <Flex
+          align="center"
+          className={style.flex_container}
+          justify="space-between"
         >
-          Добавить преподавателя
-        </Button>
+          <Button
+            className={style.button}
+            onClick={() => {
+              dispatch(clearCurrentSubject());
+              dispatch(clearCurrentTeacher());
+              setIsAddItemModalOpen(true);
+            }}
+          >
+            Добавить преподавателя
+          </Button>
+          <Text>
+            <Link to={SUBJECTS_PAGE}>Редактирование предметов</Link>
+          </Text>
+        </Flex>
         <Suspense fallback={<CustomSpin />}>
           <AddItemModal
             isAddItemModalOpen={isAddItemModalOpen}
