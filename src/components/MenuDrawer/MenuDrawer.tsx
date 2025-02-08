@@ -176,6 +176,7 @@ export const MenuDrawer = ({
               )}
             </Space>
           </Space>
+          {/*           
           <Space direction="vertical">
             <Text strong>
               <Link to={'/subjects'}>Список предметов</Link>
@@ -186,7 +187,7 @@ export const MenuDrawer = ({
             <Text strong>
               <Link to={'/edit'}>Редактор расписания</Link>
             </Text>
-          </Space>
+          </Space> */}
         </Space>
       </Drawer>
       <VersionModal

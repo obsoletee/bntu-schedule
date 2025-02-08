@@ -1,4 +1,4 @@
-import { Button } from 'antd';
+import { Button, Flex, Typography } from 'antd';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -17,9 +17,12 @@ const SubjectList = lazy(() => import('./SubjectList'));
 import style from './Subjects.module.scss';
 import { clearCurrentSubject } from '../../store/currentSubjectReducer';
 import { clearCurrentTeacher } from '../../store/currentTeacherReducer';
+import { Link } from 'react-router-dom';
+import { TEACHERS_PAGE } from '../../routes';
 
 export const Subjects = () => {
   const dispatch = useDispatch();
+  const { Text } = Typography;
 
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
@@ -64,16 +67,25 @@ export const Subjects = () => {
         <Header title="Предметы" />
       </Suspense>
       <div className={style.container}>
-        <Button
-          className={style.button}
-          onClick={() => {
-            dispatch(clearCurrentSubject());
-            dispatch(clearCurrentTeacher());
-            setIsAddItemModalOpen(true);
-          }}
+        <Flex
+          align="center"
+          className={style.flex_container}
+          justify="space-between"
         >
-          Добавить предмет
-        </Button>
+          <Button
+            className={style.button}
+            onClick={() => {
+              dispatch(clearCurrentSubject());
+              dispatch(clearCurrentTeacher());
+              setIsAddItemModalOpen(true);
+            }}
+          >
+            Добавить предмет
+          </Button>
+          <Text>
+            <Link to={TEACHERS_PAGE}>Редактирование учителей</Link>
+          </Text>
+        </Flex>
         <Suspense fallback={<CustomSpin />}>
           <AddItemModal
             isAddItemModalOpen={isAddItemModalOpen}
