@@ -12,8 +12,8 @@ import { useViewportSize } from '../../hooks/useViewportSize';
 
 const Header = lazy(() => import('../../components/Header'));
 const Filter = lazy(() => import('../../components/Filter'));
-const LessonListWithDate = lazy(
-  () => import('../../components/LessonListWithDate'),
+const LessonListWithDate = lazy(() =>
+  import('../../components/LessonListWithDate'),
 );
 
 import style from './Home.module.scss';

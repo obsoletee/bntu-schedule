@@ -2,8 +2,15 @@ export const updateDateTime = (
   university: string,
   currentDate: Date,
 ): { formattedDate: string; studyWeekNumber: number } => {
-  const formattedDate = formatDate(currentDate);
-
+  const formattedDate = `${
+    currentDate.getDate() < 10
+      ? '0' + currentDate.getDate()
+      : currentDate.getDate()
+  }.${
+    currentDate.getMonth() < 10
+      ? '0' + currentDate.getMonth()
+      : currentDate.getMonth()
+  }.${currentDate.getFullYear()}`;
   const weekNumber = countWeekNumber(currentDate, university);
 
   return { formattedDate: formattedDate, studyWeekNumber: weekNumber };
