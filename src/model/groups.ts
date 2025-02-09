@@ -7,6 +7,7 @@ export const bntuAllowedGroups = [
   { value: '11004122', label: '11004122' },
   { value: '11004222', label: '11004222' },
   { value: '11004322', label: '11004322' },
+  { value: '11102122', label: '11102122' },
 ];
 
 export const bsuirAllowedGroups = [
