@@ -117,7 +117,7 @@ export const AddItemModal = ({
               (subject) =>
                 subject.fullName.toLowerCase().trimEnd().trimStart() ===
                 currentSubject.fullName.toLowerCase().trimEnd().trimStart(),
-            ).length === 0
+            ).length !== 0
           ) {
             alert('Этот предмет уже добавлен');
             break;
@@ -145,7 +145,7 @@ export const AddItemModal = ({
               (teacher) =>
                 teacher.fullName.toLowerCase().trimEnd().trimStart() ===
                 currentTeacher.fullName.toLowerCase().trimEnd().trimStart(),
-            ).length === 0
+            ).length !== 0
           ) {
             alert('Этот преподаватель уже добавлен');
             break;
