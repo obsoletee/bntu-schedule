@@ -6,18 +6,16 @@ import { buttons } from './buttons';
 import { State } from '../../store';
 
 import style from './Filter.module.scss';
+import { changeSubgroup } from '../../store/currentGroupReducer';
 
 export const Filter = () => {
   const { Text } = Typography;
   const dispatch = useDispatch();
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { subgroup } = useSelector((state: State) => state.currentGroup);
 
   const handleSubgroupChange = useCallback(
     (value: string) => {
-      dispatch({
-        type: 'CHANGE_SUBGROUP',
-        payload: { subgroup: value },
-      });
+      dispatch(changeSubgroup({ subgroup: value }));
     },
     [dispatch],
   );
@@ -30,7 +28,7 @@ export const Filter = () => {
           className={style.filter_button}
           underline
           onClick={() => handleSubgroupChange(button.value)}
-          type={groupInfo.subgroup === button.value ? `success` : `secondary`}
+          type={subgroup === button.value ? `success` : `secondary`}
         >
           {button.text}
         </Text>

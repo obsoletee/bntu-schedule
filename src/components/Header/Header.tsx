@@ -30,7 +30,6 @@ export const Header = ({ title }: HeaderProps) => {
     studyWeekNumber: 0,
   });
   const [isMenuActive, setIsMenuActive] = useState(false);
-
   useEffect(() => {
     const { formattedDate, studyWeekNumber } = updateDateTime(
       groupInfo.university,

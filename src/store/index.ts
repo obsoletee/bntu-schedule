@@ -5,16 +5,11 @@ import { currentLessonReducer } from './currentLessonReducer';
 import { DaySchedule, Subject, Teacher } from '../model/Schedule';
 import teachersReducer from './teachersReducer';
 import subjectsReducer from './subjectsReducer';
-import scheduleReducer, { Schedule } from './scheduleReducer';
 import { configureStore } from '@reduxjs/toolkit';
 import { activeDayOfWeekReducer } from './activeDayOfWeek';
 import { currentTeacherReducer } from './currentTeacherReducer';
 import { currentSubjectReducer } from './currentSubjectReducer';
-
-export interface Action {
-  type: string;
-  payload: string;
-}
+import { scheduleReducer, ScheduleState } from './scheduleReducer';
 
 export interface TeachersState {
   teacherList: Teacher[];
@@ -66,7 +61,7 @@ export interface State {
   currentLesson: CurrentLessonsState;
   teachers: TeachersState;
   subjects: SubjectsState;
-  schedule: Schedule;
+  schedule: ScheduleState;
   currentTeacher: CurrentTeacherState;
   currentSubject: CurrentSubjectState;
   activeDayOfWeek: ActiveDayOfWeekState;

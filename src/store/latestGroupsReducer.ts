@@ -1,37 +1,31 @@
-import { Action } from './index';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const defaultState = {
+const initialState = {
   latestGroups: JSON.parse(localStorage.getItem('latestGroups') || '[]') as {
     number: string;
     university: string;
   }[],
 };
 
-export const latestGroupsReducer = (state = defaultState, action: Action) => {
-  switch (action.type) {
-    case 'ADD_LATEST_GROUPS':
-      localStorage.setItem(
-        'latestGroups',
-        JSON.stringify([...state.latestGroups, action.payload]),
+const latestGroupsSlice = createSlice({
+  name: 'latestGroups',
+  initialState,
+  reducers: {
+    addLatestGroup: (
+      state,
+      action: PayloadAction<{ number: string; university: string }>,
+    ) => {
+      state.latestGroups.push(action.payload);
+      localStorage.setItem('latestGroups', JSON.stringify(state.latestGroups));
+    },
+    removeLatestGroup: (state, action: PayloadAction<string>) => {
+      state.latestGroups = state.latestGroups.filter(
+        (group) => group.number !== action.payload,
       );
-      return {
-        ...state,
-        latestGroups: [...state.latestGroups, action.payload],
-      };
-    case 'REMOVE_LATEST_GROUPS':
-      localStorage.setItem(
-        'latestGroups',
-        JSON.stringify(
-          state.latestGroups.filter((group) => group.number !== action.payload),
-        ),
-      );
-      return {
-        ...state,
-        latestGroups: state.latestGroups.filter(
-          (group) => group.number !== action.payload,
-        ),
-      };
-    default:
-      return state;
-  }
-};
+      localStorage.setItem('latestGroups', JSON.stringify(state.latestGroups));
+    },
+  },
+});
+
+export const { addLatestGroup, removeLatestGroup } = latestGroupsSlice.actions;
+export const latestGroupsReducer = latestGroupsSlice.reducer;

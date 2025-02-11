@@ -1,24 +1,19 @@
-interface ActiveDayOfWeekAction {
-  type: string;
-  payload: string;
-}
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const defaultState = {
+const initialState = {
   activeDayOfWeek: localStorage.getItem('activeDayOfWeek') || '1',
 };
 
-export const activeDayOfWeekReducer = (
-  state = defaultState,
-  action: ActiveDayOfWeekAction,
-) => {
-  switch (action.type) {
-    case 'CHANGE_ACTIVE_DAY_OF_WEEK':
+const activeDayOfWeekSlice = createSlice({
+  name: 'activeDayOfWeek',
+  initialState,
+  reducers: {
+    changeActiveDayOfWeek: (state, action: PayloadAction<string>) => {
+      state.activeDayOfWeek = action.payload;
       localStorage.setItem('activeDayOfWeek', action.payload);
-      return {
-        ...state,
-        activeDayOfWeek: action.payload,
-      };
-    default:
-      return state;
-  }
-};
+    },
+  },
+});
+
+export const { changeActiveDayOfWeek } = activeDayOfWeekSlice.actions;
+export const activeDayOfWeekReducer = activeDayOfWeekSlice.reducer;

@@ -1,13 +1,10 @@
-import { Card, Carousel, Space, Typography } from 'antd';
+import { Card, Carousel, Skeleton, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { API } from '../../model/apiConst';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
-import { GroupSchedule } from '../../model/Schedule';
 import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
 import { State } from '../../store';
-import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 const Header = lazy(() => import('../../components/Header'));
@@ -17,6 +14,7 @@ const LessonListWithDate = lazy(() =>
 );
 
 import style from './Home.module.scss';
+import { useScheduleLoader } from '../../hooks/useScheduleLoader';
 
 interface ScheduleList {
   date: string;
@@ -33,8 +31,13 @@ export const Home = () => {
 
   const { width } = useViewportSize();
 
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { currentGroup, university } = useSelector(
+    (state: State) => state.currentGroup,
+  );
 
+  const { isScheduleLoading } = useSelector((state: State) => state.schedule);
+
+  useScheduleLoader(university, currentGroup);
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
 
   const generateSchedule = useCallback(() => {
@@ -58,7 +61,7 @@ export const Home = () => {
       const shortDayOfWeekRU = getShortDayOfWeek(dayOfWeekRU);
 
       const { formattedDate, studyWeekNumber } = updateDateTime(
-        groupInfo.university,
+        university,
         startDate,
       );
 
@@ -75,31 +78,11 @@ export const Home = () => {
     }
 
     setScheduleList(daysArray);
-  }, [groupInfo]);
+  }, [university]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      dispatch(setScheduleLoading(true));
-      try {
-        const response = await fetch(
-          `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Ошибка при получении данных');
-        }
-        const result: GroupSchedule = await response.json();
-        dispatch(setSchedule(result));
-      } catch (error) {
-        console.error('Ошибка:', error);
-      } finally {
-        dispatch(setScheduleLoading(false));
-      }
-    };
-
-    fetchData();
     generateSchedule();
-  }, [groupInfo, generateSchedule, dispatch]);
+  }, [university, currentGroup, generateSchedule, dispatch]);
 
   return (
     <div className={style.wrapper}>
@@ -108,10 +91,10 @@ export const Home = () => {
       </Suspense>
 
       <div className={style.container}>
-        {groupInfo.currentGroup ? (
+        {currentGroup ? (
           <>
             <div className={style.title}>
-              <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
+              <Title level={3}>Гр. {currentGroup}</Title>
             </div>
             <Carousel draggable infinite={false} dots={false} speed={250}>
               {scheduleList.map((date) => (
@@ -141,13 +124,13 @@ export const Home = () => {
                         </Space>
                       }
                     >
-                      {groupInfo.university === '' ? (
-                        <></>
-                      ) : (
-                        <Suspense fallback={<CustomSpin />}>
+                      <Suspense fallback={<Skeleton active />}>
+                        {isScheduleLoading ? (
+                          <Skeleton />
+                        ) : (
                           <LessonListWithDate date={date} />
-                        </Suspense>
-                      )}
+                        )}
+                      </Suspense>
                     </Card>
                   </Space>
                 </div>

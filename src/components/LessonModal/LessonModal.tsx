@@ -104,6 +104,9 @@ export const LessonModal = ({
               className={style.avatar}
               src={teacherImages[avatarKey]}
               fallback={teacherImages.emptyAvatar}
+              placeholder={
+                <Image preview={false} src={teacherImages.emptyAvatar} />
+              }
             />
           </div>
         ) : (

@@ -16,6 +16,14 @@ import { versions } from '../../model/version';
 import { VersionModal } from '../VersionModal/VersionModal';
 
 import style from './MenuDrawer.module.scss';
+import { changeGroupNumber } from '../../store/currentGroupReducer';
+import {
+  addLatestGroup,
+  removeLatestGroup,
+} from '../../store/latestGroupsReducer';
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
+import { setScheduleLoading } from '../../store/scheduleReducer';
+import { selectOptions } from './SelectOptions';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -30,9 +38,8 @@ export const MenuDrawer = ({
 
   const { Title, Text } = Typography;
 
-  const latestGroups = useSelector(
-    (state: State) => state.latestGroups.latestGroups,
-  );
+  const { latestGroups } = useSelector((state: State) => state.latestGroups);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const latestVersion = useMemo(() => {
@@ -45,37 +52,37 @@ export const MenuDrawer = ({
 
   const handleChangeGroupNumber = useCallback(
     (value: string, university: string) => {
-      dispatch({
-        type: 'CHANGE_GROUP_NUMBER',
-        payload: { currentGroup: value, university: university },
-      });
+      setIsMenuActive(false);
+
+      setScheduleLoading(true);
+
+      dispatch(changeGroupNumber({ currentGroup: value, university }));
 
       if (!latestGroups.some((group) => group.number === value)) {
-        dispatch({
-          type: 'ADD_LATEST_GROUPS',
-          payload: { number: value, university: university },
-        });
+        dispatch(addLatestGroup({ number: value, university }));
       }
 
-      setIsMenuActive(false);
+      dispatch(changeActiveDayOfWeek('1'));
+
+      setScheduleLoading(false);
     },
     [dispatch, latestGroups, setIsMenuActive],
   );
+
   const handleUseGroupNumber = useCallback(
     (value: string, university: string) => {
-      dispatch({
-        type: 'CHANGE_GROUP_NUMBER',
-        payload: { currentGroup: value, university: university },
-      });
-      dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: '1' });
       setIsMenuActive(false);
+      dispatch(
+        changeGroupNumber({ currentGroup: value, university: university }),
+      );
+      dispatch(changeActiveDayOfWeek('1'));
     },
     [dispatch, setIsMenuActive],
   );
 
   const handleDeleteLatestGroup = useCallback(
     (value: string) => {
-      dispatch({ type: 'REMOVE_LATEST_GROUPS', payload: value });
+      dispatch(removeLatestGroup(value));
     },
     [dispatch],
   );
@@ -123,9 +130,8 @@ export const MenuDrawer = ({
               <Space direction="horizontal">
                 <Text>БНТУ</Text>
                 <Select
-                  showSearch
-                  placeholder="Номер группы"
-                  optionFilterProp="label"
+                  key={Math.random()}
+                  {...selectOptions}
                   onChange={(value) => {
                     handleChangeGroupNumber(value, 'bntu');
                   }}
@@ -135,18 +141,17 @@ export const MenuDrawer = ({
               <Space direction="horizontal">
                 <Text>БГУИР</Text>
                 <Select
-                  showSearch
-                  placeholder="Номер группы"
-                  optionFilterProp="label"
+                  {...selectOptions}
                   onChange={(value) => {
                     handleChangeGroupNumber(value, 'bsuir');
                   }}
                   options={bsuirAllowedGroups}
+                  key={Math.random()}
                 />
               </Space>
               {latestGroups.length > 0 ? (
                 <List
-                  header={<Title level={4}>Добавленные:</Title>}
+                  header={<Title level={4}>Последние:</Title>}
                   itemLayout="horizontal"
                   dataSource={latestGroupsReversed}
                   renderItem={(group) => (
