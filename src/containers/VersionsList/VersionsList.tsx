@@ -1,4 +1,4 @@
-import { List, Typography } from 'antd';
+import { Timeline, Typography } from 'antd';
 import { lazy, Suspense } from 'react';
 
 import { versions } from '../../model/version';
@@ -16,29 +16,24 @@ export const VersionsList = () => {
         <Header title="Обновления" />
       </Suspense>
       <div className={style.container}>
-        <Title level={3}>История изменений</Title>
-        <List
-          itemLayout="horizontal"
-          dataSource={[...versions].reverse()}
-          renderItem={(item) => (
-            <List.Item key={item.title}>
-              <List.Item.Meta
-                key={item.title}
-                title={
-                  <div className={style.version_title}>
-                    <Text strong>Версия {item.title}: </Text>{' '}
-                    <Text type="secondary">{item.date}</Text>
-                  </div>
-                }
-                description={item.changes.map((string) => (
-                  <div>
-                    <Text>{`- ${string}`}</Text>
-                  </div>
-                ))}
-              />
-            </List.Item>
-          )}
-        />
+        <Title style={{ marginBottom: '30px' }} level={3}>
+          История изменений
+        </Title>
+        <Timeline reverse>
+          {versions.map((version) => (
+            <Timeline.Item key={version.title}>
+              <div className={style.version_title}>
+                <Text strong>Версия {version.title}: </Text>{' '}
+                <Text type="secondary">{version.date}</Text>
+              </div>
+              {version.changes.map((string) => (
+                <div>
+                  <Text>{`- ${string}`}</Text>
+                </div>
+              ))}
+            </Timeline.Item>
+          ))}
+        </Timeline>
       </div>
     </div>
   );

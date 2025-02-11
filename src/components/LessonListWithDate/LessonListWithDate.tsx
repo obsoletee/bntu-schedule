@@ -19,27 +19,29 @@ interface LessonListWithDateProps {
 }
 
 export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { subgroup, currentGroup } = useSelector(
+    (state: State) => state.currentGroup,
+  );
   const { schedule } = useSelector((state: State) => state.schedule);
 
   const [lessons, setLessons] = useState<DaySchedule[]>([]);
 
   useEffect(() => {
     if (schedule) {
-      const updatedLessons = groupInfo.subgroup
+      const updatedLessons = subgroup
         ? schedule[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
             (item) =>
               item.week.includes(date.weekNumber.toString()) &&
-              (!item.subgroup.localeCompare(groupInfo.subgroup) ||
-                item.subgroup === '0'),
+              (!item.subgroup.localeCompare(subgroup) || item.subgroup === '0'),
           ) || []
-        : schedule[date.dayOfWeekEN.toLowerCase() as DayOfWeek]?.filter(
-            (item) => item.week.includes(date.weekNumber.toString()),
-          ) || [];
+        : schedule[
+            date.dayOfWeekEN.toLowerCase() as DayOfWeek
+          ]?.filter((item) => item.week.includes(date.weekNumber.toString())) ||
+          [];
 
       setLessons(updatedLessons);
     }
-  }, [groupInfo.subgroup, groupInfo.currentGroup, schedule, date]);
+  }, [subgroup, currentGroup, schedule, date]);
 
   return (
     <Suspense fallback={<CustomSpin />}>
