@@ -7,6 +7,7 @@ import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 const Header = lazy(() => import('../../components/Header'));
 
 import style from './VersionList.module.scss';
+import { CheckOutlined } from '@ant-design/icons';
 
 export const VersionsList = () => {
   const { Text, Title } = Typography;
@@ -20,8 +21,16 @@ export const VersionsList = () => {
           История изменений
         </Title>
         <Timeline reverse>
-          {versions.map((version) => (
-            <Timeline.Item key={version.title}>
+          {versions.map((version, index) => (
+            <Timeline.Item
+              color={index === versions.length - 1 ? 'green' : 'blue'}
+              dot={
+                index === versions.length - 1 ? (
+                  <CheckOutlined style={{ fontSize: '20px' }} />
+                ) : undefined
+              }
+              key={version.title}
+            >
               <div className={style.version_title}>
                 <Text strong>Версия {version.title}: </Text>{' '}
                 <Text type="secondary">{version.date}</Text>
