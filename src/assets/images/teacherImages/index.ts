@@ -43,6 +43,7 @@ import tkalich from './tkalich.webp';
 import turovskaya from './turovskaya.webp';
 import verbitskaya from './verbitskaya.webp';
 import verenich from './verenich.webp';
+import volohovich from './volohovich.webp';
 
 export const teacherImages = {
   artyshevsky,
@@ -90,6 +91,7 @@ export const teacherImages = {
   turovskaya,
   verbitskaya,
   verenich,
+  volohovich,
 };
 
 export type TeacherImageKeys = keyof typeof teacherImages;
