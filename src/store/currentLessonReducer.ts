@@ -17,6 +17,7 @@ const initialState: CurrentLessonState = {
       fullName: '',
       avatar: 'emptyAvatar',
     },
+
     type: '',
     class: '',
     korpus: '',
@@ -44,6 +45,7 @@ const currentLessonSlice = createSlice({
           fullName: '',
           avatar: 'emptyAvatar',
         },
+
         type: '',
         class: '',
         korpus: '',

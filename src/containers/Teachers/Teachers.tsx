@@ -47,6 +47,7 @@ export const Teachers = () => {
 
   const handleDeleteTeacher = useCallback(
     async (id: string) => {
+      setVisiblePopoverId(undefined);
       try {
         const response = await fetch(`${API.url}/teachers/${id}`, {
           method: 'DELETE',

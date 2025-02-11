@@ -41,6 +41,7 @@ export const AddItemModal = ({
 
   const { teacherList } = useSelector((state: State) => state.teachers);
   const { subjectList } = useSelector((state: State) => state.subjects);
+
   const { currentSubject } = useSelector(
     (state: State) => state.currentSubject,
   );
@@ -122,13 +123,14 @@ export const AddItemModal = ({
             alert('Этот предмет уже добавлен');
             break;
           }
+          setIsAddItemModalOpen(false);
           if (currentSubject.fullName && currentSubject.shortName) {
             const response = await fetch(`${API.url}/subjects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                fullName: currentSubject.fullName,
-                shortName: currentSubject.shortName,
+                fullName: currentSubject.fullName.trim(),
+                shortName: currentSubject.shortName.trim(),
               }),
             });
             if (response.ok) {
@@ -150,15 +152,16 @@ export const AddItemModal = ({
             alert('Этот преподаватель уже добавлен');
             break;
           }
+          setIsAddItemModalOpen(false);
           if (currentTeacher.fullName && currentTeacher.shortName) {
             const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                fullName: currentTeacher.fullName,
-                shortName: currentTeacher.shortName,
+                fullName: currentTeacher.fullName.trim(),
+                shortName: currentTeacher.shortName.trim(),
                 avatar: currentTeacher.avatar
-                  ? currentTeacher.avatar
+                  ? currentTeacher.avatar.trim()
                   : 'emptyAvatar',
               }),
             });
@@ -172,10 +175,9 @@ export const AddItemModal = ({
       }
     } catch (error) {
       console.error('Ошибка:', error);
-    } finally {
-      setIsAddItemModalOpen(false);
     }
   }, [
+    subjectList,
     teacherList,
     currentEntity,
     currentSubject,

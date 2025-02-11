@@ -94,7 +94,14 @@ export const MenuDrawer = ({
         title={
           <Space direction="horizontal">
             <Text>
-              <Link to={HOME}>Расписание</Link>
+              <Link
+                onClick={() => {
+                  setIsMenuActive(false);
+                }}
+                to={HOME}
+              >
+                Расписание
+              </Link>
             </Text>
             <Text
               type="secondary"

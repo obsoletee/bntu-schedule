@@ -76,13 +76,18 @@ export const EditItemModal = ({
     try {
       switch (currentEntity.value) {
         case 'subject': {
+          setIsEditItemModalOpen(false);
           if (currentSubject.fullName && currentSubject.shortName) {
             const response = await fetch(
               `${API.url}/subjects/${currentSubject._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentSubject),
+                body: JSON.stringify({
+                  _id: currentSubject._id,
+                  fullName: currentSubject.fullName.trim(),
+                  shortName: currentSubject.shortName.trim(),
+                }),
               },
             );
             if (response.ok) {
@@ -100,12 +105,18 @@ export const EditItemModal = ({
             currentTeacher.shortName &&
             currentTeacher.avatar
           ) {
+            setIsEditItemModalOpen(false);
             const response = await fetch(
               `${API.url}/teachers/${currentTeacher._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentTeacher),
+                body: JSON.stringify({
+                  _id: currentTeacher._id,
+                  fullName: currentTeacher.fullName.trim(),
+                  shortName: currentTeacher.shortName.trim(),
+                  avatar: currentTeacher.avatar.trim(),
+                }),
               },
             );
             if (response.ok) {
@@ -119,8 +130,6 @@ export const EditItemModal = ({
       }
     } catch (error) {
       console.error('Ошибка:', error);
-    } finally {
-      setIsEditItemModalOpen(false);
     }
   }, [
     setIsEditItemModalOpen,
