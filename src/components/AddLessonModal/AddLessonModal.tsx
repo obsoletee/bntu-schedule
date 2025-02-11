@@ -1,6 +1,7 @@
 import {
   Checkbox,
   Input,
+  message,
   Modal,
   Radio,
   Select,
@@ -47,7 +48,11 @@ export const AddLessonModal = ({
   const { Text } = Typography;
   const format = 'HH:mm';
 
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const { currentGroup, university } = useSelector(
+    (state: State) => state.currentGroup,
+  );
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
@@ -117,12 +122,12 @@ export const AddLessonModal = ({
 
     fetchSubjects();
     fetchTeachers();
-  }, [groupInfo, dispatch]);
+  }, [dispatch]);
 
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        `${API.url}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {
@@ -135,14 +140,22 @@ export const AddLessonModal = ({
         },
       );
       const result = await response.json();
+      console.log(result);
       dispatch(setSchedule(result));
     };
-    if (formData.startTime === '' || formData.endTime === '') {
-      alert('Заполните поля "Время начала" и "Время окончания"');
-    } else if (formData.subject.fullName === '') {
-      alert('Выберите предмет');
+    if (formData.subject.fullName === '') {
+      messageApi.open({
+        type: 'error',
+        content: 'Выберите предмет',
+      });
+    } else if (formData.startTime === '' || formData.endTime === '') {
+      messageApi.open({
+        type: 'error',
+        content: 'Заполните поля "Время начала" и "Время окончания"',
+      });
     } else {
       try {
+        setIsAddModalOpen(false);
         switch (activeDayOfWeek) {
           case '1': {
             await patchSchedule('monday');
@@ -173,7 +186,6 @@ export const AddLessonModal = ({
             break;
           }
         }
-        setIsAddModalOpen(false);
         setFormData({
           id: generateUniqueId(),
           subject: {
@@ -193,17 +205,23 @@ export const AddLessonModal = ({
           subgroup: '0',
           week: ['1'],
         });
+        messageApi.open({
+          type: 'success',
+          content: 'Занятие успешно добавлено',
+        });
       } catch (error) {
         console.error('Ошибка:', error);
       }
     }
   }, [
+    messageApi,
     activeDayOfWeek,
     dispatch,
     formData,
-    groupInfo,
     schedule,
     setIsAddModalOpen,
+    currentGroup,
+    university,
   ]);
 
   const handleCancel = useCallback(() => {
@@ -268,6 +286,7 @@ export const AddLessonModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           <Select
@@ -320,6 +339,7 @@ export const AddLessonModal = ({
           />
           <Text>Время занятия:</Text>
           <TimePicker.RangePicker
+            allowClear={false}
             onChange={(value) => {
               setFormData((prev) => ({
                 ...prev,
@@ -386,11 +406,7 @@ export const AddLessonModal = ({
               }));
             }}
             value={formData.week}
-            options={
-              groupInfo.university === 'bsuir'
-                ? ['1', '2', '3', '4']
-                : ['1', '2']
-            }
+            options={university === 'bsuir' ? ['1', '2', '3', '4'] : ['1', '2']}
           ></Checkbox.Group>
 
           <Radio.Group

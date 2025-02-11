@@ -13,7 +13,7 @@ import {
   clearCurrentSubject,
   setCurrentSubject,
 } from '../../store/currentSubjectReducer';
-import { Input, Modal, Space, Typography } from 'antd';
+import { Input, message, Modal, Space, Typography } from 'antd';
 
 import style from './AddItemModal.module.scss';
 import {
@@ -38,6 +38,8 @@ export const AddItemModal = ({
   const currentPath = useMemo(() => {
     return window.location.pathname;
   }, []);
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const { teacherList } = useSelector((state: State) => state.teachers);
   const { subjectList } = useSelector((state: State) => state.subjects);
@@ -116,15 +118,19 @@ export const AddItemModal = ({
           if (
             subjectList.filter(
               (subject) =>
-                subject.fullName.toLowerCase().trimEnd().trimStart() ===
-                currentSubject.fullName.toLowerCase().trimEnd().trimStart(),
+                subject.fullName.toLowerCase().trim() ===
+                currentSubject.fullName.toLowerCase().trim(),
             ).length !== 0
           ) {
-            alert('Этот предмет уже добавлен');
+            messageApi.open({
+              type: 'warning',
+              content: 'Этот предмет уже добавлен',
+            });
             break;
           }
-          setIsAddItemModalOpen(false);
+
           if (currentSubject.fullName && currentSubject.shortName) {
+            setIsAddItemModalOpen(false);
             const response = await fetch(`${API.url}/subjects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -136,7 +142,17 @@ export const AddItemModal = ({
             if (response.ok) {
               clearCurrentSubject();
               fetchSubjects();
+              messageApi.open({
+                type: 'success',
+                content: 'Предмет успешно добавлен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
@@ -145,15 +161,22 @@ export const AddItemModal = ({
           if (
             teacherList.filter(
               (teacher) =>
-                teacher.fullName.toLowerCase().trimEnd().trimStart() ===
-                currentTeacher.fullName.toLowerCase().trimEnd().trimStart(),
+                teacher.fullName.toLowerCase().trim() ===
+                  currentTeacher.fullName.toLowerCase().trim() ||
+                (currentTeacher.avatar.toLowerCase().trim() ===
+                  teacher.avatar.toLowerCase().trim() &&
+                  currentTeacher.avatar.toLowerCase().trim() !==
+                    'emptyAvatar'.toLowerCase()),
             ).length !== 0
           ) {
-            alert('Этот преподаватель уже добавлен');
+            messageApi.open({
+              type: 'warning',
+              content: 'Этот преподаватель уже добавлен',
+            });
             break;
           }
-          setIsAddItemModalOpen(false);
           if (currentTeacher.fullName && currentTeacher.shortName) {
+            setIsAddItemModalOpen(false);
             const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -168,7 +191,17 @@ export const AddItemModal = ({
             if (response.ok) {
               clearCurrentTeacher();
               fetchTeachers();
+              messageApi.open({
+                type: 'success',
+                content: 'Преподаватель успешно добавлен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
@@ -177,6 +210,7 @@ export const AddItemModal = ({
       console.error('Ошибка:', error);
     }
   }, [
+    messageApi,
     subjectList,
     teacherList,
     currentEntity,
@@ -222,6 +256,7 @@ export const AddItemModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (

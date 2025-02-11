@@ -1,10 +1,12 @@
 import { Tabs, TabsProps, Typography } from 'antd';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
+import { API } from '../../model/apiConst';
 import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
-import { DaySchedule, daysOfWeek } from '../../model/Schedule';
+import { DaySchedule, daysOfWeek, GroupSchedule } from '../../model/Schedule';
 import { State } from '../../store';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 import { useDispatch } from 'react-redux';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
@@ -12,7 +14,7 @@ const Header = lazy(() => import('../../components/Header'));
 const LessonList = lazy(() => import('../../components/LessonList'));
 
 import style from './ScheduleEditPage.module.scss';
-import { useScheduleLoader } from '../../hooks/useScheduleLoader';
+
 import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
 
 export const ScheduleEditPage = () => {
@@ -21,7 +23,6 @@ export const ScheduleEditPage = () => {
   );
   const { Text, Title } = Typography;
 
-  useScheduleLoader(university, currentGroup);
   const { schedule } = useSelector((state: State) => state.schedule);
 
   const { activeDayOfWeek } = useSelector(
@@ -29,6 +30,28 @@ export const ScheduleEditPage = () => {
   );
 
   const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(setScheduleLoading(true));
+      try {
+        const response = await fetch(
+          `${API.url}/${university}/group${currentGroup}`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: GroupSchedule = await response.json();
+        dispatch(setSchedule(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setScheduleLoading(false));
+      }
+    };
+
+    fetchData();
+  }, [currentGroup, university, dispatch]);
 
   const { width } = useViewportSize();
   const items: TabsProps['items'] = daysOfWeek.map(({ key, label, day }) => ({
@@ -41,11 +64,7 @@ export const ScheduleEditPage = () => {
           addModal={true}
           editModal={true}
           deleteModal={true}
-          items={
-            day === 'sunday'
-              ? undefined
-              : (schedule?.[day] as DaySchedule[] | undefined)
-          }
+          items={schedule?.[day] as DaySchedule[] | undefined}
         />
       </Suspense>
     ),

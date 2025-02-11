@@ -97,7 +97,6 @@ export const SubjectList = ({
         ) : (
           <List
             pagination={{
-              pageSize: 10,
               position: 'bottom',
               align: 'center',
             }}

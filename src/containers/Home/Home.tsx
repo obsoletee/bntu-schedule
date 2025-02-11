@@ -14,7 +14,9 @@ const LessonListWithDate = lazy(() =>
 );
 
 import style from './Home.module.scss';
-import { useScheduleLoader } from '../../hooks/useScheduleLoader';
+import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
+import { API } from '../../model/apiConst';
+import { GroupSchedule } from '../../model/Schedule';
 
 interface ScheduleList {
   date: string;
@@ -37,7 +39,6 @@ export const Home = () => {
 
   const { isScheduleLoading } = useSelector((state: State) => state.schedule);
 
-  useScheduleLoader(university, currentGroup);
   const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
 
   const generateSchedule = useCallback(() => {
@@ -79,6 +80,29 @@ export const Home = () => {
 
     setScheduleList(daysArray);
   }, [university]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(setScheduleLoading(true));
+      try {
+        const response = await fetch(
+          `${API.url}/${university}/group${currentGroup}`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: GroupSchedule = await response.json();
+        dispatch(setSchedule(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setScheduleLoading(false));
+      }
+    };
+
+    fetchData();
+  }, [currentGroup, university, dispatch]);
 
   useEffect(() => {
     generateSchedule();

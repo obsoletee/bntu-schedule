@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
-import { Input, Modal, Space, Typography } from 'antd';
+import { Input, message, Modal, Space, Typography } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { editTeacher } from '../../store/teachersReducer';
@@ -29,6 +29,7 @@ export const EditItemModal = ({
 }: EditItemModalProps) => {
   const dispatch = useDispatch();
 
+  const [messageApi, contextHolder] = message.useMessage();
   const { Text } = Typography;
 
   const currentPath = useMemo(() => {
@@ -76,8 +77,8 @@ export const EditItemModal = ({
     try {
       switch (currentEntity.value) {
         case 'subject': {
-          setIsEditItemModalOpen(false);
           if (currentSubject.fullName && currentSubject.shortName) {
+            setIsEditItemModalOpen(false);
             const response = await fetch(
               `${API.url}/subjects/${currentSubject._id}`,
               {
@@ -94,7 +95,17 @@ export const EditItemModal = ({
               const updatedSubject = await response.json();
               dispatch(editSubject(updatedSubject));
               clearCurrentSubject();
+              messageApi.open({
+                type: 'success',
+                content: 'Предмет успешно изменен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
@@ -123,7 +134,17 @@ export const EditItemModal = ({
               const updatedTeacher = await response.json();
               dispatch(editTeacher(updatedTeacher));
               clearCurrentTeacher();
+              messageApi.open({
+                type: 'success',
+                content: 'Преподаватель успешно изменен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
@@ -133,6 +154,7 @@ export const EditItemModal = ({
     }
   }, [
     setIsEditItemModalOpen,
+    messageApi,
     currentEntity,
     currentSubject,
     currentTeacher,
@@ -174,6 +196,7 @@ export const EditItemModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (

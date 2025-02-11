@@ -1,4 +1,4 @@
-import { Modal, Typography } from 'antd';
+import { message, Modal, Typography } from 'antd';
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -27,14 +27,18 @@ export const DeleteLessonModal = ({
 
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
 
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { university, currentGroup } = useSelector(
+    (state: State) => state.currentGroup,
+  );
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const { schedule } = useSelector((state: State) => state.schedule);
 
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        `${API.url}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {
@@ -53,6 +57,7 @@ export const DeleteLessonModal = ({
       const result = await response.json();
       dispatch(setSchedule(result));
     };
+    setIsDeleteModalOpen(false);
     try {
       switch (activeDayOfWeek) {
         case '1': {
@@ -84,15 +89,21 @@ export const DeleteLessonModal = ({
           break;
         }
       }
-      setIsDeleteModalOpen(false);
+
+      messageApi.open({
+        type: 'success',
+        content: 'Занятие успешно удалено',
+      });
     } catch (error) {
       console.error('Ошибка:', error);
     }
   }, [
+    messageApi,
     activeDayOfWeek,
     currentLesson,
     dispatch,
-    groupInfo,
+    currentGroup,
+    university,
     schedule,
     setIsDeleteModalOpen,
   ]);
@@ -110,6 +121,7 @@ export const DeleteLessonModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div>
         <Text>Вы уверены, что хотите безвозвратно удалить это занятие?</Text>
       </div>
