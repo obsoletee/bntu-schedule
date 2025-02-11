@@ -31,6 +31,7 @@ import smirnov from './smirnov.webp';
 import storozhev from './storozhev.webp';
 import svistun from './svistun.webp';
 import tkalich from './tkalich.webp';
+import volohovich from './volohovich.webp';
 
 export const teacherImages = {
   artyshevsky,
@@ -66,6 +67,7 @@ export const teacherImages = {
   storozhev,
   svistun,
   tkalich,
+  volohovich,
 };
 
 export type TeacherImageKeys = keyof typeof teacherImages;
