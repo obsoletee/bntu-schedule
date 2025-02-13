@@ -63,7 +63,7 @@ export const Subjects = () => {
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<Skeleton active />}>
-        <Header title="Предметы" />
+        <Header />
       </Suspense>
       <div className={style.container}>
         <Flex

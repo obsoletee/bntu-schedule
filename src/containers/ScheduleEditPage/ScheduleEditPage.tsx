@@ -72,7 +72,7 @@ export const ScheduleEditPage = () => {
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<Skeleton active />}>
-        <Header title="Редактор расписания" />
+        <Header />
       </Suspense>
 
       <div className={style.container}>

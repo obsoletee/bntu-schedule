@@ -64,7 +64,7 @@ export const Teachers = () => {
   return (
     <div className={style.wrapper}>
       <Suspense fallback={<Skeleton active />}>
-        <Header title="Преподаватели" />
+        <Header />
       </Suspense>
       <div className={style.container}>
         <Flex
