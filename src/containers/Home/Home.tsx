@@ -1,9 +1,8 @@
-import { Card, Carousel, Skeleton, Space, Typography } from 'antd';
+import { Card, Carousel, Select, Skeleton, Space, Typography } from 'antd';
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
-import { getShortDayOfWeek, updateDateTime } from '../../utils/common';
+import { updateDateTime } from '../../utils/common';
 import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
@@ -17,6 +16,11 @@ import style from './Home.module.scss';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 import { API } from '../../model/apiConst';
 import { GroupSchedule } from '../../model/Schedule';
+import { changeGroupNumber } from '../../store/currentGroupReducer';
+import { addLatestGroup } from '../../store/latestGroupsReducer';
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
+import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
+import { selectOptions } from '../../components/MenuDrawer/SelectOptions';
 
 interface ScheduleList {
   date: string;
@@ -29,7 +33,7 @@ interface ScheduleList {
 export const Home = () => {
   const dispatch = useDispatch();
 
-  const { Text, Title } = Typography;
+  const { Text } = Typography;
 
   const { width } = useViewportSize();
 
@@ -39,7 +43,10 @@ export const Home = () => {
 
   const { isScheduleLoading } = useSelector((state: State) => state.schedule);
 
-  const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
+  const [bntuScheduleList, setBntuScheduleList] = useState<ScheduleList[]>([]);
+  const [bsuirScheduleList, setBsuirScheduleList] = useState<ScheduleList[]>(
+    [],
+  );
 
   const generateSchedule = useCallback(() => {
     const startDate = new Date();
@@ -49,7 +56,9 @@ export const Home = () => {
       startDate.getDate(),
     );
 
-    const daysArray: ScheduleList[] = [];
+    const bntuDaysArray: ScheduleList[] = [];
+    const bsuirDaysArray: ScheduleList[] = [];
+    const shortDaysOfWeekRU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
     while (startDate <= endDate) {
       const dayOfWeekEN = startDate.toLocaleDateString('en-US', {
@@ -59,27 +68,36 @@ export const Home = () => {
         weekday: 'long',
       });
 
-      const shortDayOfWeekRU = getShortDayOfWeek(dayOfWeekRU);
+      const shortDayOfWeekRU = shortDaysOfWeekRU[startDate.getDay()];
 
-      const { formattedDate, studyWeekNumber } = updateDateTime(
-        university,
-        startDate,
-      );
+      const bntuDate = updateDateTime('bntu', startDate);
 
-      const dateList = {
-        date: formattedDate,
+      const bsuirDate = updateDateTime('bsuir', startDate);
+
+      bntuDaysArray.push({
+        date: bntuDate.formattedDate,
         dayOfWeekEN,
         dayOfWeekRU,
         shortDayOfWeekRU,
-        weekNumber: studyWeekNumber,
-      };
+        weekNumber: bntuDate.studyWeekNumber,
+      });
 
-      daysArray.push(dateList);
+      bsuirDaysArray.push({
+        date: bsuirDate.formattedDate,
+        dayOfWeekEN,
+        dayOfWeekRU,
+        shortDayOfWeekRU,
+        weekNumber: bsuirDate.studyWeekNumber,
+      });
+
       startDate.setDate(startDate.getDate() + 1);
     }
 
-    setScheduleList(daysArray);
-  }, [university]);
+    setBntuScheduleList(bntuDaysArray);
+    setBsuirScheduleList(bsuirDaysArray);
+  }, []);
+
+  const { latestGroups } = useSelector((state: State) => state.latestGroups);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,57 +126,150 @@ export const Home = () => {
     generateSchedule();
   }, [university, currentGroup, generateSchedule, dispatch]);
 
+  const handleChangeGroupNumber = useCallback(
+    (value: string, university: string) => {
+      dispatch(changeGroupNumber({ currentGroup: value, university }));
+
+      if (!latestGroups.some((group) => group.number === value)) {
+        dispatch(addLatestGroup({ number: value, university }));
+      }
+
+      dispatch(changeActiveDayOfWeek('1'));
+
+      setScheduleLoading(false);
+    },
+    [dispatch, latestGroups],
+  );
+
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
-        <Header title="Расписание" />
+      <Suspense fallback={<Skeleton active />}>
+        <Header />
       </Suspense>
-
       <div className={style.container}>
         {currentGroup ? (
           <>
-            <div className={style.title}>
-              <Title level={3}>Гр. {currentGroup}</Title>
-            </div>
+            <Space
+              style={
+                width < 768
+                  ? {
+                      padding: '0 10px',
+                      width: '100%',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                    }
+                  : {
+                      padding: '0 10px',
+                      width: '100%',
+                      flexDirection: 'row',
+                    }
+              }
+            >
+              <Space direction="horizontal">
+                <Text>БНТУ:</Text>
+                <Select
+                  key={Math.random()}
+                  {...selectOptions}
+                  onChange={(value) => {
+                    dispatch(setScheduleLoading(true));
+                    handleChangeGroupNumber(value, 'bntu');
+                  }}
+                  options={bntuAllowedGroups}
+                />
+              </Space>
+              <Space direction="horizontal">
+                <Text>БГУИР:</Text>
+                <Select
+                  {...selectOptions}
+                  onChange={(value) => {
+                    handleChangeGroupNumber(value, 'bsuir');
+                  }}
+                  options={bsuirAllowedGroups}
+                  key={Math.random()}
+                />
+              </Space>
+            </Space>
+
             <Carousel draggable infinite={false} dots={false} speed={250}>
-              {scheduleList.map((date) => (
-                <div key={date.date} className={style.card_container}>
-                  <Space direction="vertical">
-                    <Card
-                      bordered
-                      title={
-                        <Space direction="vertical">
-                          <div>
-                            {width < 250
-                              ? `${date.shortDayOfWeekRU}. ${date.date.slice(
-                                  0,
-                                  5,
-                                )} нед. ${date.weekNumber}`
-                              : `${date.dayOfWeekRU
-                                  .slice(0, 1)
-                                  .toUpperCase()}${date.dayOfWeekRU.slice(
-                                  1,
-                                )} ${date.date.slice(0, 5)} нед. ${
-                                  date.weekNumber
-                                }`}
-                          </div>
-                          <Suspense fallback={<CustomSpin />}>
-                            <Filter />
+              {university === 'bntu'
+                ? bntuScheduleList.map((date) => (
+                    <div key={date.date} className={style.card_container}>
+                      <Space direction="vertical">
+                        <Card
+                          bordered
+                          title={
+                            <Space direction="vertical">
+                              <div>
+                                {width < 250
+                                  ? `${
+                                      date.shortDayOfWeekRU
+                                    }. ${date.date.slice(0, 5)} нед. ${
+                                      date.weekNumber
+                                    }`
+                                  : `${date.dayOfWeekRU
+                                      .slice(0, 1)
+                                      .toUpperCase()}${date.dayOfWeekRU.slice(
+                                      1,
+                                    )} ${date.date.slice(0, 5)} нед. ${
+                                      date.weekNumber
+                                    }`}
+                              </div>
+                              <Suspense fallback={<Skeleton active />}>
+                                <Filter />
+                              </Suspense>
+                            </Space>
+                          }
+                        >
+                          <Suspense fallback={<Skeleton active />}>
+                            {isScheduleLoading ? (
+                              <Skeleton active />
+                            ) : (
+                              <LessonListWithDate date={date} />
+                            )}
                           </Suspense>
-                        </Space>
-                      }
-                    >
-                      <Suspense fallback={<Skeleton active />}>
-                        {isScheduleLoading ? (
-                          <Skeleton />
-                        ) : (
-                          <LessonListWithDate date={date} />
-                        )}
-                      </Suspense>
-                    </Card>
-                  </Space>
-                </div>
-              ))}
+                        </Card>
+                      </Space>
+                    </div>
+                  ))
+                : bsuirScheduleList.map((date) => (
+                    <div key={date.date} className={style.card_container}>
+                      <Space direction="vertical">
+                        <Card
+                          bordered
+                          title={
+                            <Space direction="vertical">
+                              <div>
+                                {width < 250
+                                  ? `${
+                                      date.shortDayOfWeekRU
+                                    }. ${date.date.slice(0, 5)} нед. ${
+                                      date.weekNumber
+                                    }`
+                                  : `${date.dayOfWeekRU
+                                      .slice(0, 1)
+                                      .toUpperCase()}${date.dayOfWeekRU.slice(
+                                      1,
+                                    )} ${date.date.slice(0, 5)} нед. ${
+                                      date.weekNumber
+                                    }`}
+                              </div>
+                              <Suspense fallback={<Skeleton active />}>
+                                <Filter />
+                              </Suspense>
+                            </Space>
+                          }
+                        >
+                          <Suspense fallback={<Skeleton active />}>
+                            {isScheduleLoading ? (
+                              <Skeleton active />
+                            ) : (
+                              <LessonListWithDate date={date} />
+                            )}
+                          </Suspense>
+                        </Card>
+                      </Space>
+                    </div>
+                  ))}
             </Carousel>
           </>
         ) : (

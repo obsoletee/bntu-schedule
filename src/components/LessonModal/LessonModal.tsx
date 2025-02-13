@@ -24,9 +24,7 @@ export const LessonModal = ({
 
   const { width } = useViewportSize();
 
-  const currentLesson = useSelector(
-    (state: State) => state.currentLesson.currentLesson,
-  );
+  const { currentLesson } = useSelector((state: State) => state.currentLesson);
   const avatarKey = useMemo(() => {
     return currentLesson.teacher.avatar.toLowerCase() as TeacherImageKeys;
   }, [currentLesson.teacher.avatar]);

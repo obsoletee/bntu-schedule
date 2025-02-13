@@ -1,4 +1,4 @@
-import { Drawer, Space, Select, List, Typography } from 'antd';
+import { Drawer, Space, List, Typography } from 'antd';
 import {
   Dispatch,
   SetStateAction,
@@ -9,7 +9,6 @@ import {
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
 import { HOME } from '../../routes';
 import { State } from '../../store';
 import { versions } from '../../model/version';
@@ -17,13 +16,9 @@ import { VersionModal } from '../VersionModal/VersionModal';
 
 import style from './MenuDrawer.module.scss';
 import { changeGroupNumber } from '../../store/currentGroupReducer';
-import {
-  addLatestGroup,
-  removeLatestGroup,
-} from '../../store/latestGroupsReducer';
+import { removeLatestGroup } from '../../store/latestGroupsReducer';
 import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
 import { setScheduleLoading } from '../../store/scheduleReducer';
-import { selectOptions } from './SelectOptions';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -50,32 +45,15 @@ export const MenuDrawer = ({
     return latestGroups.slice(-5).reverse();
   }, [latestGroups]);
 
-  const handleChangeGroupNumber = useCallback(
-    (value: string, university: string) => {
-      setIsMenuActive(false);
-
-      setScheduleLoading(true);
-
-      dispatch(changeGroupNumber({ currentGroup: value, university }));
-
-      if (!latestGroups.some((group) => group.number === value)) {
-        dispatch(addLatestGroup({ number: value, university }));
-      }
-
-      dispatch(changeActiveDayOfWeek('1'));
-
-      setScheduleLoading(false);
-    },
-    [dispatch, latestGroups, setIsMenuActive],
-  );
-
   const handleUseGroupNumber = useCallback(
     (value: string, university: string) => {
       setIsMenuActive(false);
+      setScheduleLoading(true);
       dispatch(
         changeGroupNumber({ currentGroup: value, university: university }),
       );
       dispatch(changeActiveDayOfWeek('1'));
+      setScheduleLoading(false);
     },
     [dispatch, setIsMenuActive],
   );
@@ -125,33 +103,10 @@ export const MenuDrawer = ({
       >
         <Space direction="vertical" className={style.drawer_container}>
           <Space direction="vertical">
-            <Title level={3}>Выберите группу:</Title>
             <Space direction="vertical">
-              <Space direction="horizontal">
-                <Text>БНТУ</Text>
-                <Select
-                  key={Math.random()}
-                  {...selectOptions}
-                  onChange={(value) => {
-                    handleChangeGroupNumber(value, 'bntu');
-                  }}
-                  options={bntuAllowedGroups}
-                />
-              </Space>
-              <Space direction="horizontal">
-                <Text>БГУИР</Text>
-                <Select
-                  {...selectOptions}
-                  onChange={(value) => {
-                    handleChangeGroupNumber(value, 'bsuir');
-                  }}
-                  options={bsuirAllowedGroups}
-                  key={Math.random()}
-                />
-              </Space>
               {latestGroups.length > 0 ? (
                 <List
-                  header={<Title level={4}>Последние:</Title>}
+                  header={<Title level={4}>Последние группы:</Title>}
                   itemLayout="horizontal"
                   dataSource={latestGroupsReversed}
                   renderItem={(group) => (

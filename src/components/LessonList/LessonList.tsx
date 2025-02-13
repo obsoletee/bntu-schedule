@@ -1,10 +1,9 @@
-import { Button, List, Space, Typography } from 'antd';
+import { Button, List, Skeleton, Space, Typography } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { CustomSpin } from '../CustomSpin/CustomSpin';
 import { DaySchedule } from '../../model/Schedule';
 import { setCurrentLesson } from '../../store/currentLessonReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
@@ -79,14 +78,14 @@ export const LessonList = ({
 
   return (
     <>
-      <Suspense fallback={<CustomSpin />}>
+      <Suspense fallback={<Skeleton active />}>
         <LessonModal
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
         />
       </Suspense>
       {addModal && (
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <AddLessonModal
             isAddModalOpen={isAddModalOpen}
             setIsAddModalOpen={setIsAddModalOpen}
@@ -94,7 +93,7 @@ export const LessonList = ({
         </Suspense>
       )}
       {editModal && (
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <EditLessonModal
             isEditModalOpen={isEditModalOpen}
             setIsEditModalOpen={setIsEditModalOpen}
@@ -102,7 +101,7 @@ export const LessonList = ({
         </Suspense>
       )}
       {deleteModal && (
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <DeleteLessonModal
             isDeleteModalOpen={isDeleteModalOpen}
             setIsDeleteModalOpen={setIsDeleteModalOpen}

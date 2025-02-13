@@ -15,7 +15,9 @@ export const Filter = () => {
 
   const handleSubgroupChange = useCallback(
     (value: string) => {
-      dispatch(changeSubgroup({ subgroup: value }));
+      setTimeout(() => {
+        dispatch(changeSubgroup({ subgroup: value }));
+      }, 0);
     },
     [dispatch],
   );

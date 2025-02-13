@@ -1,8 +1,7 @@
-import { Timeline, Typography } from 'antd';
+import { Skeleton, Timeline, Typography } from 'antd';
 import { lazy, Suspense } from 'react';
 
 import { versions } from '../../model/version';
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 
 const Header = lazy(() => import('../../components/Header'));
 
@@ -13,8 +12,8 @@ export const VersionsList = () => {
   const { Text, Title } = Typography;
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
-        <Header title="Обновления" />
+      <Suspense fallback={<Skeleton active />}>
+        <Header />
       </Suspense>
       <div className={style.container}>
         <Title style={{ marginBottom: '30px' }} level={3}>

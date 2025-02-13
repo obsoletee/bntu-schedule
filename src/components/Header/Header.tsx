@@ -1,9 +1,7 @@
 import { Typography } from 'antd';
 import { lazy, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import { HOME } from '../../routes';
 import { State } from '../../store';
 import { updateDateTime } from '../../utils/common';
 
@@ -16,14 +14,12 @@ interface currentState {
   studyWeekNumber: number;
 }
 
-interface HeaderProps {
-  title: string;
-}
+export const Header = () => {
+  const { Text } = Typography;
 
-export const Header = ({ title }: HeaderProps) => {
-  const { Title, Text } = Typography;
-
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { currentGroup, university } = useSelector(
+    (state: State) => state.currentGroup,
+  );
 
   const [currentState, setCurrentState] = useState<currentState>({
     currentDate: '',
@@ -31,15 +27,19 @@ export const Header = ({ title }: HeaderProps) => {
   });
   const [isMenuActive, setIsMenuActive] = useState(false);
   useEffect(() => {
-    const { formattedDate, studyWeekNumber } = updateDateTime(
-      groupInfo.university,
-      new Date(),
-    );
-    setCurrentState({
-      currentDate: formattedDate,
-      studyWeekNumber: studyWeekNumber,
-    });
-  }, [groupInfo]);
+    const asyncUpdateDate = async () => {
+      const { formattedDate, studyWeekNumber } = await updateDateTime(
+        university,
+        new Date(),
+      );
+      setCurrentState({
+        currentDate: formattedDate,
+        studyWeekNumber: studyWeekNumber,
+      });
+    };
+
+    asyncUpdateDate();
+  }, [university]);
 
   const showDrawer = () => {
     setIsMenuActive(true);
@@ -49,9 +49,9 @@ export const Header = ({ title }: HeaderProps) => {
     <header>
       <div className={style.container}>
         <div className={style.info}>
-          <Title level={3}>
-            <Link to={HOME}>{title}</Link>
-          </Title>
+          <Text style={{ fontSize: '24px' }} strong>
+            Гр. {currentGroup}
+          </Text>
           <Text>Сегодня: {currentState.currentDate}</Text>
           <Text>Неделя: {currentState.studyWeekNumber}</Text>
         </div>

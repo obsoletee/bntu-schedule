@@ -1,9 +1,8 @@
-import { Button, Flex, Typography } from 'antd';
+import { Button, Flex, Skeleton, Typography } from 'antd';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { API } from '../../model/apiConst';
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 import {
   deleteSubject,
   setSubjects,
@@ -63,7 +62,7 @@ export const Subjects = () => {
 
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
+      <Suspense fallback={<Skeleton active />}>
         <Header title="Предметы" />
       </Suspense>
       <div className={style.container}>
@@ -86,14 +85,14 @@ export const Subjects = () => {
             <Link to={TEACHERS_PAGE}>Редактирование учителей</Link>
           </Text>
         </Flex>
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <AddItemModal
             isAddItemModalOpen={isAddItemModalOpen}
             setIsAddItemModalOpen={setIsAddItemModalOpen}
           />
         </Suspense>
 
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <SubjectList
             visiblePopoverId={visiblePopoverId}
             setVisiblePopoverId={setVisiblePopoverId}

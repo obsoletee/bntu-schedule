@@ -1,9 +1,8 @@
-import { Tabs, TabsProps, Typography } from 'antd';
+import { Skeleton, Tabs, TabsProps, Typography } from 'antd';
 import { lazy, Suspense, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { API } from '../../model/apiConst';
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 import { DaySchedule, daysOfWeek, GroupSchedule } from '../../model/Schedule';
 import { State } from '../../store';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
@@ -58,7 +57,7 @@ export const ScheduleEditPage = () => {
     key,
     label,
     children: (
-      <Suspense fallback={<CustomSpin />}>
+      <Suspense fallback={<Skeleton active />}>
         <LessonList
           addButton
           addModal={true}
@@ -72,7 +71,7 @@ export const ScheduleEditPage = () => {
 
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
+      <Suspense fallback={<Skeleton active />}>
         <Header title="Редактор расписания" />
       </Suspense>
 

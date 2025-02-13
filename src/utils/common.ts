@@ -2,18 +2,14 @@ export const updateDateTime = (
   university: string,
   currentDate: Date,
 ): { formattedDate: string; studyWeekNumber: number } => {
-  const formattedDate = `${
-    currentDate.getDate() < 10
-      ? '0' + currentDate.getDate()
-      : currentDate.getDate()
-  }.${
-    currentDate.getMonth() < 10
-      ? '0' + currentDate.getMonth()
-      : currentDate.getMonth()
-  }.${currentDate.getFullYear()}`;
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const year = currentDate.getFullYear();
+  const formattedDate = `${day}.${month}.${year}`;
+
   const weekNumber = countWeekNumber(currentDate, university);
 
-  return { formattedDate: formattedDate, studyWeekNumber: weekNumber };
+  return { formattedDate, studyWeekNumber: weekNumber };
 };
 
 export const countWeekNumber = (
@@ -31,38 +27,6 @@ export const countWeekNumber = (
       : calculateBsuirWeekNumber(startOfYear, pastDaysOfYear);
 
   return weekNumber;
-};
-
-export const getShortDayOfWeek = (dayOfWeek: string) => {
-  const shortDayOfWeekRU =
-    dayOfWeek === 'понедельник'
-      ? 'Пн'
-      : dayOfWeek === 'вторник'
-      ? 'Вт'
-      : dayOfWeek === 'среда'
-      ? 'Ср'
-      : dayOfWeek === 'четверг'
-      ? 'Чт'
-      : dayOfWeek === 'пятница'
-      ? 'Пт'
-      : dayOfWeek === 'суббота'
-      ? 'Сб'
-      : dayOfWeek === 'воскресенье'
-      ? 'Вс'
-      : '';
-  return shortDayOfWeekRU;
-};
-
-export const formatDate = (date: Date) => {
-  const formattedDate = `${
-    date.getUTCDate() < 10 ? `0${date.getUTCDate()}` : `${date.getUTCDate()}`
-  }.${
-    date.getMonth() + 1 < 10
-      ? `0${date.getMonth() + 1}`
-      : `${date.getMonth() + 1}`
-  }.${date.getFullYear()}`;
-
-  return formattedDate;
 };
 
 export const calculateBntuWeekNumber = (
