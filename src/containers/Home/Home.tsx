@@ -171,8 +171,10 @@ export const Home = () => {
                   key={Math.random()}
                   {...selectOptions}
                   onChange={(value) => {
-                    dispatch(setScheduleLoading(true));
-                    handleChangeGroupNumber(value, 'bntu');
+                    if (value !== currentGroup) {
+                      dispatch(setScheduleLoading(true));
+                      handleChangeGroupNumber(value, 'bntu');
+                    }
                   }}
                   options={bntuAllowedGroups}
                 />
@@ -182,7 +184,10 @@ export const Home = () => {
                 <Select
                   {...selectOptions}
                   onChange={(value) => {
-                    handleChangeGroupNumber(value, 'bsuir');
+                    if (value !== currentGroup) {
+                      dispatch(setScheduleLoading(true));
+                      handleChangeGroupNumber(value, 'bsuir');
+                    }
                   }}
                   options={bsuirAllowedGroups}
                   key={Math.random()}
