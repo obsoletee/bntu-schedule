@@ -1,21 +1,18 @@
 import {
   Avatar,
-  Button,
-  ConfigProvider,
   List,
-  Popover,
   Space,
   Typography,
   Image,
   Input,
+  Popconfirm,
+  ConfigProvider,
 } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
 import {
   ChangeEvent,
-  Dispatch,
   lazy,
-  SetStateAction,
   Suspense,
   useEffect,
   useMemo,
@@ -38,18 +35,13 @@ import Worker from '../../../webworkers/teacherSearchWorker?worker';
 const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
 import style from './TeacherList.module.scss';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 interface TeacherListProps {
   handleDeleteTeacher: (id: string) => Promise<void>;
-  visiblePopoverId: string | undefined;
-  setVisiblePopoverId: Dispatch<SetStateAction<string | undefined>>;
 }
 
-export const TeacherList = ({
-  handleDeleteTeacher,
-  visiblePopoverId,
-  setVisiblePopoverId,
-}: TeacherListProps) => {
+export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
   const dispatch = useDispatch();
   const { Text } = Typography;
   const { Search } = Input;
@@ -150,41 +142,23 @@ export const TeacherList = ({
                             setIsEditItemModalOpen(true);
                           }}
                         />
-                        <Popover
-                          title={
-                            'Вы уверены, что хотите удалить этого преподавателя?'
+                        <Popconfirm
+                          title="Удалить преподавателя"
+                          description="Вы уверены, что хотите удалить этого преподавателя?"
+                          icon={
+                            <QuestionCircleOutlined style={{ color: 'red' }} />
                           }
-                          content={
-                            <Space>
-                              <Button
-                                onClick={() => handleDeleteTeacher(item._id)}
-                                onMouseDown={(e) => e.preventDefault()}
-                              >
-                                <Text type="danger">Да</Text>
-                              </Button>
-                            </Space>
-                          }
-                          trigger="click"
-                          open={visiblePopoverId === item._id}
-                          onOpenChange={(visible) => {
-                            if (!visible) {
-                              setVisiblePopoverId(undefined);
-                            }
+                          onConfirm={() => {
+                            handleDeleteTeacher(item._id);
                           }}
+                          okText="Да"
+                          cancelText="Нет"
                         >
                           <DeleteOutlined
                             className={style.binIcon}
                             alt="delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setVisiblePopoverId(
-                                visiblePopoverId === item._id
-                                  ? undefined
-                                  : item._id,
-                              );
-                            }}
                           />
-                        </Popover>
+                        </Popconfirm>
                       </div>
                     </Space>
                   }

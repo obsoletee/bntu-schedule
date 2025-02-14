@@ -1,18 +1,15 @@
 import {
-  Button,
   ConfigProvider,
   Input,
   List,
-  Popover,
+  Popconfirm,
   Space,
   Typography,
 } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
 import {
-  Dispatch,
   lazy,
-  SetStateAction,
   Suspense,
   useEffect,
   useMemo,
@@ -30,18 +27,13 @@ import Worker from '../../../webworkers/subjectSearchWorker?worker';
 const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
 import style from './SubjectList.module.scss';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 interface SubjectListProps {
   handleDeleteSubject: (id: string) => Promise<void>;
-  visiblePopoverId: string | undefined;
-  setVisiblePopoverId: Dispatch<SetStateAction<string | undefined>>;
 }
 
-export const SubjectList = ({
-  handleDeleteSubject,
-  visiblePopoverId,
-  setVisiblePopoverId,
-}: SubjectListProps) => {
+export const SubjectList = ({ handleDeleteSubject }: SubjectListProps) => {
   const dispatch = useDispatch();
   const { Text } = Typography;
   const { Search } = Input;
@@ -127,39 +119,23 @@ export const SubjectList = ({
                             setIsEditItemModalOpen(true);
                           }}
                         />
-                        <Popover
-                          title={'Вы уверены, что хотите удалить этот предмет?'}
-                          content={
-                            <Space>
-                              <Button
-                                onClick={() => handleDeleteSubject(item._id)}
-                                onMouseDown={(e) => e.preventDefault()}
-                              >
-                                <Text type="danger">Да</Text>
-                              </Button>
-                            </Space>
+                        <Popconfirm
+                          title="Удалить предмет"
+                          description="Вы уверены, что хотите удалить этот предмет?"
+                          icon={
+                            <QuestionCircleOutlined style={{ color: 'red' }} />
                           }
-                          trigger="click"
-                          open={visiblePopoverId === item._id}
-                          onOpenChange={(visible) => {
-                            if (!visible) {
-                              setVisiblePopoverId(undefined);
-                            }
+                          onConfirm={() => {
+                            handleDeleteSubject(item._id);
                           }}
+                          okText="Да"
+                          cancelText="Нет"
                         >
                           <DeleteOutlined
                             className={style.binIcon}
                             alt="delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setVisiblePopoverId(
-                                visiblePopoverId === item._id
-                                  ? undefined
-                                  : item._id,
-                              );
-                            }}
                           />
-                        </Popover>
+                        </Popconfirm>
                       </div>
                     </Space>
                   }

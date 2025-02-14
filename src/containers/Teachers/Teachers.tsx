@@ -1,4 +1,4 @@
-import { Button, Flex, Skeleton, Typography } from 'antd';
+import { Button, Flex, message, Skeleton, Typography } from 'antd';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -24,10 +24,8 @@ export const Teachers = () => {
 
   const { Text } = Typography;
 
+  const [messageApi, contextHolder] = message.useMessage();
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-  const [visiblePopoverId, setVisiblePopoverId] = useState<string | undefined>(
-    undefined,
-  );
 
   const fetchTeachers = useCallback(async () => {
     dispatch(setTeachersLoading(true));
@@ -46,7 +44,6 @@ export const Teachers = () => {
 
   const handleDeleteTeacher = useCallback(
     async (id: string) => {
-      setVisiblePopoverId(undefined);
       try {
         const response = await fetch(`${API.url}/teachers/${id}`, {
           method: 'DELETE',
@@ -56,13 +53,19 @@ export const Teachers = () => {
         }
       } catch (error) {
         console.error('Ошибка:', error);
+      } finally {
+        messageApi.open({
+          type: 'success',
+          content: 'Преподаватель успешно удален',
+        });
       }
     },
-    [dispatch],
+    [dispatch, messageApi],
   );
 
   return (
     <div className={style.wrapper}>
+      {contextHolder}
       <Suspense fallback={<Skeleton active />}>
         <Header />
       </Suspense>
@@ -94,11 +97,7 @@ export const Teachers = () => {
         </Suspense>
 
         <Suspense fallback={<Skeleton active />}>
-          <TeacherList
-            handleDeleteTeacher={handleDeleteTeacher}
-            visiblePopoverId={visiblePopoverId}
-            setVisiblePopoverId={setVisiblePopoverId}
-          />
+          <TeacherList handleDeleteTeacher={handleDeleteTeacher} />
         </Suspense>
       </div>
     </div>
