@@ -1,4 +1,4 @@
-import { Modal, Typography, Flex, Image } from 'antd';
+import { Modal, Typography, Image, Space } from 'antd';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -20,7 +20,7 @@ export const LessonModal = ({
   isModalOpen,
   setIsModalOpen,
 }: LessonModalProps) => {
-  const { Text, Title } = Typography;
+  const { Text } = Typography;
 
   const { width } = useViewportSize();
 
@@ -40,15 +40,20 @@ export const LessonModal = ({
   return (
     <Modal
       title={
-        <Flex vertical gap={0}>
-          <Title level={4}>{`${
-            currentLesson ? currentLesson.subject.fullName : ''
-          }`}</Title>
+        <Space
+          style={{ maxWidth: '95%', alignItems: 'stretch', height: '100%' }}
+        >
+          <div className={style.status} lesson-type={currentLesson.type}></div>
           <Text
-            lesson-type={currentLesson.type}
-            className={style.lessonType}
-          >{`${currentLesson ? currentLesson.type : ''}`}</Text>
-        </Flex>
+            style={width > 768 ? { fontSize: '24px' } : { fontSize: '16px' }}
+          >{`${currentLesson ? currentLesson.subject.fullName : ''} ${
+            currentLesson.type === 'Лекция'
+              ? `(ЛК)`
+              : currentLesson.type === 'Практика'
+              ? `(ПР)`
+              : `(ЛБ)`
+          }`}</Text>
+        </Space>
       }
       open={isModalOpen}
       onOk={handleOk}

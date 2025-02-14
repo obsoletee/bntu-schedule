@@ -127,7 +127,16 @@ export const LessonList = ({
               title={
                 <div className={style.card_title}>
                   <Text>
-                    {`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
+                    {`${item.startTime}-${item.endTime}: ${
+                      item.subject.shortName
+                    } 
+                    ${
+                      item.type === 'Лекция'
+                        ? `(ЛК)`
+                        : item.type === 'Практика'
+                        ? `(ПР)`
+                        : `(ЛБ)`
+                    }`}
                   </Text>
                   <Space size={width < 768 ? 'small' : 'large'}>
                     {editModal && (

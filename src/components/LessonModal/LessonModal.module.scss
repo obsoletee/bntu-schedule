@@ -27,17 +27,18 @@
   }
 }
 
-.lessonType {
+.status {
+  display: block;
+  width: 2px;
+  height: 100%;
+
   &[lesson-type='Лекция'] {
-    color: green;
-    text-shadow: 0.5px 0px 0px $color--text-dark;
+    background-color: green;
   }
   &[lesson-type='Практика'] {
-    color: rgb(226, 226, 0);
-    text-shadow: 0.5px 0px 0px $color--text-dark;
+    background-color: yellow;
   }
   &[lesson-type='Лаба'] {
-    color: red;
-    text-shadow: 0.5px 0px 0px $color--text-dark;
+    background-color: red;
   }
 }
