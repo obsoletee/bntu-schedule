@@ -1,12 +1,11 @@
-import { Space, Typography } from 'antd';
+import { Dropdown, MenuProps, Typography } from 'antd';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { buttons } from './buttons';
 import { State } from '../../store';
 
-import style from './Filter.module.scss';
 import { changeSubgroup } from '../../store/currentGroupReducer';
+import { TeamOutlined } from '@ant-design/icons';
 
 export const Filter = () => {
   const { Text } = Typography;
@@ -22,19 +21,45 @@ export const Filter = () => {
     [dispatch],
   );
 
-  return (
-    <Space direction="horizontal">
-      {buttons.map((button) => (
+  const items: MenuProps['items'] = [
+    {
+      label: (
         <Text
-          key={button.text}
-          className={style.filter_button}
-          underline
-          onClick={() => handleSubgroupChange(button.value)}
-          type={subgroup === button.value ? `success` : `secondary`}
+          type={subgroup === '' ? `success` : `secondary`}
+          onClick={() => handleSubgroupChange('')}
         >
-          {button.text}
+          Все
         </Text>
-      ))}
-    </Space>
+      ),
+      key: '0',
+    },
+    {
+      label: (
+        <Text
+          type={subgroup === '1' ? `success` : `secondary`}
+          onClick={() => handleSubgroupChange('1')}
+        >
+          Подгр. 1
+        </Text>
+      ),
+      key: '1',
+    },
+    {
+      label: (
+        <Text
+          type={subgroup === '2' ? `success` : `secondary`}
+          onClick={() => handleSubgroupChange('2')}
+        >
+          Подгр. 2
+        </Text>
+      ),
+      key: '2',
+    },
+  ];
+
+  return (
+    <Dropdown menu={{ items }} trigger={['click']}>
+      <TeamOutlined style={{ fontSize: '22px' }} />
+    </Dropdown>
   );
 };

@@ -33,7 +33,7 @@ header {
 .burger_button,
 .burger_button_active {
   align-self: flex-start;
-  width: 30px;
+  width: 24px;
   height: 20px;
   position: relative;
   cursor: pointer;
@@ -41,7 +41,7 @@ header {
   & span {
     position: absolute;
     top: 16px;
-    width: 30px;
+    width: 24px;
     height: 2px;
     background-color: $color--text-dark;
   }
@@ -52,7 +52,7 @@ header {
     content: '';
     position: absolute;
     top: 7px;
-    width: 30px;
+    width: 24px;
     height: 2px;
     background-color: $color--text-dark;
   }
@@ -61,7 +61,7 @@ header {
     content: '';
     position: absolute;
     bottom: -7px;
-    width: 30px;
+    width: 24px;
     height: 2px;
     background-color: $color--text-dark;
   }
@@ -76,7 +76,7 @@ header {
     content: '';
     position: absolute;
     top: 16px;
-    width: 30px;
+    width: 24px;
     height: 2px;
     background-color: $color--text-dark;
     transform: rotate(-45deg);

@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
+import { CustomSpin } from '../CustomSpin/CustomSpin';
 import { DayOfWeek, DaySchedule } from '../../model/Schedule';
 import { State } from '../../store';
-import { Skeleton } from 'antd';
 
 const LessonList = lazy(() => import('../LessonList'));
 
@@ -19,7 +19,7 @@ interface LessonListWithDateProps {
 }
 
 export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
-  const { subgroup, currentGroup } = useSelector(
+  const { currentGroup, subgroup } = useSelector(
     (state: State) => state.currentGroup,
   );
   const { schedule } = useSelector((state: State) => state.schedule);
@@ -44,7 +44,7 @@ export const LessonListWithDate = ({ date }: LessonListWithDateProps) => {
   }, [subgroup, currentGroup, schedule, date]);
 
   return (
-    <Suspense fallback={<Skeleton active />}>
+    <Suspense fallback={<CustomSpin />}>
       <LessonList items={lessons} />
     </Suspense>
   );

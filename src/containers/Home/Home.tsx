@@ -7,7 +7,6 @@ import { State } from '../../store';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 const Header = lazy(() => import('../../components/Header'));
-const Filter = lazy(() => import('../../components/Filter'));
 const LessonListWithDate = lazy(() =>
   import('../../components/LessonListWithDate'),
 );
@@ -219,9 +218,6 @@ export const Home = () => {
                                       date.weekNumber
                                     }`}
                               </div>
-                              <Suspense fallback={<Skeleton active />}>
-                                <Filter />
-                              </Suspense>
                             </Space>
                           }
                         >
@@ -258,9 +254,6 @@ export const Home = () => {
                                       date.weekNumber
                                     }`}
                               </div>
-                              <Suspense fallback={<Skeleton active />}>
-                                <Filter />
-                              </Suspense>
                             </Space>
                           }
                         >

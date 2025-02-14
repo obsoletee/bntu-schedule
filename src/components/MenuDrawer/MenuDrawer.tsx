@@ -19,6 +19,7 @@ import { changeGroupNumber } from '../../store/currentGroupReducer';
 import { removeLatestGroup } from '../../store/latestGroupsReducer';
 import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
 import { setScheduleLoading } from '../../store/scheduleReducer';
+import { useViewportSize } from '../../hooks/useViewportSize';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -33,6 +34,7 @@ export const MenuDrawer = ({
 
   const { Title, Text } = Typography;
 
+  const { width } = useViewportSize();
   const { latestGroups } = useSelector((state: State) => state.latestGroups);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,6 +78,7 @@ export const MenuDrawer = ({
   return (
     <>
       <Drawer
+        width={width < 473 ? '80%' : 378}
         title={
           <Space direction="horizontal">
             <Text>
