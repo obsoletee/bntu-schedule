@@ -1,4 +1,4 @@
-import { Typography } from 'antd';
+import { Flex, Typography } from 'antd';
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -61,14 +61,14 @@ export const Header = () => {
     <header>
       <div className={style.container}>
         <MenuOutlined style={{ fontSize: '22px' }} onClick={showDrawer} />
-        <div className={style.info}>
+        <Flex vertical gap={0}>
           <Text style={{ fontSize: '18px' }} strong>
             {currentPath === '/schedule'
               ? `${currentGroup} (Полное)`
               : currentGroup}
           </Text>
           <Text>{`${currentState.currentDayLabel}, ${currentState.currentDate} Нед. ${currentState.studyWeekNumber}`}</Text>
-        </div>
+        </Flex>
 
         {/* <ExclamationCircleOutlined style={{ fontSize: '22px', color: 'red' }} /> */}
         <Suspense fallback={<></>}>
