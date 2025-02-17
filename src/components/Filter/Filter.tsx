@@ -1,9 +1,8 @@
-import { Dropdown, MenuProps, Typography, Image } from 'antd';
+import { Dropdown, MenuProps, Typography, Image, Flex } from 'antd';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { State } from '../../store';
-
 import { changeSubgroup } from '../../store/currentGroupReducer';
 import { icons } from '../../assets/icons';
 
@@ -14,62 +13,45 @@ export const Filter = () => {
 
   const handleSubgroupChange = useCallback(
     (value: string) => {
-      setTimeout(() => {
-        dispatch(changeSubgroup({ subgroup: value }));
-      }, 0);
+      dispatch(changeSubgroup({ subgroup: value }));
     },
     [dispatch],
   );
 
-  const items: MenuProps['items'] = [
-    {
-      label: (
-        <Text
-          type={subgroup === '' ? `success` : `secondary`}
-          onClick={() => handleSubgroupChange('')}
-        >
-          Все
-        </Text>
-      ),
-      key: '0',
-    },
-    {
-      label: (
-        <Text
-          type={subgroup === '1' ? `success` : `secondary`}
-          onClick={() => handleSubgroupChange('1')}
-        >
-          Подгр. 1
-        </Text>
-      ),
-      key: '1',
-    },
-    {
-      label: (
-        <Text
-          type={subgroup === '2' ? `success` : `secondary`}
-          onClick={() => handleSubgroupChange('2')}
-        >
-          Подгр. 2
-        </Text>
-      ),
-      key: '2',
-    },
+  const subgroupOptions = [
+    { value: '', label: 'Все', icon: icons.teamIcon },
+    { value: '1', label: 'Подгр. 1', icon: icons.oneTeamIcon },
+    { value: '2', label: 'Подгр. 2', icon: icons.twoTeamIcon },
   ];
+
+  const items: MenuProps['items'] = subgroupOptions.map(
+    ({ value, label, icon }) => ({
+      label: (
+        <Flex
+          align="center"
+          gap={8}
+          onClick={() => handleSubgroupChange(value)}
+        >
+          <Image src={icon} width={22} height={22} preview={false} />
+          <Text type={subgroup === value ? 'success' : 'secondary'}>
+            {label}
+          </Text>
+        </Flex>
+      ),
+      key: value,
+    }),
+  );
+
+  const currentIcon =
+    subgroupOptions.find((option) => option.value === subgroup)?.icon ||
+    icons.teamIcon;
 
   return (
     <Dropdown menu={{ items }} trigger={['click']}>
       <Image
+        onClick={(e) => e.preventDefault()}
         style={{ cursor: 'pointer' }}
-        src={
-          subgroup === ''
-            ? icons.teamIcon
-            : subgroup === '1'
-            ? icons.oneTeamIcon
-            : subgroup === '2'
-            ? icons.twoTeamIcon
-            : icons.teamIcon
-        }
+        src={currentIcon}
         width={22}
         height={22}
         preview={false}
