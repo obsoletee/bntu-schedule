@@ -1,6 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
+export interface CurrentGroupState {
+  currentGroup: string;
+  university: string;
+  subgroup: string;
+}
+
+const initialState: CurrentGroupState = {
   currentGroup: localStorage.getItem('currentGroup') || '',
   university: localStorage.getItem('university') || '',
   subgroup: localStorage.getItem('subgroup') || '',

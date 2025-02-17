@@ -17,8 +17,7 @@ import { API } from '../../model/apiConst';
 import { GroupSchedule } from '../../model/Schedule';
 import { changeGroupNumber } from '../../store/currentGroupReducer';
 import { addLatestGroup } from '../../store/latestGroupsReducer';
-import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
-import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeekReducer';
 
 interface ScheduleList {
   date: string;
@@ -40,6 +39,7 @@ export const Home = () => {
   );
 
   const { isScheduleLoading } = useSelector((state: State) => state.schedule);
+  const { groupList } = useSelector((state: State) => state.availableGroups);
 
   const [bntuScheduleList, setBntuScheduleList] = useState<ScheduleList[]>([]);
   const [bsuirScheduleList, setBsuirScheduleList] = useState<ScheduleList[]>(
@@ -164,12 +164,16 @@ export const Home = () => {
                   {
                     label: <span>БНТУ</span>,
                     title: 'bntu',
-                    options: bntuAllowedGroups,
+                    options: groupList.filter((group) => {
+                      return group.data.universityCode === 'bntu';
+                    }),
                   },
                   {
                     label: <span>БГУИР</span>,
                     title: 'bsuir',
-                    options: bsuirAllowedGroups,
+                    options: groupList.filter((group) => {
+                      return group.data.universityCode === 'bsuir';
+                    }),
                   },
                 ]}
               />

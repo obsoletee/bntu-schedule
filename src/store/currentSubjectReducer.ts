@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Subject } from '../model/Schedule';
 
-interface CurrentSubjectState {
+export interface CurrentSubjectState {
   currentSubject: Subject;
 }
 

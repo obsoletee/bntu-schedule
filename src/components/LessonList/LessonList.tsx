@@ -1,4 +1,4 @@
-import { Button, List, Skeleton, Space, Typography } from 'antd';
+import { Button, Flex, List, Skeleton, Space, Typography } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
@@ -160,10 +160,11 @@ export const LessonList = ({
                       />
                     )}
                   </Space>
+                  <Text type="secondary">Нед. {item.week.join(', ')}</Text>
                 </div>
               }
               description={
-                <div className={style.list_description}>
+                <Flex vertical>
                   {item.class && item.korpus ? (
                     <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
                   ) : null}
@@ -172,7 +173,7 @@ export const LessonList = ({
                       ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
                       : `${item.teacher.shortName}`}
                   </Text>
-                </div>
+                </Flex>
               }
             />
           </List.Item>

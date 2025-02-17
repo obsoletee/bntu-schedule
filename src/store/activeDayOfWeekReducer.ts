@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = {
+export interface ActiveDayOfWeekState {
+  activeDayOfWeek: string;
+}
+
+const initialState: ActiveDayOfWeekState = {
   activeDayOfWeek: localStorage.getItem('activeDayOfWeek') || '1',
 };
 

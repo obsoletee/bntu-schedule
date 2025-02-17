@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DaySchedule } from '../model/Schedule';
 
-interface CurrentLessonState {
+export interface CurrentLessonState {
   currentLesson: DaySchedule;
 }
 

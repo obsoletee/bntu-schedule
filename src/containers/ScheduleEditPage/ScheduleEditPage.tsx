@@ -14,7 +14,7 @@ const LessonList = lazy(() => import('../../components/LessonList'));
 
 import style from './ScheduleEditPage.module.scss';
 
-import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeekReducer';
 
 export const ScheduleEditPage = () => {
   const { university, currentGroup } = useSelector(

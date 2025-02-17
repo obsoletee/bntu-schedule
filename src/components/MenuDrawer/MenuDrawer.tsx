@@ -17,7 +17,7 @@ import { VersionModal } from '../VersionModal/VersionModal';
 import style from './MenuDrawer.module.scss';
 import { changeGroupNumber } from '../../store/currentGroupReducer';
 import { removeLatestGroup } from '../../store/latestGroupsReducer';
-import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeekReducer';
 import { setScheduleLoading } from '../../store/scheduleReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
 import { DeleteOutlined } from '@ant-design/icons';

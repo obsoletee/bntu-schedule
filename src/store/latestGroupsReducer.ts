@@ -1,10 +1,18 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = {
-  latestGroups: JSON.parse(localStorage.getItem('latestGroups') || '[]') as {
-    number: string;
-    university: string;
-  }[],
+export interface LatestGroup {
+  number: string;
+  university: string;
+}
+
+export interface LatestGroupsState {
+  latestGroups: LatestGroup[];
+}
+
+const initialState: LatestGroupsState = {
+  latestGroups: JSON.parse(
+    localStorage.getItem('latestGroups') || '[]',
+  ) as LatestGroup[],
 };
 
 const latestGroupsSlice = createSlice({
@@ -20,7 +28,7 @@ const latestGroupsSlice = createSlice({
     },
     removeLatestGroup: (state, action: PayloadAction<string>) => {
       state.latestGroups = state.latestGroups.filter(
-        (group) => group.number !== action.payload,
+        (group: LatestGroup) => group.number !== action.payload,
       );
       localStorage.setItem('latestGroups', JSON.stringify(state.latestGroups));
     },
