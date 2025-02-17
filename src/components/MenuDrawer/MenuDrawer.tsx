@@ -1,4 +1,4 @@
-import { Drawer, Space, List, Typography } from 'antd';
+import { Drawer, Space, List, Typography, Flex, Image } from 'antd';
 import {
   Dispatch,
   SetStateAction,
@@ -20,6 +20,8 @@ import { removeLatestGroup } from '../../store/latestGroupsReducer';
 import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
 import { setScheduleLoading } from '../../store/scheduleReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
+import { DeleteOutlined } from '@ant-design/icons';
+import { icons } from '../../assets/icons';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -115,34 +117,65 @@ export const MenuDrawer = ({
                   renderItem={(group) => (
                     <List.Item>
                       <List.Item.Meta
+                        avatar={
+                          group.university === 'bntu' ? (
+                            <Image
+                              src={icons.bntuLogo}
+                              width={32}
+                              height={32}
+                              preview={false}
+                            />
+                          ) : (
+                            <Image
+                              preview={false}
+                              src={icons.bsuirLogo}
+                              width={32}
+                              height={32}
+                            />
+                          )
+                        }
                         title={
-                          <Space direction="horizontal">
-                            <Text
-                              style={{ cursor: 'pointer' }}
-                              onClick={() =>
-                                handleUseGroupNumber(
-                                  group.number,
-                                  group.university,
-                                )
-                              }
-                            >{`${group.number} `}</Text>
-                            <Text
+                          <Flex justify="space-between" align="center">
+                            <Flex>
+                              <Text
+                                strong
+                                underline
+                                style={{ cursor: 'pointer' }}
+                                onClick={() =>
+                                  handleUseGroupNumber(
+                                    group.number,
+                                    group.university,
+                                  )
+                                }
+                              >{`${group.number} `}</Text>
+                            </Flex>
+                            <DeleteOutlined
                               onClick={() =>
                                 handleDeleteLatestGroup(group.number)
                               }
-                              style={{ cursor: 'pointer' }}
-                              type="secondary"
-                            >
-                              x
-                            </Text>
-                          </Space>
+                              style={{ cursor: 'pointer', fontSize: '18px' }}
+                            />
+                          </Flex>
+                        }
+                        description={
+                          <Text
+                            style={{ cursor: 'pointer' }}
+                            onClick={() =>
+                              handleUseGroupNumber(
+                                group.number,
+                                group.university,
+                              )
+                            }
+                          >
+                            {group.university === 'bntu' ? 'БНТУ' : 'БГУИР'}
+                          </Text>
                         }
                       />
                     </List.Item>
                   )}
                 />
               ) : (
-                <Text>Добавленных групп нет.</Text>
+                <Text style={{ fontSize: '18px' }}>Добавленных групп нет.</Text>
               )}
             </Space>
           </Space>

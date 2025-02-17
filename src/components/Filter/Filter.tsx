@@ -1,11 +1,11 @@
-import { Dropdown, MenuProps, Typography } from 'antd';
+import { Dropdown, MenuProps, Typography, Image } from 'antd';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { State } from '../../store';
 
 import { changeSubgroup } from '../../store/currentGroupReducer';
-import { TeamOutlined } from '@ant-design/icons';
+import { icons } from '../../assets/icons';
 
 export const Filter = () => {
   const { Text } = Typography;
@@ -59,7 +59,21 @@ export const Filter = () => {
 
   return (
     <Dropdown menu={{ items }} trigger={['click']}>
-      <TeamOutlined style={{ fontSize: '22px' }} />
+      <Image
+        style={{ cursor: 'pointer' }}
+        src={
+          subgroup === ''
+            ? icons.teamIcon
+            : subgroup === '1'
+            ? icons.oneTeamIcon
+            : subgroup === '2'
+            ? icons.twoTeamIcon
+            : icons.teamIcon
+        }
+        width={22}
+        height={22}
+        preview={false}
+      />
     </Dropdown>
   );
 };

@@ -19,7 +19,6 @@ import { changeGroupNumber } from '../../store/currentGroupReducer';
 import { addLatestGroup } from '../../store/latestGroupsReducer';
 import { changeActiveDayOfWeek } from '../../store/activeDayOfWeek';
 import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
-import { selectOptions } from '../../components/MenuDrawer/SelectOptions';
 
 interface ScheduleList {
   date: string;
@@ -148,50 +147,32 @@ export const Home = () => {
       <div className={style.container}>
         {currentGroup ? (
           <>
-            <Space
-              style={
-                width < 768
-                  ? {
-                      padding: '0 10px',
-                      width: '100%',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                    }
-                  : {
-                      padding: '0 10px',
-                      width: '100%',
-                      flexDirection: 'row',
-                    }
-              }
-            >
-              <Space direction="horizontal">
-                <Text>БНТУ:</Text>
-                <Select
-                  key={Math.random()}
-                  {...selectOptions}
-                  onChange={(value) => {
-                    if (value !== currentGroup) {
-                      dispatch(setScheduleLoading(true));
-                      handleChangeGroupNumber(value, 'bntu');
-                    }
-                  }}
-                  options={bntuAllowedGroups}
-                />
-              </Space>
-              <Space direction="horizontal">
-                <Text>БГУИР:</Text>
-                <Select
-                  {...selectOptions}
-                  onChange={(value) => {
-                    if (value !== currentGroup) {
-                      dispatch(setScheduleLoading(true));
-                      handleChangeGroupNumber(value, 'bsuir');
-                    }
-                  }}
-                  options={bsuirAllowedGroups}
-                  key={Math.random()}
-                />
-              </Space>
+            <Space direction="horizontal">
+              <Text></Text>
+              <Select
+                showSearch={true}
+                placeholder="Номер группы"
+                optionFilterProp="label"
+                key={Math.random()}
+                onChange={(value) => {
+                  if (value !== currentGroup) {
+                    dispatch(setScheduleLoading(true));
+                    handleChangeGroupNumber(value, 'bntu');
+                  }
+                }}
+                options={[
+                  {
+                    label: <span>БНТУ</span>,
+                    title: 'bntu',
+                    options: bntuAllowedGroups,
+                  },
+                  {
+                    label: <span>БГУИР</span>,
+                    title: 'bsuir',
+                    options: bsuirAllowedGroups,
+                  },
+                ]}
+              />
             </Space>
 
             <Carousel draggable infinite={false} dots={false} speed={250}>
@@ -202,23 +183,20 @@ export const Home = () => {
                         <Card
                           bordered
                           title={
-                            <Space direction="vertical">
-                              <div>
-                                {width < 250
-                                  ? `${
-                                      date.shortDayOfWeekRU
-                                    }. ${date.date.slice(0, 5)} нед. ${
-                                      date.weekNumber
-                                    }`
-                                  : `${date.dayOfWeekRU
-                                      .slice(0, 1)
-                                      .toUpperCase()}${date.dayOfWeekRU.slice(
-                                      1,
-                                    )} ${date.date.slice(0, 5)} нед. ${
-                                      date.weekNumber
-                                    }`}
-                              </div>
-                            </Space>
+                            <>
+                              {width < 250
+                                ? `${date.shortDayOfWeekRU}. ${date.date.slice(
+                                    0,
+                                    5,
+                                  )} нед. ${date.weekNumber}`
+                                : `${date.dayOfWeekRU
+                                    .slice(0, 1)
+                                    .toUpperCase()}${date.dayOfWeekRU.slice(
+                                    1,
+                                  )} ${date.date.slice(0, 5)} нед. ${
+                                    date.weekNumber
+                                  }`}
+                            </>
                           }
                         >
                           <Suspense fallback={<Skeleton active />}>
