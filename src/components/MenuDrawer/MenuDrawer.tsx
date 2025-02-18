@@ -34,11 +34,20 @@ export const MenuDrawer = ({
 }: MenuDrawerProps) => {
   const dispatch = useDispatch();
 
-  const { Title, Text } = Typography;
+  const { Text } = Typography;
 
   const { width } = useViewportSize();
-  const { latestGroups } = useSelector((state: State) => state.latestGroups);
 
+  const { latestGroups } = useSelector((state: State) => state.latestGroups);
+  const { groupList } = useSelector((state: State) => state.availableGroups);
+
+  const latestGroupDetails = useMemo(() => {
+    const latestGroupNumbers = latestGroups.map((group) => group.groupNumber);
+
+    return groupList.filter((group) =>
+      latestGroupNumbers.includes(group.value),
+    );
+  }, [groupList, latestGroups]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const latestVersion = useMemo(() => {
@@ -46,16 +55,14 @@ export const MenuDrawer = ({
   }, []);
 
   const latestGroupsReversed = useMemo(() => {
-    return latestGroups.slice(-5).reverse();
-  }, [latestGroups]);
+    return latestGroupDetails.slice(-5).reverse();
+  }, [latestGroupDetails]);
 
   const handleUseGroupNumber = useCallback(
     (value: string, university: string) => {
       setIsMenuActive(false);
       setScheduleLoading(true);
-      dispatch(
-        changeGroupNumber({ currentGroup: value, university: university }),
-      );
+      dispatch(changeGroupNumber({ currentGroup: value, university }));
       dispatch(changeActiveDayOfWeek('1'));
       setScheduleLoading(false);
     },
@@ -111,64 +118,85 @@ export const MenuDrawer = ({
             <Space direction="vertical">
               {latestGroups.length > 0 ? (
                 <List
-                  header={<Title level={4}>Последние группы:</Title>}
+                  header={
+                    <Text strong style={{ fontSize: '24px' }}>
+                      Последние группы:
+                    </Text>
+                  }
                   itemLayout="horizontal"
                   dataSource={latestGroupsReversed}
                   renderItem={(group) => (
                     <List.Item>
                       <List.Item.Meta
                         avatar={
-                          group.university === 'bntu' ? (
-                            <Image
-                              src={icons.bntuLogo}
-                              width={32}
-                              height={32}
-                              preview={false}
-                            />
-                          ) : (
-                            <Image
-                              preview={false}
-                              src={icons.bsuirLogo}
-                              width={32}
-                              height={32}
-                            />
-                          )
+                          <Flex
+                            style={{ cursor: 'pointer' }}
+                            onClick={() =>
+                              handleUseGroupNumber(
+                                group.data.groupNumber,
+                                group.data.universityCode,
+                              )
+                            }
+                          >
+                            {group.data.universityCode === 'bntu' ? (
+                              <Image
+                                src={icons.bntuLogo}
+                                width={32}
+                                height={32}
+                                preview={false}
+                              />
+                            ) : (
+                              <Image
+                                preview={false}
+                                src={icons.bsuirLogo}
+                                width={32}
+                                height={32}
+                              />
+                            )}
+                          </Flex>
                         }
                         title={
-                          <Flex justify="space-between" align="center">
-                            <Flex>
-                              <Text
-                                strong
-                                underline
-                                style={{ cursor: 'pointer' }}
-                                onClick={() =>
-                                  handleUseGroupNumber(
-                                    group.number,
-                                    group.university,
-                                  )
-                                }
-                              >{`${group.number} `}</Text>
-                            </Flex>
+                          <Flex
+                            justify="space-between"
+                            align="center"
+                            onClick={() =>
+                              handleUseGroupNumber(
+                                group.data.groupNumber,
+                                group.data.universityCode,
+                              )
+                            }
+                          >
+                            <Text
+                              strong
+                              underline
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {group.data.groupNumber}
+                            </Text>
+
                             <DeleteOutlined
-                              onClick={() =>
-                                handleDeleteLatestGroup(group.number)
-                              }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteLatestGroup(group.data.groupNumber);
+                              }}
                               style={{ cursor: 'pointer', fontSize: '18px' }}
                             />
                           </Flex>
                         }
                         description={
-                          <Text
+                          <Space
                             style={{ cursor: 'pointer' }}
                             onClick={() =>
                               handleUseGroupNumber(
-                                group.number,
-                                group.university,
+                                group.data.groupNumber,
+                                group.data.universityCode,
                               )
                             }
                           >
-                            {group.university === 'bntu' ? 'БНТУ' : 'БГУИР'}
-                          </Text>
+                            <Text>{group.data.universityName}</Text>
+                            <Text>|</Text>
+                            <Text>{group.data.department}</Text>
+                          </Space>
                         }
                       />
                     </List.Item>

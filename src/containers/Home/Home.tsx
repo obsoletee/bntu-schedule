@@ -128,8 +128,8 @@ export const Home = () => {
     (value: string, university: string) => {
       dispatch(changeGroupNumber({ currentGroup: value, university }));
 
-      if (!latestGroups.some((group) => group.number === value)) {
-        dispatch(addLatestGroup({ number: value, university }));
+      if (!latestGroups.some((group) => group.groupNumber === value)) {
+        dispatch(addLatestGroup({ groupNumber: value }));
       }
 
       dispatch(changeActiveDayOfWeek('1'));

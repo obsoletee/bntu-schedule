@@ -1,8 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface LatestGroup {
-  number: string;
-  university: string;
+  groupNumber: string;
 }
 
 export interface LatestGroupsState {
@@ -19,16 +18,13 @@ const latestGroupsSlice = createSlice({
   name: 'latestGroups',
   initialState,
   reducers: {
-    addLatestGroup: (
-      state,
-      action: PayloadAction<{ number: string; university: string }>,
-    ) => {
+    addLatestGroup: (state, action: PayloadAction<LatestGroup>) => {
       state.latestGroups.push(action.payload);
       localStorage.setItem('latestGroups', JSON.stringify(state.latestGroups));
     },
     removeLatestGroup: (state, action: PayloadAction<string>) => {
       state.latestGroups = state.latestGroups.filter(
-        (group: LatestGroup) => group.number !== action.payload,
+        (group: LatestGroup) => group.groupNumber !== action.payload,
       );
       localStorage.setItem('latestGroups', JSON.stringify(state.latestGroups));
     },
