@@ -39,7 +39,9 @@ export const Home = () => {
   );
 
   const { isScheduleLoading } = useSelector((state: State) => state.schedule);
-  const { groupList } = useSelector((state: State) => state.availableGroups);
+  const { availableGroups, isGroupsLoading } = useSelector(
+    (state: State) => state.availableGroups,
+  );
 
   const [bntuScheduleList, setBntuScheduleList] = useState<ScheduleList[]>([]);
   const [bsuirScheduleList, setBsuirScheduleList] = useState<ScheduleList[]>(
@@ -150,6 +152,8 @@ export const Home = () => {
             <Space direction="horizontal">
               <Text></Text>
               <Select
+                disabled={isGroupsLoading}
+                loading={isGroupsLoading}
                 showSearch={true}
                 placeholder="Номер группы"
                 optionFilterProp="label"
@@ -164,14 +168,14 @@ export const Home = () => {
                   {
                     label: <span>БНТУ</span>,
                     title: 'bntu',
-                    options: groupList.filter((group) => {
+                    options: availableGroups.filter((group) => {
                       return group.data.universityCode === 'bntu';
                     }),
                   },
                   {
                     label: <span>БГУИР</span>,
                     title: 'bsuir',
-                    options: groupList.filter((group) => {
+                    options: availableGroups.filter((group) => {
                       return group.data.universityCode === 'bsuir';
                     }),
                   },

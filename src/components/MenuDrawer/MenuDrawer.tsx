@@ -3,6 +3,7 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -22,6 +23,12 @@ import { setScheduleLoading } from '../../store/scheduleReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
 import { DeleteOutlined } from '@ant-design/icons';
 import { icons } from '../../assets/icons';
+import { API } from '../../model/apiConst';
+import {
+  AllowedGroups,
+  setGroups,
+  setGroupsLoading,
+} from '../../store/availableGroupsReducer';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -39,15 +46,17 @@ export const MenuDrawer = ({
   const { width } = useViewportSize();
 
   const { latestGroups } = useSelector((state: State) => state.latestGroups);
-  const { groupList } = useSelector((state: State) => state.availableGroups);
+  const { availableGroups } = useSelector(
+    (state: State) => state.availableGroups,
+  );
 
   const latestGroupDetails = useMemo(() => {
     const latestGroupNumbers = latestGroups.map((group) => group.groupNumber);
 
-    return groupList.filter((group) =>
+    return availableGroups.filter((group) =>
       latestGroupNumbers.includes(group.value),
     );
-  }, [groupList, latestGroups]);
+  }, [availableGroups, latestGroups]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const latestVersion = useMemo(() => {
@@ -83,6 +92,27 @@ export const MenuDrawer = ({
   const changesHandle = useCallback(() => {
     setIsModalOpen(true);
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(setGroupsLoading(true));
+      try {
+        const response = await fetch(`${API.localhost}/availableGroups`);
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: AllowedGroups[] = await response.json();
+        dispatch(setGroups(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setGroupsLoading(false));
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
 
   return (
     <>
@@ -195,7 +225,7 @@ export const MenuDrawer = ({
                           >
                             <Text>{group.data.universityName}</Text>
                             <Text>|</Text>
-                            <Text>{group.data.department}</Text>
+                            <Text>{group.data.departmentShortName}</Text>
                           </Space>
                         }
                       />
