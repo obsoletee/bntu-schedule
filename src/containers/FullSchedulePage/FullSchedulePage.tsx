@@ -48,7 +48,7 @@ export const FullSchedulePage = () => {
   const items = daysOfWeek.map(({ label, day }) => ({
     children: (
       <Card
-        bordered
+        size="small"
         title={
           <Text strong style={{ fontSize: '18px' }}>
             {label}
@@ -64,9 +64,22 @@ export const FullSchedulePage = () => {
 
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<Skeleton active />}>
-        <Header />
-      </Suspense>
+      <header>
+        <Suspense
+          fallback={
+            <Skeleton.Input
+              style={{
+                margin: '10px 20px',
+                width: '100%',
+                height: '20px',
+              }}
+              active
+            />
+          }
+        >
+          <Header />
+        </Suspense>
+      </header>
 
       <div className={style.container}>
         {currentGroup ? (

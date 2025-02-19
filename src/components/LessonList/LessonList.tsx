@@ -125,7 +125,7 @@ export const LessonList = ({
                 <div className={style.status} lesson-type={item.type}></div>
               }
               title={
-                <div className={style.card_title}>
+                <Flex justify="space-between">
                   <Text>
                     {`${item.startTime}-${item.endTime}: ${
                       item.subject.shortName
@@ -138,30 +138,36 @@ export const LessonList = ({
                         : `(ЛБ)`
                     }`}
                   </Text>
-                  <Space size={width < 768 ? 'small' : 'large'}>
-                    {editModal && (
-                      <EditOutlined
-                        className={style.icon}
-                        alt="edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenEditModal(item);
-                        }}
-                      />
-                    )}
-                    {deleteModal && (
-                      <DeleteOutlined
-                        className={style.icon}
-                        alt="delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenDeleteModal(item);
-                        }}
-                      />
-                    )}
-                  </Space>
-                  <Text type="secondary">Нед. {item.week.join(', ')}</Text>
-                </div>
+                  <Text style={{ fontSize: '12px' }} type="secondary">
+                    Нед. {item.week.join(', ')}
+                  </Text>
+                  {editModal || deleteModal ? (
+                    <Space size={width < 768 ? 'small' : 'large'}>
+                      {editModal && (
+                        <EditOutlined
+                          className={style.icon}
+                          alt="edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditModal(item);
+                          }}
+                        />
+                      )}
+                      {deleteModal && (
+                        <DeleteOutlined
+                          className={style.icon}
+                          alt="delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDeleteModal(item);
+                          }}
+                        />
+                      )}
+                    </Space>
+                  ) : (
+                    <></>
+                  )}
+                </Flex>
               }
               description={
                 <Flex vertical>

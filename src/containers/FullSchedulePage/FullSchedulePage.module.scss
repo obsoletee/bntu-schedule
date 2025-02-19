@@ -3,3 +3,12 @@
   overflow: hidden;
   background-color: #fff;
 }
+
+header {
+  position: sticky;
+  top: 0;
+  background-color: #eaf0ff;
+  z-index: 100;
+  overflow: hidden;
+  width: 100%;
+}

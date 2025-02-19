@@ -58,7 +58,7 @@ export const Header = () => {
   };
 
   return (
-    <header>
+    <>
       <div className={style.container}>
         <MenuOutlined style={{ fontSize: '22px' }} onClick={showDrawer} />
         <Flex vertical gap={0}>
@@ -92,6 +92,6 @@ export const Header = () => {
         isMenuActive={isMenuActive}
         setIsMenuActive={setIsMenuActive}
       />
-    </header>
+    </>
   );
 };
