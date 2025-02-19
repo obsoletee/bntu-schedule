@@ -47,57 +47,6 @@ export const Home = () => {
     [],
   );
 
-  // const generateSchedule = useCallback(() => {
-  //   const startDate = new Date();
-  //   const endDate = new Date(
-  //     startDate.getFullYear(),
-  //     startDate.getMonth() + 1,
-  //     startDate.getDate(),
-  //   );
-
-  //   const bntuDaysArray: ScheduleList[] = [];
-  //   const bsuirDaysArray: ScheduleList[] = [];
-  //   const shortDaysOfWeekRU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-
-  //   while (startDate <= endDate) {
-  //     const dayOfWeekEN = startDate.toLocaleDateString('en-US', {
-  //       weekday: 'long',
-  //     });
-  //     const dayOfWeekRU = startDate.toLocaleDateString('ru', {
-  //       weekday: 'long',
-  //     });
-
-  //     const shortDayOfWeekRU = shortDaysOfWeekRU[startDate.getDay()];
-
-  //     const bntuDate = updateDateTime('bntu', startDate);
-
-  //     const bsuirDate = updateDateTime('bsuir', startDate);
-
-  //     bntuDaysArray.push({
-  //       date: bntuDate.formattedDate,
-  //       dayOfWeekEN,
-  //       dayOfWeekRU,
-  //       shortDayOfWeekRU,
-  //       weekNumber: bntuDate.studyWeekNumber,
-  //     });
-
-  //     bsuirDaysArray.push({
-  //       date: bsuirDate.formattedDate,
-  //       dayOfWeekEN,
-  //       dayOfWeekRU,
-  //       shortDayOfWeekRU,
-  //       weekNumber: bsuirDate.studyWeekNumber,
-  //     });
-
-  //     startDate.setDate(startDate.getDate() + 1);
-  //   }
-
-  //   setBntuScheduleList(bntuDaysArray);
-  //   setBsuirScheduleList(bsuirDaysArray);
-  // }, []);
-
-  const { latestGroups } = useSelector((state: State) => state.latestGroups);
-
   useEffect(() => {
     const fetchData = async () => {
       dispatch(setScheduleLoading(true));
@@ -156,19 +105,18 @@ export const Home = () => {
 
   const handleChangeGroupNumber = useCallback(
     (value: string, university: string) => {
+      dispatch(setScheduleLoading(true));
       dispatch(
         changeGroupNumber({ currentGroup: value, university: university }),
       );
 
-      if (!latestGroups.some((group) => group.groupNumber === value)) {
-        dispatch(addLatestGroup({ groupNumber: value }));
-      }
+      dispatch(addLatestGroup({ groupNumber: value }));
 
       dispatch(changeActiveDayOfWeek('1'));
 
-      setScheduleLoading(false);
+      dispatch(setScheduleLoading(false));
     },
-    [dispatch, latestGroups],
+    [dispatch],
   );
 
   return (
