@@ -22,6 +22,7 @@ import {
 } from '../../store/currentTeacherReducer';
 import { setSubjects, setSubjectsLoading } from '../../store/subjectsReducer';
 import { setTeachers, setTeachersLoading } from '../../store/teachersReducer';
+import { SUBJECTS_PAGE, TEACHERS_PAGE } from '../../routes';
 
 interface AddItemModalProps {
   isAddItemModalOpen: boolean;
@@ -87,7 +88,7 @@ export const AddItemModal = ({
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
   } = useMemo(() => {
-    if (currentPath === '/subjects') {
+    if (currentPath === SUBJECTS_PAGE) {
       return {
         value: 'subject',
         fullNamePlaceholder: 'Полное название',
@@ -95,7 +96,7 @@ export const AddItemModal = ({
         avatarPlaceholder: '',
       };
     }
-    if (currentPath === '/teachers') {
+    if (currentPath === TEACHERS_PAGE) {
       return {
         value: 'teacher',
         fullNamePlaceholder: 'ФИО',

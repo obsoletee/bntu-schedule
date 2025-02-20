@@ -8,7 +8,13 @@ import {
   Flex,
 } from 'antd';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 import { useSelector } from 'react-redux';
 
 import { CustomSpin } from '../../../components/CustomSpin/CustomSpin';
@@ -20,12 +26,21 @@ import Worker from '../../../webworkers/availableGroupsWorker?worker';
 import style from './GroupList.module.scss';
 
 import { icons } from '../../../assets/icons';
+import { useDispatch } from 'react-redux';
+import { setScheduleLoading } from '../../../store/scheduleReducer';
+import { changeGroupNumber } from '../../../store/currentGroupReducer';
+import { addLatestGroup } from '../../../store/latestGroupsReducer';
+import { changeActiveDayOfWeek } from '../../../store/activeDayOfWeekReducer';
+import { useNavigate } from 'react-router-dom';
+import { HOME } from '../../../routes';
 
 export const GroupList = () => {
   const { Text } = Typography;
   const { Search } = Input;
   const { width } = useViewportSize();
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
 
   const [isPending, startTransition] = useTransition();
@@ -53,6 +68,22 @@ export const GroupList = () => {
       });
     };
   }, [searchQuery, worker, availableGroups]);
+
+  const handleChangeGroupNumber = useCallback(
+    (value: string, university: string) => {
+      dispatch(setScheduleLoading(true));
+      dispatch(
+        changeGroupNumber({ currentGroup: value, university: university }),
+      );
+
+      dispatch(addLatestGroup({ groupNumber: value }));
+
+      dispatch(changeActiveDayOfWeek('1'));
+
+      dispatch(setScheduleLoading(false));
+    },
+    [dispatch],
+  );
 
   return (
     <ConfigProvider
@@ -83,7 +114,12 @@ export const GroupList = () => {
           itemLayout="horizontal"
           dataSource={filteredGroups}
           renderItem={(group) => (
-            <List.Item>
+            <List.Item
+              onClick={() => {
+                handleChangeGroupNumber(group.value, group.data.universityCode);
+                navigate(HOME);
+              }}
+            >
               <List.Item.Meta
                 avatar={
                   <Image

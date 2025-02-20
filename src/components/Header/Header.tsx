@@ -63,7 +63,7 @@ export const Header = () => {
         <MenuOutlined style={{ fontSize: '22px' }} onClick={showDrawer} />
         <Flex vertical gap={0}>
           <Text style={{ fontSize: '18px' }} strong>
-            {currentPath === '/schedule'
+            {currentPath === FULL_SCHEDULE
               ? `${currentGroup} (Полное)`
               : currentGroup}
           </Text>
@@ -71,17 +71,17 @@ export const Header = () => {
         </Flex>
 
         {/* <ExclamationCircleOutlined style={{ fontSize: '22px', color: 'red' }} /> */}
-        {currentPath !== '/schedule' ? (
+        {currentPath === HOME ? (
           <Suspense fallback={<></>}>
             <Filter />
           </Suspense>
         ) : (
           <></>
         )}
-        <Link to={currentPath === '/schedule' ? HOME : FULL_SCHEDULE}>
+        <Link to={currentPath === FULL_SCHEDULE ? HOME : FULL_SCHEDULE}>
           <ScheduleOutlined
             style={
-              currentPath === '/schedule'
+              currentPath === FULL_SCHEDULE
                 ? { fontSize: '22px', color: 'blue' }
                 : { fontSize: '22px', color: 'black' }
             }

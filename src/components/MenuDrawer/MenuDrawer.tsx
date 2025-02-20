@@ -18,7 +18,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { HOME } from '../../routes';
+import { GROUPS, HOME } from '../../routes';
 import { State } from '../../store';
 import { versions } from '../../model/version';
 import { VersionModal } from '../VersionModal/VersionModal';
@@ -241,16 +241,16 @@ export const MenuDrawer = ({
 
           <Space direction="vertical">
             {/* <Text strong>
-              <Link to={'/subjects'}>Список предметов</Link>
+              <Link to={SUBJECTS_PAGE}>Список предметов</Link>
             </Text>
             <Text strong>
-              <Link to={'/teachers'}>Список учителей</Link>
+              <Link to={TEACHERS_PAGE}>Список учителей</Link>
             </Text>
             <Text strong>
-              <Link to={'/edit'}>Редактор расписания</Link>
+              <Link to={EDIT_PAGE}>Редактор расписания</Link>
             </Text> */}
             <Text style={{ fontSize: '18px' }} strong>
-              <Link to={'/groups'}>Добавить расписание</Link>
+              <Link to={GROUPS}>Добавить расписание</Link>
             </Text>
           </Space>
         </Space>

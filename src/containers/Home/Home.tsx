@@ -1,5 +1,5 @@
-import { Card, Carousel, Select, Skeleton, Space, Typography } from 'antd';
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { Card, Carousel, Skeleton, Space, Typography } from 'antd';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { State } from '../../store';
@@ -14,9 +14,6 @@ import style from './Home.module.scss';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 import { API } from '../../model/apiConst';
 import { GroupSchedule } from '../../model/Schedule';
-import { changeGroupNumber } from '../../store/currentGroupReducer';
-import { addLatestGroup } from '../../store/latestGroupsReducer';
-import { changeActiveDayOfWeek } from '../../store/activeDayOfWeekReducer';
 
 interface ScheduleList {
   date: string;
@@ -38,7 +35,7 @@ export const Home = () => {
   );
 
   const { isScheduleLoading } = useSelector((state: State) => state.schedule);
-  const { availableGroups, isGroupsLoading } = useSelector(
+  const { isGroupsLoading } = useSelector(
     (state: State) => state.availableGroups,
   );
 
@@ -103,22 +100,6 @@ export const Home = () => {
     fetchSchedule();
   }, [university, dispatch]);
 
-  const handleChangeGroupNumber = useCallback(
-    (value: string, university: string) => {
-      dispatch(setScheduleLoading(true));
-      dispatch(
-        changeGroupNumber({ currentGroup: value, university: university }),
-      );
-
-      dispatch(addLatestGroup({ groupNumber: value }));
-
-      dispatch(changeActiveDayOfWeek('1'));
-
-      dispatch(setScheduleLoading(false));
-    },
-    [dispatch],
-  );
-
   return (
     <div className={style.wrapper}>
       <header>
@@ -140,40 +121,6 @@ export const Home = () => {
       <div className={style.container}>
         {currentGroup ? (
           <>
-            <Space direction="horizontal">
-              <Text></Text>
-              <Select
-                disabled={isGroupsLoading}
-                loading={isGroupsLoading}
-                showSearch={true}
-                placeholder="Номер группы"
-                optionFilterProp="label"
-                key={Math.random()}
-                onChange={(value) => {
-                  if (value !== currentGroup) {
-                    dispatch(setScheduleLoading(true));
-                    handleChangeGroupNumber(value, 'bntu');
-                  }
-                }}
-                options={[
-                  {
-                    label: <span>БНТУ</span>,
-                    title: 'bntu',
-                    options: availableGroups.filter((group) => {
-                      return group.data.universityCode === 'bntu';
-                    }),
-                  },
-                  {
-                    label: <span>БГУИР</span>,
-                    title: 'bsuir',
-                    options: availableGroups.filter((group) => {
-                      return group.data.universityCode === 'bsuir';
-                    }),
-                  },
-                ]}
-              />
-            </Space>
-
             <Carousel draggable infinite={false} dots={false} speed={250}>
               {university === 'bntu'
                 ? bntuScheduleList.map((date) => (
