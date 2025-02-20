@@ -15,7 +15,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { GROUPS, HOME } from '../../routes';
@@ -48,6 +48,11 @@ export const MenuDrawer = ({
   setIsMenuActive,
 }: MenuDrawerProps) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const currentPath = useMemo(() => {
+    return window.location.pathname;
+  }, []);
 
   const { Text } = Typography;
 
@@ -75,6 +80,9 @@ export const MenuDrawer = ({
   const handleUseGroupNumber = useCallback(
     (value: string, university: string) => {
       setIsMenuActive(false);
+      if (currentPath === GROUPS) {
+        navigate(HOME);
+      }
       setTimeout(() => {
         dispatch(setScheduleLoading(true));
         dispatch(changeGroupNumber({ currentGroup: value, university }));
@@ -82,7 +90,7 @@ export const MenuDrawer = ({
         dispatch(setScheduleLoading(false));
       }, 100);
     },
-    [dispatch, setIsMenuActive],
+    [dispatch, setIsMenuActive, navigate, currentPath],
   );
 
   const handleDeleteLatestGroup = useCallback(
@@ -159,7 +167,7 @@ export const MenuDrawer = ({
         open={isMenuActive}
       >
         <Space direction="vertical" className={style.drawer_container}>
-          <Space direction="vertical">
+          <Space direction="vertical" style={{ width: '100%' }}>
             {latestGroups.length > 0 ? (
               <List
                 header={
@@ -172,6 +180,7 @@ export const MenuDrawer = ({
                 renderItem={(group) => (
                   <List.Item>
                     <List.Item.Meta
+                      style={{ width: '100%', cursor: 'pointer' }}
                       avatar={
                         <Image
                           style={{ cursor: 'pointer' }}
