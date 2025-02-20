@@ -49,6 +49,7 @@ export const FullSchedulePage = () => {
     children: (
       <Card
         size="small"
+        bordered
         title={
           <Text strong style={{ fontSize: '18px' }}>
             {label}

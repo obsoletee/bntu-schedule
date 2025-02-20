@@ -2,7 +2,7 @@ import { Button, Flex, List, Skeleton, Space, Typography } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
 import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { DaySchedule } from '../../model/Schedule';
 import { setCurrentLesson } from '../../store/currentLessonReducer';
@@ -14,6 +14,7 @@ const EditLessonModal = lazy(() => import('../EditLessonModal'));
 const LessonModal = lazy(() => import('../LessonModal'));
 
 import style from './LessonList.module.scss';
+import { State } from '../../store';
 
 interface LessonListWithDateProps {
   items: DaySchedule[] | undefined;
@@ -35,6 +36,8 @@ export const LessonList = ({
   const { Text } = Typography;
 
   const { width } = useViewportSize();
+
+  const { subgroup } = useSelector((state: State) => state.currentGroup);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -69,12 +72,19 @@ export const LessonList = ({
     setIsAddModalOpen(true);
   }, []);
 
+  const filteredItems = useMemo(() => {
+    return items?.filter(
+      (item) =>
+        !subgroup ||
+        item.subgroup === '0' ||
+        item.subgroup.localeCompare(subgroup) === 0,
+    );
+  }, [items, subgroup]);
   const sortedItems = useMemo(() => {
-    const newItems = items?.slice().sort((a, b) => {
-      return a.startTime.localeCompare(b.startTime);
-    });
-    return newItems;
-  }, [items]);
+    return filteredItems
+      ?.slice()
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }, [filteredItems]);
 
   return (
     <>

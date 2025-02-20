@@ -155,39 +155,36 @@ export const Home = () => {
                     </Space>
                   ))
                 : bsuirScheduleList.map((date) => (
-                    <div key={date.date} className={style.card_container}>
-                      <Space direction="vertical">
-                        <Card
-                          title={
-                            <Space direction="vertical">
-                              <div>
-                                {width < 250
-                                  ? `${
-                                      date.shortDayOfWeekRU
-                                    }. ${date.date.slice(0, 5)} нед. ${
-                                      date.weekNumber
-                                    }`
-                                  : `${date.dayOfWeekRU
-                                      .slice(0, 1)
-                                      .toUpperCase()}${date.dayOfWeekRU.slice(
-                                      1,
-                                    )} ${date.date.slice(0, 5)} нед. ${
-                                      date.weekNumber
-                                    }`}
-                              </div>
-                            </Space>
-                          }
-                        >
-                          <Suspense fallback={<Skeleton active />}>
-                            {isScheduleLoading ? (
-                              <Skeleton active />
-                            ) : (
-                              <LessonListWithDate date={date} />
-                            )}
-                          </Suspense>
-                        </Card>
-                      </Space>
-                    </div>
+                    <Space direction="vertical">
+                      <Card
+                        title={
+                          <Space direction="vertical">
+                            <div>
+                              {width < 250
+                                ? `${date.shortDayOfWeekRU}. ${date.date.slice(
+                                    0,
+                                    5,
+                                  )} нед. ${date.weekNumber}`
+                                : `${date.dayOfWeekRU
+                                    .slice(0, 1)
+                                    .toUpperCase()}${date.dayOfWeekRU.slice(
+                                    1,
+                                  )} ${date.date.slice(0, 5)} нед. ${
+                                    date.weekNumber
+                                  }`}
+                            </div>
+                          </Space>
+                        }
+                      >
+                        <Suspense fallback={<Skeleton active />}>
+                          {isScheduleLoading ? (
+                            <Skeleton active />
+                          ) : (
+                            <LessonListWithDate date={date} />
+                          )}
+                        </Suspense>
+                      </Card>
+                    </Space>
                   ))}
             </Carousel>
           </>

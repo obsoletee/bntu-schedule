@@ -71,7 +71,7 @@ export const Header = () => {
         </Flex>
 
         {/* <ExclamationCircleOutlined style={{ fontSize: '22px', color: 'red' }} /> */}
-        {currentPath === HOME ? (
+        {currentPath === HOME || currentPath === FULL_SCHEDULE ? (
           <Suspense fallback={<></>}>
             <Filter />
           </Suspense>
