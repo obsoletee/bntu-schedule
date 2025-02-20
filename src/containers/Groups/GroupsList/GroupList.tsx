@@ -6,6 +6,7 @@ import {
   Typography,
   Image,
   Flex,
+  message,
 } from 'antd';
 
 import {
@@ -39,11 +40,14 @@ export const GroupList = () => {
   const { Search } = Input;
   const { width } = useViewportSize();
 
+  const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
 
   const [isPending, startTransition] = useTransition();
+
+  const { latestGroups } = useSelector((state: State) => state.latestGroups);
 
   const worker = useMemo(() => {
     return new Worker();
@@ -56,18 +60,33 @@ export const GroupList = () => {
 
   useEffect(() => {
     if (!searchQuery) {
-      setFiltererdGroups(availableGroups);
+      setFiltererdGroups(
+        availableGroups.filter(
+          (group) =>
+            !latestGroups.some(
+              (latest) => latest.groupNumber === group.data.groupNumber,
+            ),
+        ),
+      );
       return;
     }
 
-    worker.postMessage({ groups: availableGroups, query: searchQuery });
+    worker.postMessage({
+      groups: availableGroups.filter(
+        (group) =>
+          !latestGroups.some(
+            (latest) => latest.groupNumber === group.data.groupNumber,
+          ),
+      ),
+      query: searchQuery,
+    });
 
     worker.onmessage = (event) => {
       startTransition(() => {
         setFiltererdGroups(event.data);
       });
     };
-  }, [searchQuery, worker, availableGroups]);
+  }, [searchQuery, worker, availableGroups, latestGroups]);
 
   const handleChangeGroupNumber = useCallback(
     (value: string, university: string) => {
@@ -81,8 +100,12 @@ export const GroupList = () => {
       dispatch(changeActiveDayOfWeek('1'));
 
       dispatch(setScheduleLoading(false));
+      messageApi.open({
+        type: 'success',
+        content: 'Расписание успешно добавлено',
+      });
     },
-    [dispatch],
+    [dispatch, messageApi],
   );
 
   return (
@@ -95,6 +118,7 @@ export const GroupList = () => {
         },
       }}
     >
+      {contextHolder}
       <Search
         placeholder="Поиск"
         value={searchQuery}
