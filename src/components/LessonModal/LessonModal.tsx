@@ -1,5 +1,12 @@
 import { Modal, Typography, Image, Space } from 'antd';
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useSelector } from 'react-redux';
 
 import {
@@ -10,6 +17,7 @@ import { State } from '../../store';
 
 import style from './LessonModal.module.scss';
 import { useViewportSize } from '../../hooks/useViewportSize';
+import { Subject, Teacher } from '../../model/Schedule';
 
 interface LessonModalProps {
   isModalOpen: boolean;
@@ -25,9 +33,62 @@ export const LessonModal = ({
   const { width } = useViewportSize();
 
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
+
+  const [teacher, setTeacher] = useState<Teacher>({
+    _id: '',
+    avatar: 'emptyAvatar',
+    fullName: '',
+    shortName: '',
+    degree: '',
+    university: {
+      code: '',
+      title: '',
+    },
+  });
+  const [subject, setSubject] = useState<Subject>({
+    _id: '',
+    fullName: '',
+    shortName: '',
+  });
+
+  const { subjectList } = useSelector((state: State) => state.subjects);
+  const { teacherList } = useSelector((state: State) => state.teachers);
+
+  useEffect(() => {
+    setSubject(
+      subjectList.filter((subject) => {
+        return subject._id === currentLesson.subjectId;
+      })[0]
+        ? subjectList.filter((subject) => {
+            return subject._id === currentLesson.subjectId;
+          })[0]
+        : { _id: '', fullName: '', shortName: '' },
+    );
+
+    setTeacher(
+      teacherList.filter((teacher) => {
+        return teacher._id === currentLesson.teacherId;
+      })[0]
+        ? teacherList.filter((teacher) => {
+            return teacher._id === currentLesson.teacherId;
+          })[0]
+        : {
+            _id: '',
+            avatar: 'emptyAvatar',
+            fullName: '',
+            shortName: '',
+            degree: '',
+            university: {
+              code: '',
+              title: '',
+            },
+          },
+    );
+  }, [currentLesson, subjectList, teacherList]);
+
   const avatarKey = useMemo(() => {
-    return currentLesson.teacher.avatar.toLowerCase() as TeacherImageKeys;
-  }, [currentLesson.teacher.avatar]);
+    return teacher.avatar.toLowerCase() as TeacherImageKeys;
+  }, [teacher.avatar]);
 
   const handleOk = useCallback(() => {
     setIsModalOpen(false);
@@ -46,7 +107,7 @@ export const LessonModal = ({
           <div className={style.status} lesson-type={currentLesson.type}></div>
           <Text
             style={width > 768 ? { fontSize: '24px' } : { fontSize: '16px' }}
-          >{`${currentLesson ? currentLesson.subject.fullName : ''} ${
+          >{`${subject.fullName} ${
             currentLesson.type === 'Лекция'
               ? `(ЛК)`
               : currentLesson.type === 'Практика'
@@ -64,31 +125,25 @@ export const LessonModal = ({
       <div className={style.container}>
         <div className={style.description_container}>
           <Text>
-            <b>{currentLesson ? currentLesson.teacher.fullName : ''}</b>
+            <b>
+              {`${teacher.fullName} ${
+                teacher.degree ? `(${teacher.degree})` : ''
+              }`}
+            </b>
           </Text>
-          <Text>{`Время: ${currentLesson ? currentLesson.startTime : ''} - ${
-            currentLesson ? currentLesson.endTime : ''
-          }`}</Text>
-          {currentLesson?.class && currentLesson?.korpus ? (
-            <Text>{`Аудитория: ${currentLesson.class}-${currentLesson.korpus}к`}</Text>
-          ) : (
-            <></>
-          )}
+          <Text>{`Время: ${currentLesson.startTime} - ${currentLesson.endTime}`}</Text>
+          <Text>{`Аудитория: ${currentLesson.class}-${currentLesson.korpus}к`}</Text>
           <Text>
             Недели:{' '}
-            {currentLesson ? (
-              currentLesson.week.length > 0 ? (
-                <>
-                  {currentLesson!.week.slice(0, -1).join(', ')}
-                  {currentLesson!.week.length > 1
-                    ? `, ${currentLesson?.week[currentLesson.week.length - 1]}`
-                    : `${currentLesson?.week[0]}`}
-                </>
-              ) : (
-                'Нет данных.'
-              )
+            {currentLesson.week.length > 0 ? (
+              <>
+                {currentLesson.week.slice(0, -1).join(', ')}
+                {currentLesson.week.length > 1
+                  ? `, ${currentLesson?.week[currentLesson.week.length - 1]}`
+                  : `${currentLesson?.week[0]}`}
+              </>
             ) : (
-              ''
+              'Нет данных.'
             )}
           </Text>
           {currentLesson ? (

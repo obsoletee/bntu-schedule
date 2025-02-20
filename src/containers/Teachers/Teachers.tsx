@@ -45,7 +45,7 @@ export const Teachers = () => {
   const handleDeleteTeacher = useCallback(
     async (id: string) => {
       try {
-        const response = await fetch(`${API.url}/teachers/${id}`, {
+        const response = await fetch(`${API.localhost}/teachers/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {

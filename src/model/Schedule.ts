@@ -55,6 +55,11 @@ export interface Teacher {
   shortName: string;
   fullName: string;
   avatar: TeacherImageKeys;
+  university: {
+    code: string;
+    title: string;
+  };
+  degree: string;
 }
 
 export interface DaySchedule {
@@ -68,6 +73,8 @@ export interface DaySchedule {
   korpus: string;
   subgroup: string;
   week: string[];
+  teacherId: string;
+  subjectId: string;
 }
 
 export interface GroupSchedule {

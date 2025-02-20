@@ -13,7 +13,7 @@ import {
   clearCurrentSubject,
   setCurrentSubject,
 } from '../../store/currentSubjectReducer';
-import { Input, message, Modal, Space, Typography } from 'antd';
+import { Input, message, Modal, Select, Space, Typography } from 'antd';
 
 import style from './AddItemModal.module.scss';
 import {
@@ -55,7 +55,7 @@ export const AddItemModal = ({
   const fetchTeachers = useCallback(async () => {
     dispatch(setTeachersLoading(true));
     try {
-      const response = await fetch(`${API.url}/teachers/`);
+      const response = await fetch(`${API.localhost}/teachers/`);
       const data = await response.json();
       dispatch(setTeachers(data));
     } finally {
@@ -70,7 +70,7 @@ export const AddItemModal = ({
   const fetchSubjects = useCallback(async () => {
     dispatch(setSubjectsLoading(true));
     try {
-      const response = await fetch(`${API.url}/subjects/`);
+      const response = await fetch(`${API.localhost}/subjects/`);
       const data = await response.json();
       dispatch(setSubjects(data));
     } finally {
@@ -87,6 +87,8 @@ export const AddItemModal = ({
     fullNamePlaceholder: string;
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
+    degreePlaceholder: string;
+    universityPlaceholder: string;
   } = useMemo(() => {
     if (currentPath === SUBJECTS_PAGE) {
       return {
@@ -94,6 +96,8 @@ export const AddItemModal = ({
         fullNamePlaceholder: 'Полное название',
         shortNamePlaceholder: 'Сокращенное название',
         avatarPlaceholder: '',
+        degreePlaceholder: '',
+        universityPlaceholder: '',
       };
     }
     if (currentPath === TEACHERS_PAGE) {
@@ -102,6 +106,8 @@ export const AddItemModal = ({
         fullNamePlaceholder: 'ФИО',
         shortNamePlaceholder: 'Фамилия и инициалы',
         avatarPlaceholder: 'Фамилия латиницей',
+        degreePlaceholder: 'Ученая степень',
+        universityPlaceholder: 'Университет',
       };
     }
     return {
@@ -109,6 +115,8 @@ export const AddItemModal = ({
       fullNamePlaceholder: '',
       shortNamePlaceholder: '',
       avatarPlaceholder: '',
+      degreePlaceholder: '',
+      universityPlaceholder: '',
     };
   }, [currentPath]);
 
@@ -132,7 +140,7 @@ export const AddItemModal = ({
 
           if (currentSubject.fullName && currentSubject.shortName) {
             setIsAddItemModalOpen(false);
-            const response = await fetch(`${API.url}/subjects`, {
+            const response = await fetch(`${API.localhost}/subjects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -178,7 +186,7 @@ export const AddItemModal = ({
           }
           if (currentTeacher.fullName && currentTeacher.shortName) {
             setIsAddItemModalOpen(false);
-            const response = await fetch(`${API.url}/teachers`, {
+            const response = await fetch(`${API.localhost}/teachers`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -187,6 +195,11 @@ export const AddItemModal = ({
                 avatar: currentTeacher.avatar
                   ? currentTeacher.avatar.trim()
                   : 'emptyAvatar',
+                degree: currentTeacher.degree,
+                university: {
+                  code: currentTeacher.university.code,
+                  title: currentTeacher.university.title,
+                },
               }),
             });
             if (response.ok) {
@@ -230,7 +243,19 @@ export const AddItemModal = ({
           break;
         }
         case 'teacher': {
-          dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          if (field === 'university') {
+            dispatch(
+              setCurrentTeacher({
+                ...currentTeacher,
+                university: {
+                  code: value === 'БНТУ' ? 'bntu' : 'bsuir',
+                  title: value,
+                },
+              }),
+            );
+          } else {
+            dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          }
           break;
         }
       }
@@ -261,7 +286,7 @@ export const AddItemModal = ({
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (
-            <Space direction="vertical">
+            <Space direction="vertical" style={{ width: '100%' }}>
               <Input
                 value={currentTeacher.fullName}
                 placeholder={currentEntity.fullNamePlaceholder}
@@ -286,6 +311,23 @@ export const AddItemModal = ({
                 onChange={(e) => {
                   handleChange(currentEntity.value, 'avatar', e.target.value);
                 }}
+              />
+              <Input
+                value={currentTeacher.degree}
+                placeholder={currentEntity.degreePlaceholder}
+                onChange={(e) => {
+                  handleChange(currentEntity.value, 'degree', e.target.value);
+                }}
+              />
+              <Select
+                placeholder={currentEntity.universityPlaceholder}
+                onChange={(value) => {
+                  handleChange(currentEntity.value, 'university', value);
+                }}
+                options={[
+                  { value: 'БНТУ', label: 'БНТУ' },
+                  { value: 'БГУИР', label: 'БГУИР' },
+                ]}
               />
             </Space>
           ) : currentEntity.value === 'subject' ? (

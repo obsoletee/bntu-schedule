@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
-import { Input, message, Modal, Space, Typography } from 'antd';
+import { Input, message, Modal, Select, Space, Typography } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { editTeacher } from '../../store/teachersReducer';
@@ -49,6 +49,8 @@ export const EditItemModal = ({
     fullNamePlaceholder: string;
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
+    degreePlaceholder: string;
+    universityPlaceholder: string;
   } = useMemo(() => {
     if (currentPath === SUBJECTS_PAGE) {
       return {
@@ -56,6 +58,8 @@ export const EditItemModal = ({
         fullNamePlaceholder: 'Полное название',
         shortNamePlaceholder: 'Сокращенное название',
         avatarPlaceholder: '',
+        degreePlaceholder: '',
+        universityPlaceholder: '',
       };
     }
     if (currentPath === TEACHERS_PAGE) {
@@ -64,6 +68,8 @@ export const EditItemModal = ({
         fullNamePlaceholder: 'ФИО',
         shortNamePlaceholder: 'Фамилия и инициалы',
         avatarPlaceholder: 'Фамилия латиницей',
+        degreePlaceholder: 'Ученая степень',
+        universityPlaceholder: 'Университет',
       };
     }
     return {
@@ -71,6 +77,8 @@ export const EditItemModal = ({
       fullNamePlaceholder: '',
       shortNamePlaceholder: '',
       avatarPlaceholder: '',
+      degreePlaceholder: '',
+      universityPlaceholder: '',
     };
   }, [currentPath]);
 
@@ -81,7 +89,7 @@ export const EditItemModal = ({
           if (currentSubject.fullName && currentSubject.shortName) {
             setIsEditItemModalOpen(false);
             const response = await fetch(
-              `${API.url}/subjects/${currentSubject._id}`,
+              `${API.localhost}/subjects/${currentSubject._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -119,7 +127,7 @@ export const EditItemModal = ({
           ) {
             setIsEditItemModalOpen(false);
             const response = await fetch(
-              `${API.url}/teachers/${currentTeacher._id}`,
+              `${API.localhost}/teachers/${currentTeacher._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -128,6 +136,11 @@ export const EditItemModal = ({
                   fullName: currentTeacher.fullName.trim(),
                   shortName: currentTeacher.shortName.trim(),
                   avatar: currentTeacher.avatar.trim(),
+                  degree: currentTeacher.degree,
+                  university: {
+                    code: currentTeacher.university.code,
+                    title: currentTeacher.university.title,
+                  },
                 }),
               },
             );
@@ -170,7 +183,19 @@ export const EditItemModal = ({
           break;
         }
         case 'teacher': {
-          dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          if (field === 'university') {
+            dispatch(
+              setCurrentTeacher({
+                ...currentTeacher,
+                university: {
+                  code: value === 'БНТУ' ? 'bntu' : 'bsuir',
+                  title: value,
+                },
+              }),
+            );
+          } else {
+            dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          }
           break;
         }
       }
@@ -201,7 +226,7 @@ export const EditItemModal = ({
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (
-            <Space direction="vertical">
+            <Space direction="vertical" style={{ width: '100%' }}>
               <Input
                 value={currentTeacher.fullName}
                 placeholder={currentEntity.fullNamePlaceholder}
@@ -226,6 +251,25 @@ export const EditItemModal = ({
                 onChange={(e) => {
                   handleChange(currentEntity.value, 'avatar', e.target.value);
                 }}
+              />
+              <Input
+                value={currentTeacher.degree}
+                placeholder={currentEntity.degreePlaceholder}
+                onChange={(e) => {
+                  handleChange(currentEntity.value, 'degree', e.target.value);
+                }}
+              />
+              <Select
+                style={{ width: '100%' }}
+                value={currentTeacher.university.title}
+                placeholder={currentEntity.universityPlaceholder}
+                onChange={(value) => {
+                  handleChange(currentEntity.value, 'university', value);
+                }}
+                options={[
+                  { value: 'БНТУ', label: 'БНТУ' },
+                  { value: 'БГУИР', label: 'БГУИР' },
+                ]}
               />
             </Space>
           ) : currentEntity.value === 'subject' ? (

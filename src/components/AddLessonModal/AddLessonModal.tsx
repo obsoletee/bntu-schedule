@@ -79,6 +79,8 @@ export const AddLessonModal = ({
     startTime: '',
     endTime: '',
     type: '',
+    subjectId: '',
+    teacherId: '',
     class: '',
     korpus: '',
     subgroup: '0',
@@ -89,7 +91,7 @@ export const AddLessonModal = ({
     const fetchSubjects = async () => {
       dispatch(setSubjectsLoading(true));
       try {
-        const response = await fetch(`${API.url}/subjects/`);
+        const response = await fetch(`${API.localhost}/subjects/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -106,7 +108,7 @@ export const AddLessonModal = ({
     const fetchTeachers = async () => {
       dispatch(setTeachersLoading(true));
       try {
-        const response = await fetch(`${API.url}/teachers/`);
+        const response = await fetch(`${API.localhost}/teachers/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -127,7 +129,7 @@ export const AddLessonModal = ({
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.url}/${university}/group${currentGroup}`,
+        `${API.localhost}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {
@@ -140,7 +142,6 @@ export const AddLessonModal = ({
         },
       );
       const result = await response.json();
-      console.log(result);
       dispatch(setSchedule(result));
     };
     if (formData.subject.fullName === '') {
@@ -204,6 +205,8 @@ export const AddLessonModal = ({
           korpus: '',
           subgroup: '0',
           week: ['1'],
+          subjectId: '',
+          teacherId: '',
         });
         messageApi.open({
           type: 'success',
@@ -242,6 +245,9 @@ export const AddLessonModal = ({
                 (subject) => subject.fullName === value,
               )[0].fullName,
             },
+            subjectId: subjectList.filter(
+              (subject) => subject.fullName === value,
+            )[0]._id,
           }));
           break;
         case 'teacher':
@@ -258,6 +264,9 @@ export const AddLessonModal = ({
                 (teacher) => teacher.fullName === value,
               )[0].avatar,
             },
+            teacherId: teacherList.filter(
+              (teacher) => teacher.fullName === value,
+            )[0]._id,
           }));
           break;
         case 'type': {

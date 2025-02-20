@@ -12,6 +12,11 @@ const initialState: CurrentTeacherState = {
     fullName: '',
     shortName: '',
     avatar: 'emptyAvatar',
+    degree: '',
+    university: {
+      code: '',
+      title: '',
+    },
   },
 };
 
@@ -28,6 +33,11 @@ const currentTeacherSlice = createSlice({
         fullName: '',
         shortName: '',
         avatar: 'emptyAvatar',
+        degree: '',
+        university: {
+          code: '',
+          title: '',
+        },
       };
     },
   },

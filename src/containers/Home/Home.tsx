@@ -13,7 +13,9 @@ const LessonListWithDate = lazy(() =>
 import style from './Home.module.scss';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
 import { API } from '../../model/apiConst';
-import { GroupSchedule } from '../../model/Schedule';
+import { GroupSchedule, Subject, Teacher } from '../../model/Schedule';
+import { setSubjects, setSubjectsLoading } from '../../store/subjectsReducer';
+import { setTeachers, setTeachersLoading } from '../../store/teachersReducer';
 
 interface ScheduleList {
   date: string;
@@ -45,11 +47,50 @@ export const Home = () => {
   );
 
   useEffect(() => {
+    const fetchSubjects = async () => {
+      dispatch(setSubjectsLoading(true));
+      try {
+        const response = await fetch(`${API.localhost}/subjects/`);
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: Subject[] = await response.json();
+        dispatch(setSubjects(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setSubjectsLoading(false));
+      }
+    };
+
+    const fetchTeachers = async () => {
+      dispatch(setTeachersLoading(true));
+      try {
+        const response = await fetch(`${API.localhost}/teachers/`);
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: Teacher[] = await response.json();
+        dispatch(setTeachers(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setTeachersLoading(false));
+      }
+    };
+
+    fetchSubjects();
+    fetchTeachers();
+  }, [dispatch]);
+
+  useEffect(() => {
     const fetchData = async () => {
       dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `${API.url}/${university}/group${currentGroup}`,
+          `${API.localhost}/${university}/group${currentGroup}`,
         );
 
         if (!response.ok) {

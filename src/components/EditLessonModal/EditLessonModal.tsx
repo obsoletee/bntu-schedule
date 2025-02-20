@@ -62,7 +62,7 @@ export const EditLessonModal = ({
     const fetchSubjects = async () => {
       dispatch(setSubjectsLoading(true));
       try {
-        const response = await fetch(`${API.url}/subjects/`);
+        const response = await fetch(`${API.localhost}/subjects/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -79,7 +79,7 @@ export const EditLessonModal = ({
     const fetchTeachers = async () => {
       dispatch(setTeachersLoading(true));
       try {
-        const response = await fetch(`${API.url}/teachers/`);
+        const response = await fetch(`${API.localhost}/teachers/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -100,7 +100,7 @@ export const EditLessonModal = ({
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        `${API.localhost}/${groupInfo.university}/group${groupInfo.currentGroup}`,
         {
           method: 'PATCH',
           headers: {
@@ -211,6 +211,9 @@ export const EditLessonModal = ({
                   (subject) => subject.fullName === value,
                 )[0].fullName,
               },
+              subjectId: subjectList.filter(
+                (subject) => subject.fullName === value,
+              )[0]._id,
             }),
           );
           break;
@@ -231,7 +234,16 @@ export const EditLessonModal = ({
                 avatar: teacherList.filter(
                   (teacher) => teacher.fullName === value,
                 )[0].avatar,
+                degree: teacherList.filter(
+                  (teacher) => teacher.fullName === value,
+                )[0].degree,
+                university: teacherList.filter(
+                  (teacher) => teacher.fullName === value,
+                )[0].university,
               },
+              teacherId: teacherList.filter(
+                (teacher) => teacher.fullName === value,
+              )[0]._id,
             }),
           );
           break;
