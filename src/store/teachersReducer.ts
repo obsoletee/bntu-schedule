@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Teacher } from '../model/Schedule';
+
 export interface TeachersState {
   teacherList: Teacher[];
   isTeachersLoading: boolean;

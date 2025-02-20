@@ -30,7 +30,7 @@ export const Teachers = () => {
   const fetchTeachers = useCallback(async () => {
     dispatch(setTeachersLoading(true));
     try {
-      const response = await fetch(`${API.url}/teachers/`);
+      const response = await fetch(`${API.localhost}/teachers/`);
       const data = await response.json();
       dispatch(setTeachers(data));
     } finally {

@@ -36,6 +36,7 @@ const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
 import style from './TeacherList.module.scss';
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Teacher } from '../../../model/Schedule';
 
 interface TeacherListProps {
   handleDeleteTeacher: (id: string) => Promise<void>;
@@ -62,7 +63,9 @@ export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
 
   useEffect(() => {
     if (!searchQuery) {
-      setFilteredTeachers(teacherList);
+      setFilteredTeachers(
+        [...teacherList].sort((a, b) => a.fullName.localeCompare(b.fullName)),
+      );
       return;
     }
 
@@ -70,7 +73,11 @@ export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
 
     worker.onmessage = (event) => {
       startTransition(() => {
-        setFilteredTeachers(event.data);
+        setFilteredTeachers(
+          event.data.sort((a: Teacher, b: Teacher) =>
+            a.fullName.localeCompare(b.fullName),
+          ),
+        );
       });
     };
   }, [searchQuery, teacherList, worker]);

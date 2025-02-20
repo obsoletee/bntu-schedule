@@ -28,6 +28,7 @@ const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
 import style from './SubjectList.module.scss';
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { Subject } from '../../../model/Schedule';
 
 interface SubjectListProps {
   handleDeleteSubject: (id: string) => Promise<void>;
@@ -54,7 +55,9 @@ export const SubjectList = ({ handleDeleteSubject }: SubjectListProps) => {
 
   useEffect(() => {
     if (!searchQuery) {
-      setFilteredSubjects(subjectList);
+      setFilteredSubjects(
+        [...subjectList].sort((a, b) => a.fullName.localeCompare(b.fullName)),
+      );
       return;
     }
 
@@ -62,7 +65,11 @@ export const SubjectList = ({ handleDeleteSubject }: SubjectListProps) => {
 
     worker.onmessage = (event) => {
       startTransition(() => {
-        setFilteredSubjects(event.data);
+        setFilteredSubjects(
+          event.data.sort((a: Subject, b: Subject) =>
+            a.fullName.localeCompare(b.fullName),
+          ),
+        );
       });
     };
   }, [searchQuery, subjectList, worker]);
