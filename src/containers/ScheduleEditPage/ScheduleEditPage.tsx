@@ -20,7 +20,7 @@ export const ScheduleEditPage = () => {
   const { university, currentGroup } = useSelector(
     (state: State) => state.currentGroup,
   );
-  const { Text, Title } = Typography;
+  const { Text } = Typography;
 
   const { schedule } = useSelector((state: State) => state.schedule);
 
@@ -77,21 +77,16 @@ export const ScheduleEditPage = () => {
 
       <div className={style.container}>
         {currentGroup ? (
-          <>
-            <div className={style.title}>
-              <Title level={3}>Гр. {currentGroup}</Title>
-            </div>
-            <Tabs
-              activeKey={activeDayOfWeek}
-              onChange={(value) => {
-                dispatch(changeActiveDayOfWeek(value));
-              }}
-              centered={width < 768 ? false : true}
-              size="large"
-              defaultActiveKey="1"
-              items={items}
-            />
-          </>
+          <Tabs
+            activeKey={activeDayOfWeek}
+            onChange={(value) => {
+              dispatch(changeActiveDayOfWeek(value));
+            }}
+            centered={width < 768 ? false : true}
+            size="large"
+            defaultActiveKey="1"
+            items={items}
+          />
         ) : (
           <Text type="danger">Сперва выберите группу.</Text>
         )}
