@@ -38,6 +38,7 @@ import shipitsa from './shipitsa.webp';
 import shulyakovskaya from './shulyakovskaya.webp';
 import smirnov from './smirnov.webp';
 import storozhev from './storozhev.webp';
+import stroganova from './stroganova.webp';
 import svistun from './svistun.webp';
 import tkalich from './tkalich.webp';
 import turovskaya from './turovskaya.webp';
@@ -86,6 +87,7 @@ export const teacherImages = {
   shulyakovskaya,
   smirnov,
   storozhev,
+  stroganova,
   svistun,
   tkalich,
   turovskaya,
