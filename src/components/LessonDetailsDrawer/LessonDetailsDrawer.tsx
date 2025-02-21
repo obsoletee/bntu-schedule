@@ -113,6 +113,8 @@ export const LessonDetailsDrawer = ({
             <Image
               style={{
                 width: `${width < 698 ? '35vw' : '150px'}`,
+                height: `${width < 698 ? '35vw' : '150px'}`,
+
                 borderRadius: '50%',
               }}
               src={teacherImages[avatarKey[0]]}
