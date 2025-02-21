@@ -34,7 +34,7 @@ export const ScheduleEditPage = () => {
       dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `${API.url}/${university}/group${currentGroup}`,
+          `${API.localhost}/${university}/group${currentGroup}`,
         );
 
         if (!response.ok) {

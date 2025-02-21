@@ -73,7 +73,7 @@ export interface DaySchedule {
   korpus: string;
   subgroup: string;
   week: string[];
-  teacherId: string;
+  teacherId: string[];
   subjectId: string;
 }
 

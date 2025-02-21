@@ -1,6 +1,6 @@
 import { Button, Flex, List, Skeleton, Space, Typography } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
-import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
+
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -9,7 +9,7 @@ import { setCurrentLesson } from '../../store/currentLessonReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 const AddLessonModal = lazy(() => import('../AddLessonModal'));
-const DeleteLessonModal = lazy(() => import('../DeleteLessonModal'));
+const LessonDeletePopconfirm = lazy(() => import('../LessonDeletePopconfirm'));
 const EditLessonModal = lazy(() => import('../EditLessonModal'));
 const LessonDetailsDrawer = lazy(() => import('../LessonDetailsDrawer'));
 
@@ -40,9 +40,11 @@ export const LessonList = ({
   const { subgroup } = useSelector((state: State) => state.currentGroup);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { subjectList } = useSelector((state: State) => state.subjects);
+  const { teacherList } = useSelector((state: State) => state.teachers);
 
   const handleOpenModal = useCallback(
     (lessonInfo: DaySchedule) => {
@@ -55,14 +57,6 @@ export const LessonList = ({
   const handleOpenEditModal = useCallback(
     (lessonInfo: DaySchedule) => {
       setIsEditModalOpen(true);
-      dispatch(setCurrentLesson(lessonInfo));
-    },
-    [dispatch],
-  );
-
-  const handleOpenDeleteModal = useCallback(
-    (lessonInfo: DaySchedule) => {
-      setIsDeleteModalOpen(true);
       dispatch(setCurrentLesson(lessonInfo));
     },
     [dispatch],
@@ -110,14 +104,6 @@ export const LessonList = ({
           />
         </Suspense>
       )}
-      {deleteModal && (
-        <Suspense fallback={<Skeleton active />}>
-          <DeleteLessonModal
-            isDeleteModalOpen={isDeleteModalOpen}
-            setIsDeleteModalOpen={setIsDeleteModalOpen}
-          />
-        </Suspense>
-      )}
       {addButton && (
         <Button onClick={handleOpenAddModal} className={style.button} block>
           Добавить занятие
@@ -138,7 +124,13 @@ export const LessonList = ({
                 <Flex justify="space-between">
                   <Text>
                     {`${item.startTime}-${item.endTime}: ${
-                      item.subject.shortName
+                      subjectList.filter((subject) => {
+                        return item.subjectId.includes(subject._id);
+                      }).length > 0
+                        ? subjectList.filter((subject) => {
+                            return item.subjectId.includes(subject._id);
+                          })[0].shortName
+                        : ''
                     } 
                     ${
                       item.type === 'Лекция'
@@ -163,16 +155,18 @@ export const LessonList = ({
                           }}
                         />
                       )}
-                      {deleteModal && (
-                        <DeleteOutlined
-                          className={style.icon}
-                          alt="delete"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenDeleteModal(item);
-                          }}
-                        />
-                      )}
+
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        {deleteModal && (
+                          <Suspense fallback={<></>}>
+                            <LessonDeletePopconfirm />
+                          </Suspense>
+                        )}
+                      </div>
                     </Space>
                   ) : (
                     <></>
@@ -186,8 +180,24 @@ export const LessonList = ({
                   ) : null}
                   <Text type="secondary">
                     {item.subgroup !== '0'
-                      ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
-                      : `${item.teacher.shortName}`}
+                      ? `${
+                          teacherList.filter((teacher) => {
+                            return item.teacherId.includes(teacher._id);
+                          }).length > 0
+                            ? teacherList.filter((teacher) => {
+                                return item.teacherId.includes(teacher._id);
+                              })[0].shortName
+                            : ''
+                        } (подгр. ${item.subgroup})`
+                      : `${
+                          teacherList.filter((teacher) => {
+                            return item.teacherId.includes(teacher._id);
+                          }).length > 0
+                            ? teacherList.filter((teacher) => {
+                                return item.teacherId.includes(teacher._id);
+                              })[0].shortName
+                            : ''
+                        }`}
                   </Text>
                 </Flex>
               }

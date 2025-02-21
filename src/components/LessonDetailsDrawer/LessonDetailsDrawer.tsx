@@ -1,4 +1,4 @@
-import { Typography, Image, Space, Drawer, Flex } from 'antd';
+import { Typography, Image, Space, Drawer, Flex, Popover } from 'antd';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -27,17 +27,7 @@ export const LessonDetailsDrawer = ({
 
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
 
-  const [teacher, setTeacher] = useState<Teacher>({
-    _id: '',
-    avatar: 'emptyAvatar',
-    fullName: '',
-    shortName: '',
-    degree: '',
-    university: {
-      code: '',
-      title: '',
-    },
-  });
+  const [teacher, setTeacher] = useState<Teacher[]>([]);
   const [subject, setSubject] = useState<Subject>({
     _id: '',
     fullName: '',
@@ -60,28 +50,20 @@ export const LessonDetailsDrawer = ({
 
     setTeacher(
       teacherList.filter((teacher) => {
-        return teacher._id === currentLesson.teacherId;
-      })[0]
+        return currentLesson.teacherId.includes(teacher._id);
+      })
         ? teacherList.filter((teacher) => {
-            return teacher._id === currentLesson.teacherId;
-          })[0]
-        : {
-            _id: '',
-            avatar: 'emptyAvatar',
-            fullName: '',
-            shortName: '',
-            degree: '',
-            university: {
-              code: '',
-              title: '',
-            },
-          },
+            return currentLesson.teacherId.includes(teacher._id);
+          })
+        : [],
     );
   }, [currentLesson, subjectList, teacherList]);
 
   const avatarKey = useMemo(() => {
-    return teacher.avatar.toLowerCase() as TeacherImageKeys;
-  }, [teacher.avatar]);
+    return teacher.map(
+      (item) => item.avatar.toLocaleLowerCase() as TeacherImageKeys,
+    );
+  }, [teacher]);
 
   const onClose = () => {
     setIsDrawerOpen(false);
@@ -95,7 +77,11 @@ export const LessonDetailsDrawer = ({
       open={isDrawerOpen}
       destroyOnClose={true}
       height={'fit-content'}
-      styles={{ body: { padding: '24px 12px' } }}
+      styles={
+        width < 768
+          ? { body: { padding: '24px 12px' } }
+          : { body: { padding: '36px 24px' } }
+      }
     >
       <Flex vertical gap={8}>
         <Flex>
@@ -122,14 +108,14 @@ export const LessonDetailsDrawer = ({
             }`}</Text>
           </Space>
         </Flex>
-        <Flex gap={16}>
+        <Flex gap={24}>
           {width > 240 ? (
             <Image
               style={{
                 width: `${width < 698 ? '35vw' : '150px'}`,
                 borderRadius: '50%',
               }}
-              src={teacherImages[avatarKey]}
+              src={teacherImages[avatarKey[0]]}
               fallback={teacherImages.emptyAvatar}
               placeholder={
                 <Image preview={false} src={teacherImages.emptyAvatar} />
@@ -139,11 +125,48 @@ export const LessonDetailsDrawer = ({
             <></>
           )}
           <Flex vertical>
-            <Text strong style={{ fontSize: '14px', lineHeight: '18px' }}>
-              {`${teacher.fullName} ${
-                teacher.degree ? `(${teacher.degree})` : ''
-              }`}
-            </Text>
+            {teacher.length === 0 ? (
+              <></>
+            ) : teacher.length === 1 ? (
+              <Text strong style={{ fontSize: '14px', lineHeight: '18px' }}>
+                {`${teacher[0].fullName} ${
+                  teacher[0].degree ? `(${teacher[0].degree})` : ''
+                }`}
+              </Text>
+            ) : teacher.length > 1 ? (
+              <Popover
+                trigger={'click'}
+                content={
+                  <Space direction="vertical">
+                    {teacher.map((item, index) =>
+                      index !== 0 ? (
+                        <Text
+                          style={{ fontSize: '14px', lineHeight: '18px' }}
+                        >{`${item.fullName} ${
+                          item.degree ? `(${item.degree})` : ''
+                        }`}</Text>
+                      ) : (
+                        <></>
+                      ),
+                    )}
+                  </Space>
+                }
+              >
+                <Text
+                  italic
+                  strong
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: '18px',
+                    cursor: 'pointer',
+                  }}
+                >{`${teacher[0].fullName} ${
+                  teacher[0].degree ? `(${teacher[0].degree})` : ''
+                } и еще ${teacher.length - 1}...`}</Text>
+              </Popover>
+            ) : (
+              <></>
+            )}
             <Text
               style={{ fontSize: '14px', lineHeight: '18px' }}
             >{`${currentLesson.startTime} - ${currentLesson.endTime}`}</Text>

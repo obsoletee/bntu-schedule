@@ -63,6 +63,8 @@ export const AddLessonModal = ({
     (state: State) => state.teachers,
   );
 
+  const [teacher, setTeacher] = useState<Teacher[]>([]);
+
   const { schedule } = useSelector((state: State) => state.schedule);
 
   const [formData, setFormData] = useState({
@@ -80,7 +82,7 @@ export const AddLessonModal = ({
     endTime: '',
     type: '',
     subjectId: '',
-    teacherId: '',
+    teacherId: [''],
     class: '',
     korpus: '',
     subgroup: '0',
@@ -125,6 +127,18 @@ export const AddLessonModal = ({
     fetchSubjects();
     fetchTeachers();
   }, [dispatch]);
+
+  useEffect(() => {
+    setTeacher(
+      teacherList.filter((teacher) => {
+        return formData.teacherId.includes(teacher._id);
+      })
+        ? teacherList.filter((teacher) => {
+            return formData.teacherId.includes(teacher._id);
+          })
+        : [],
+    );
+  }, [teacherList, formData]);
 
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
@@ -206,7 +220,7 @@ export const AddLessonModal = ({
           subgroup: '0',
           week: ['1'],
           subjectId: '',
-          teacherId: '',
+          teacherId: [''],
         });
         messageApi.open({
           type: 'success',
@@ -250,25 +264,6 @@ export const AddLessonModal = ({
             )[0]._id,
           }));
           break;
-        case 'teacher':
-          setFormData((prev) => ({
-            ...prev,
-            teacher: {
-              shortName: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].shortName,
-              fullName: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].fullName,
-              avatar: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].avatar,
-            },
-            teacherId: teacherList.filter(
-              (teacher) => teacher.fullName === value,
-            )[0]._id,
-          }));
-          break;
         case 'type': {
           setFormData((prev) => ({
             ...prev,
@@ -277,7 +272,48 @@ export const AddLessonModal = ({
         }
       }
     },
-    [subjectList, teacherList],
+    [subjectList],
+  );
+
+  const hangleChangeMultiple = useCallback(
+    (value: string[]) => {
+      if (value.length === 0) {
+        setFormData((prev) => ({
+          ...prev,
+          teacher: {
+            _id: '',
+            shortName: '',
+            fullName: '',
+            avatar: 'emptyAvatar',
+            degree: '',
+            university: {
+              code: '',
+              title: '',
+            },
+          },
+          teacherId: [''],
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          teacher: {
+            shortName: teacherList.filter(
+              (teacher) => teacher.fullName === value[0],
+            )[0].shortName,
+            fullName: teacherList.filter(
+              (teacher) => teacher.fullName === value[0],
+            )[0].fullName,
+            avatar: teacherList.filter(
+              (teacher) => teacher.fullName === value[0],
+            )[0].avatar,
+          },
+          teacherId: teacherList
+            .filter((teacher) => value.includes(teacher.fullName))
+            .map((teacher) => teacher._id),
+        }));
+      }
+    },
+    [teacherList],
   );
 
   return (
@@ -328,12 +364,11 @@ export const AddLessonModal = ({
             value={formData.type ? formData.type : undefined}
           />
           <Select
+            mode="multiple"
             onChange={(value) => {
-              handleChange(value, 'teacher');
+              hangleChangeMultiple(value);
             }}
-            value={
-              formData.teacher.fullName ? formData.teacher.fullName : undefined
-            }
+            value={teacher ? teacher.map((item) => item.fullName) : undefined}
             loading={isTeachersLoading}
             showSearch
             placeholder="Выберите преподавателя"

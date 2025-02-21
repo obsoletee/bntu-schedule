@@ -11,3 +11,14 @@
     gap: 0.5rem;
   }
 }
+
+.icon {
+  transition: all 0.3s ease-in-out;
+  width: 20px;
+  font-size: 20px;
+  height: 20px;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+}

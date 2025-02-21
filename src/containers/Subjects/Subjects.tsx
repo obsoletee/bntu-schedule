@@ -32,7 +32,7 @@ export const Subjects = () => {
   const fetchSubjects = useCallback(async () => {
     dispatch(setSubjectsLoading(true));
     try {
-      const response = await fetch(`${API.url}/subjects/`);
+      const response = await fetch(`${API.localhost}/subjects/`);
       const data = await response.json();
       dispatch(setSubjects(data));
     } finally {
@@ -47,7 +47,7 @@ export const Subjects = () => {
   const handleDeleteSubject = useCallback(
     async (id: string) => {
       try {
-        const response = await fetch(`${API.url}/subjects/${id}`, {
+        const response = await fetch(`${API.localhost}/subjects/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {
