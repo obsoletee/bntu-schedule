@@ -165,7 +165,7 @@ export const Home = () => {
             <Carousel draggable infinite={false} dots={false} speed={250}>
               {university === 'bntu'
                 ? bntuScheduleList.map((date) => (
-                    <Space direction="vertical">
+                    <Space key={date.date} direction="vertical">
                       <Card
                         size="small"
                         title={

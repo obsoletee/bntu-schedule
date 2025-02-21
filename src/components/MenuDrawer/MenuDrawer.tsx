@@ -1,12 +1,4 @@
-import {
-  Drawer,
-  Space,
-  List,
-  Typography,
-  Flex,
-  Image,
-  ConfigProvider,
-} from 'antd';
+import { Drawer, Space, List, Typography, Flex, Image } from 'antd';
 import {
   Dispatch,
   SetStateAction,
@@ -130,15 +122,7 @@ export const MenuDrawer = ({
   }, [dispatch]);
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Drawer: {
-            footerPaddingInline: 8,
-          },
-        },
-      }}
-    >
+    <>
       <Drawer
         width={width < 473 ? '80%' : 378}
         title={
@@ -269,6 +253,6 @@ export const MenuDrawer = ({
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />
-    </ConfigProvider>
+    </>
   );
 };
