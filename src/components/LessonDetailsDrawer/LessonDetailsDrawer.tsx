@@ -188,14 +188,24 @@ export const LessonDetailsDrawer = ({
                 'Нет данных.'
               )}
             </Text>
-            {currentLesson.class && currentLesson.korpus ? (
-              <Text
-                type="secondary"
-                style={{ fontSize: '12px', lineHeight: '16px' }}
-              >{`${currentLesson.class}-${currentLesson.korpus}к`}</Text>
-            ) : (
-              <></>
-            )}
+            <Flex>
+              {currentLesson.class ? (
+                <Text
+                  type="secondary"
+                  style={{ fontSize: '12px', lineHeight: '16px' }}
+                >{`${currentLesson.class}`}</Text>
+              ) : (
+                <></>
+              )}
+              {currentLesson.korpus ? (
+                <Text
+                  type="secondary"
+                  style={{ fontSize: '12px', lineHeight: '16px' }}
+                >{`-${currentLesson.korpus}к`}</Text>
+              ) : (
+                <></>
+              )}
+            </Flex>
 
             {currentLesson ? (
               currentLesson.subgroup != '0' ? (
