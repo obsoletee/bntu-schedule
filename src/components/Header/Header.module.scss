@@ -1,15 +1,5 @@
-@import '../../styles/colors.scss';
-
-header {
-  position: sticky;
-  top: 0;
-  background-color: $color--extra-lightblue;
-  z-index: 100;
-  overflow: hidden;
-  width: 100%;
-}
 .container {
-  padding: 20px 10px;
+  padding: 15px 20px;
   display: flex;
   gap: 1rem;
   justify-content: space-between;
@@ -18,72 +8,4 @@ header {
     flex-direction: column-reverse;
     align-items: flex-start;
   }
-}
-
-.burger_container {
-  margin-right: 10px;
-  & .active {
-    & > span {
-      width: 0;
-      height: 0;
-    }
-  }
-}
-
-.burger_button,
-.burger_button_active {
-  align-self: flex-start;
-  width: 30px;
-  height: 20px;
-  position: relative;
-  cursor: pointer;
-
-  & span {
-    position: absolute;
-    top: 16px;
-    width: 30px;
-    height: 2px;
-    background-color: $color--text-dark;
-  }
-}
-
-.burger_button {
-  &::before {
-    content: '';
-    position: absolute;
-    top: 7px;
-    width: 30px;
-    height: 2px;
-    background-color: $color--text-dark;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -7px;
-    width: 30px;
-    height: 2px;
-    background-color: $color--text-dark;
-  }
-}
-
-.burger_button_active {
-  & span {
-    transform: rotate(45deg);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 16px;
-    width: 30px;
-    height: 2px;
-    background-color: $color--text-dark;
-    transform: rotate(-45deg);
-  }
-}
-
-.info {
-  display: flex;
-  flex-direction: column;
 }

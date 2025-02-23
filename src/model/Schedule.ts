@@ -33,14 +33,15 @@ export const daysOfWeek: Array<{
   key: string;
   label: string;
   day: DayOfWeek;
+  contraction: string;
 }> = [
-  { key: '1', label: 'Понедельник', day: 'monday' },
-  { key: '2', label: 'Вторник', day: 'tuesday' },
-  { key: '3', label: 'Среда', day: 'wednesday' },
-  { key: '4', label: 'Четверг', day: 'thursday' },
-  { key: '5', label: 'Пятница', day: 'friday' },
-  { key: '6', label: 'Суббота', day: 'saturday' },
-  { key: '7', label: 'Воскресенье', day: 'sunday' },
+  { key: '1', label: 'Понедельник', day: 'monday', contraction: 'Пн' },
+  { key: '2', label: 'Вторник', day: 'tuesday', contraction: 'Вт' },
+  { key: '3', label: 'Среда', day: 'wednesday', contraction: 'Ср' },
+  { key: '4', label: 'Четверг', day: 'thursday', contraction: 'Чт' },
+  { key: '5', label: 'Пятница', day: 'friday', contraction: 'Пт' },
+  { key: '6', label: 'Суббота', day: 'saturday', contraction: 'Сб' },
+  { key: '7', label: 'Воскресенье', day: 'sunday', contraction: 'Вс' },
 ];
 
 export interface Subject {
@@ -54,6 +55,11 @@ export interface Teacher {
   shortName: string;
   fullName: string;
   avatar: TeacherImageKeys;
+  university: {
+    code: string;
+    title: string;
+  };
+  degree: string;
 }
 
 export interface DaySchedule {
@@ -67,6 +73,8 @@ export interface DaySchedule {
   korpus: string;
   subgroup: string;
   week: string[];
+  teacherId: string[];
+  subjectId: string;
 }
 
 export interface GroupSchedule {

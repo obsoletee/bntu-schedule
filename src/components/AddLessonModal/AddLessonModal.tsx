@@ -1,6 +1,7 @@
 import {
   Checkbox,
   Input,
+  message,
   Modal,
   Radio,
   Select,
@@ -47,7 +48,11 @@ export const AddLessonModal = ({
   const { Text } = Typography;
   const format = 'HH:mm';
 
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const { currentGroup, university } = useSelector(
+    (state: State) => state.currentGroup,
+  );
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
@@ -57,6 +62,8 @@ export const AddLessonModal = ({
   const { teacherList, isTeachersLoading } = useSelector(
     (state: State) => state.teachers,
   );
+
+  const [teacher, setTeacher] = useState<Teacher[]>([]);
 
   const { schedule } = useSelector((state: State) => state.schedule);
 
@@ -74,6 +81,8 @@ export const AddLessonModal = ({
     startTime: '',
     endTime: '',
     type: '',
+    subjectId: '',
+    teacherId: [''],
     class: '',
     korpus: '',
     subgroup: '0',
@@ -117,12 +126,24 @@ export const AddLessonModal = ({
 
     fetchSubjects();
     fetchTeachers();
-  }, [groupInfo, dispatch]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    setTeacher(
+      teacherList.filter((teacher) => {
+        return formData.teacherId.includes(teacher._id);
+      })
+        ? teacherList.filter((teacher) => {
+            return formData.teacherId.includes(teacher._id);
+          })
+        : [],
+    );
+  }, [teacherList, formData]);
 
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        `${API.url}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {
@@ -137,12 +158,19 @@ export const AddLessonModal = ({
       const result = await response.json();
       dispatch(setSchedule(result));
     };
-    if (formData.startTime === '' || formData.endTime === '') {
-      alert('Заполните поля "Время начала" и "Время окончания"');
-    } else if (formData.subject.fullName === '') {
-      alert('Выберите предмет');
+    if (formData.subject.fullName === '') {
+      messageApi.open({
+        type: 'error',
+        content: 'Выберите предмет',
+      });
+    } else if (formData.startTime === '' || formData.endTime === '') {
+      messageApi.open({
+        type: 'error',
+        content: 'Заполните поля "Время начала" и "Время окончания"',
+      });
     } else {
       try {
+        setIsAddModalOpen(false);
         switch (activeDayOfWeek) {
           case '1': {
             await patchSchedule('monday');
@@ -173,7 +201,6 @@ export const AddLessonModal = ({
             break;
           }
         }
-        setIsAddModalOpen(false);
         setFormData({
           id: generateUniqueId(),
           subject: {
@@ -192,18 +219,26 @@ export const AddLessonModal = ({
           korpus: '',
           subgroup: '0',
           week: ['1'],
+          subjectId: '',
+          teacherId: [''],
+        });
+        messageApi.open({
+          type: 'success',
+          content: 'Занятие успешно добавлено',
         });
       } catch (error) {
         console.error('Ошибка:', error);
       }
     }
   }, [
+    messageApi,
     activeDayOfWeek,
     dispatch,
     formData,
-    groupInfo,
     schedule,
     setIsAddModalOpen,
+    currentGroup,
+    university,
   ]);
 
   const handleCancel = useCallback(() => {
@@ -224,22 +259,9 @@ export const AddLessonModal = ({
                 (subject) => subject.fullName === value,
               )[0].fullName,
             },
-          }));
-          break;
-        case 'teacher':
-          setFormData((prev) => ({
-            ...prev,
-            teacher: {
-              shortName: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].shortName,
-              fullName: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].fullName,
-              avatar: teacherList.filter(
-                (teacher) => teacher.fullName === value,
-              )[0].avatar,
-            },
+            subjectId: subjectList.filter(
+              (subject) => subject.fullName === value,
+            )[0]._id,
           }));
           break;
         case 'type': {
@@ -250,7 +272,48 @@ export const AddLessonModal = ({
         }
       }
     },
-    [subjectList, teacherList],
+    [subjectList],
+  );
+
+  const hangleChangeMultiple = useCallback(
+    (value: string[]) => {
+      if (value.length === 0) {
+        setFormData((prev) => ({
+          ...prev,
+          teacher: {
+            _id: '',
+            shortName: '',
+            fullName: '',
+            avatar: 'emptyAvatar',
+            degree: '',
+            university: {
+              code: '',
+              title: '',
+            },
+          },
+          teacherId: [''],
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          teacher: {
+            shortName: teacherList.filter(
+              (teacher) => teacher.fullName === value[0],
+            )[0].shortName,
+            fullName: teacherList.filter(
+              (teacher) => teacher.fullName === value[0],
+            )[0].fullName,
+            avatar: teacherList.filter(
+              (teacher) => teacher.fullName === value[0],
+            )[0].avatar,
+          },
+          teacherId: teacherList
+            .filter((teacher) => value.includes(teacher.fullName))
+            .map((teacher) => teacher._id),
+        }));
+      }
+    },
+    [teacherList],
   );
 
   return (
@@ -268,6 +331,7 @@ export const AddLessonModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           <Select
@@ -300,12 +364,11 @@ export const AddLessonModal = ({
             value={formData.type ? formData.type : undefined}
           />
           <Select
+            mode="multiple"
             onChange={(value) => {
-              handleChange(value, 'teacher');
+              hangleChangeMultiple(value);
             }}
-            value={
-              formData.teacher.fullName ? formData.teacher.fullName : undefined
-            }
+            value={teacher ? teacher.map((item) => item.fullName) : undefined}
             loading={isTeachersLoading}
             showSearch
             placeholder="Выберите преподавателя"
@@ -320,6 +383,7 @@ export const AddLessonModal = ({
           />
           <Text>Время занятия:</Text>
           <TimePicker.RangePicker
+            allowClear={false}
             onChange={(value) => {
               setFormData((prev) => ({
                 ...prev,
@@ -386,11 +450,7 @@ export const AddLessonModal = ({
               }));
             }}
             value={formData.week}
-            options={
-              groupInfo.university === 'bsuir'
-                ? ['1', '2', '3', '4']
-                : ['1', '2']
-            }
+            options={university === 'bsuir' ? ['1', '2', '3', '4'] : ['1', '2']}
           ></Checkbox.Group>
 
           <Radio.Group

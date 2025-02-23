@@ -13,7 +13,7 @@ import {
   clearCurrentSubject,
   setCurrentSubject,
 } from '../../store/currentSubjectReducer';
-import { Input, Modal, Space, Typography } from 'antd';
+import { Input, message, Modal, Select, Space, Typography } from 'antd';
 
 import style from './AddItemModal.module.scss';
 import {
@@ -22,6 +22,7 @@ import {
 } from '../../store/currentTeacherReducer';
 import { setSubjects, setSubjectsLoading } from '../../store/subjectsReducer';
 import { setTeachers, setTeachersLoading } from '../../store/teachersReducer';
+import { SUBJECTS_PAGE, TEACHERS_PAGE } from '../../routes';
 
 interface AddItemModalProps {
   isAddItemModalOpen: boolean;
@@ -39,8 +40,11 @@ export const AddItemModal = ({
     return window.location.pathname;
   }, []);
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const { teacherList } = useSelector((state: State) => state.teachers);
   const { subjectList } = useSelector((state: State) => state.subjects);
+
   const { currentSubject } = useSelector(
     (state: State) => state.currentSubject,
   );
@@ -83,21 +87,27 @@ export const AddItemModal = ({
     fullNamePlaceholder: string;
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
+    degreePlaceholder: string;
+    universityPlaceholder: string;
   } = useMemo(() => {
-    if (currentPath === '/subjects') {
+    if (currentPath === SUBJECTS_PAGE) {
       return {
         value: 'subject',
         fullNamePlaceholder: 'Полное название',
         shortNamePlaceholder: 'Сокращенное название',
         avatarPlaceholder: '',
+        degreePlaceholder: '',
+        universityPlaceholder: '',
       };
     }
-    if (currentPath === '/teachers') {
+    if (currentPath === TEACHERS_PAGE) {
       return {
         value: 'teacher',
         fullNamePlaceholder: 'ФИО',
         shortNamePlaceholder: 'Фамилия и инициалы',
         avatarPlaceholder: 'Фамилия латиницей',
+        degreePlaceholder: 'Ученая степень',
+        universityPlaceholder: 'Университет',
       };
     }
     return {
@@ -105,6 +115,8 @@ export const AddItemModal = ({
       fullNamePlaceholder: '',
       shortNamePlaceholder: '',
       avatarPlaceholder: '',
+      degreePlaceholder: '',
+      universityPlaceholder: '',
     };
   }, [currentPath]);
 
@@ -115,26 +127,41 @@ export const AddItemModal = ({
           if (
             subjectList.filter(
               (subject) =>
-                subject.fullName.toLowerCase().trimEnd().trimStart() ===
-                currentSubject.fullName.toLowerCase().trimEnd().trimStart(),
+                subject.fullName.toLowerCase().trim() ===
+                currentSubject.fullName.toLowerCase().trim(),
             ).length !== 0
           ) {
-            alert('Этот предмет уже добавлен');
+            messageApi.open({
+              type: 'warning',
+              content: 'Этот предмет уже добавлен',
+            });
             break;
           }
+
           if (currentSubject.fullName && currentSubject.shortName) {
+            setIsAddItemModalOpen(false);
             const response = await fetch(`${API.url}/subjects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                fullName: currentSubject.fullName,
-                shortName: currentSubject.shortName,
+                fullName: currentSubject.fullName.trim(),
+                shortName: currentSubject.shortName.trim(),
               }),
             });
             if (response.ok) {
               clearCurrentSubject();
               fetchSubjects();
+              messageApi.open({
+                type: 'success',
+                content: 'Предмет успешно добавлен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
@@ -143,39 +170,62 @@ export const AddItemModal = ({
           if (
             teacherList.filter(
               (teacher) =>
-                teacher.fullName.toLowerCase().trimEnd().trimStart() ===
-                currentTeacher.fullName.toLowerCase().trimEnd().trimStart(),
+                teacher.fullName.toLowerCase().trim() ===
+                  currentTeacher.fullName.toLowerCase().trim() ||
+                (currentTeacher.avatar.toLowerCase().trim() ===
+                  teacher.avatar.toLowerCase().trim() &&
+                  currentTeacher.avatar.toLowerCase().trim() !==
+                    'emptyAvatar'.toLowerCase()),
             ).length !== 0
           ) {
-            alert('Этот преподаватель уже добавлен');
+            messageApi.open({
+              type: 'warning',
+              content: 'Этот преподаватель уже добавлен',
+            });
             break;
           }
           if (currentTeacher.fullName && currentTeacher.shortName) {
+            setIsAddItemModalOpen(false);
             const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                fullName: currentTeacher.fullName,
-                shortName: currentTeacher.shortName,
+                fullName: currentTeacher.fullName.trim(),
+                shortName: currentTeacher.shortName.trim(),
                 avatar: currentTeacher.avatar
-                  ? currentTeacher.avatar
+                  ? currentTeacher.avatar.trim()
                   : 'emptyAvatar',
+                degree: currentTeacher.degree,
+                university: {
+                  code: currentTeacher.university.code,
+                  title: currentTeacher.university.title,
+                },
               }),
             });
             if (response.ok) {
               clearCurrentTeacher();
               fetchTeachers();
+              messageApi.open({
+                type: 'success',
+                content: 'Преподаватель успешно добавлен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
       }
     } catch (error) {
       console.error('Ошибка:', error);
-    } finally {
-      setIsAddItemModalOpen(false);
     }
   }, [
+    messageApi,
+    subjectList,
     teacherList,
     currentEntity,
     currentSubject,
@@ -193,7 +243,19 @@ export const AddItemModal = ({
           break;
         }
         case 'teacher': {
-          dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          if (field === 'university') {
+            dispatch(
+              setCurrentTeacher({
+                ...currentTeacher,
+                university: {
+                  code: value === 'БНТУ' ? 'bntu' : 'bsuir',
+                  title: value,
+                },
+              }),
+            );
+          } else {
+            dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          }
           break;
         }
       }
@@ -220,10 +282,11 @@ export const AddItemModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (
-            <Space direction="vertical">
+            <Space direction="vertical" style={{ width: '100%' }}>
               <Input
                 value={currentTeacher.fullName}
                 placeholder={currentEntity.fullNamePlaceholder}
@@ -248,6 +311,23 @@ export const AddItemModal = ({
                 onChange={(e) => {
                   handleChange(currentEntity.value, 'avatar', e.target.value);
                 }}
+              />
+              <Input
+                value={currentTeacher.degree}
+                placeholder={currentEntity.degreePlaceholder}
+                onChange={(e) => {
+                  handleChange(currentEntity.value, 'degree', e.target.value);
+                }}
+              />
+              <Select
+                placeholder={currentEntity.universityPlaceholder}
+                onChange={(value) => {
+                  handleChange(currentEntity.value, 'university', value);
+                }}
+                options={[
+                  { value: 'БНТУ', label: 'БНТУ' },
+                  { value: 'БГУИР', label: 'БГУИР' },
+                ]}
               />
             </Space>
           ) : currentEntity.value === 'subject' ? (

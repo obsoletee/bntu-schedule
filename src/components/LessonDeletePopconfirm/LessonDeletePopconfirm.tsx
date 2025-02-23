@@ -1,5 +1,5 @@
-import { Modal, Typography } from 'antd';
-import { Dispatch, SetStateAction, useCallback } from 'react';
+import { message, Popconfirm } from 'antd';
+import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
 import { API } from '../../model/apiConst';
@@ -7,19 +7,12 @@ import { DaySchedule, GroupSchedule } from '../../model/Schedule';
 import { setSchedule } from '../../store/scheduleReducer';
 import { State } from '../../store';
 import { useDispatch } from 'react-redux';
+import { DeleteOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
-interface DeleteLessonModalProps {
-  isDeleteModalOpen: boolean;
-  setIsDeleteModalOpen: Dispatch<SetStateAction<boolean>>;
-}
+import styles from './LessonDeletePopconfirm.module.scss';
 
-export const DeleteLessonModal = ({
-  isDeleteModalOpen,
-  setIsDeleteModalOpen,
-}: DeleteLessonModalProps) => {
+export const LessonDeletePopconfirm = () => {
   const dispatch = useDispatch();
-
-  const { Text } = Typography;
 
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
@@ -27,14 +20,18 @@ export const DeleteLessonModal = ({
 
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
 
-  const groupInfo = useSelector((state: State) => state.currentGroup);
+  const { university, currentGroup } = useSelector(
+    (state: State) => state.currentGroup,
+  );
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const { schedule } = useSelector((state: State) => state.schedule);
 
-  const handleOk = useCallback(async () => {
+  const handleConfirm = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        `${API.url}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {
@@ -84,35 +81,43 @@ export const DeleteLessonModal = ({
           break;
         }
       }
-      setIsDeleteModalOpen(false);
+
+      messageApi.open({
+        type: 'success',
+        content: 'Занятие успешно удалено',
+      });
     } catch (error) {
       console.error('Ошибка:', error);
     }
   }, [
+    messageApi,
     activeDayOfWeek,
     currentLesson,
     dispatch,
-    groupInfo,
+    currentGroup,
+    university,
     schedule,
-    setIsDeleteModalOpen,
   ]);
 
-  const handleCancel = useCallback(() => {
-    setIsDeleteModalOpen(false);
-  }, [setIsDeleteModalOpen]);
-
   return (
-    <Modal
-      title={<Text type="danger">Удаление занятия</Text>}
-      open={isDeleteModalOpen}
-      onOk={handleOk}
-      okText="Удалить"
-      onCancel={handleCancel}
-      cancelText="Отмена"
-    >
-      <div>
-        <Text>Вы уверены, что хотите безвозвратно удалить это занятие?</Text>
-      </div>
-    </Modal>
+    <>
+      {contextHolder}
+      <Popconfirm
+        title="Удалить занятие"
+        description="Вы уверены, что хотите удалить это занятие?"
+        icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+        onConfirm={handleConfirm}
+        okText="Да"
+        cancelText="Нет"
+      >
+        <DeleteOutlined
+          className={styles.icon}
+          alt="delete"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        />
+      </Popconfirm>
+    </>
   );
 };

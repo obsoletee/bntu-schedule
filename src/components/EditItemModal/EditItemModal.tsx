@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
-import { Input, Modal, Space, Typography } from 'antd';
+import { Input, message, Modal, Select, Space, Typography } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { editTeacher } from '../../store/teachersReducer';
@@ -17,6 +17,7 @@ import {
 } from '../../store/currentTeacherReducer';
 
 import style from './EditItemModal.module.scss';
+import { SUBJECTS_PAGE, TEACHERS_PAGE } from '../../routes';
 
 interface EditItemModalProps {
   isEditItemModalOpen: boolean;
@@ -29,6 +30,7 @@ export const EditItemModal = ({
 }: EditItemModalProps) => {
   const dispatch = useDispatch();
 
+  const [messageApi, contextHolder] = message.useMessage();
   const { Text } = Typography;
 
   const currentPath = useMemo(() => {
@@ -47,21 +49,27 @@ export const EditItemModal = ({
     fullNamePlaceholder: string;
     shortNamePlaceholder: string;
     avatarPlaceholder: string;
+    degreePlaceholder: string;
+    universityPlaceholder: string;
   } = useMemo(() => {
-    if (currentPath === '/subjects') {
+    if (currentPath === SUBJECTS_PAGE) {
       return {
         value: 'subject',
         fullNamePlaceholder: 'Полное название',
         shortNamePlaceholder: 'Сокращенное название',
         avatarPlaceholder: '',
+        degreePlaceholder: '',
+        universityPlaceholder: '',
       };
     }
-    if (currentPath === '/teachers') {
+    if (currentPath === TEACHERS_PAGE) {
       return {
         value: 'teacher',
         fullNamePlaceholder: 'ФИО',
         shortNamePlaceholder: 'Фамилия и инициалы',
         avatarPlaceholder: 'Фамилия латиницей',
+        degreePlaceholder: 'Ученая степень',
+        universityPlaceholder: 'Университет',
       };
     }
     return {
@@ -69,6 +77,8 @@ export const EditItemModal = ({
       fullNamePlaceholder: '',
       shortNamePlaceholder: '',
       avatarPlaceholder: '',
+      degreePlaceholder: '',
+      universityPlaceholder: '',
     };
   }, [currentPath]);
 
@@ -77,19 +87,34 @@ export const EditItemModal = ({
       switch (currentEntity.value) {
         case 'subject': {
           if (currentSubject.fullName && currentSubject.shortName) {
+            setIsEditItemModalOpen(false);
             const response = await fetch(
               `${API.url}/subjects/${currentSubject._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentSubject),
+                body: JSON.stringify({
+                  _id: currentSubject._id,
+                  fullName: currentSubject.fullName.trim(),
+                  shortName: currentSubject.shortName.trim(),
+                }),
               },
             );
             if (response.ok) {
               const updatedSubject = await response.json();
               dispatch(editSubject(updatedSubject));
               clearCurrentSubject();
+              messageApi.open({
+                type: 'success',
+                content: 'Предмет успешно изменен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
@@ -100,30 +125,50 @@ export const EditItemModal = ({
             currentTeacher.shortName &&
             currentTeacher.avatar
           ) {
+            setIsEditItemModalOpen(false);
             const response = await fetch(
               `${API.url}/teachers/${currentTeacher._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentTeacher),
+                body: JSON.stringify({
+                  _id: currentTeacher._id,
+                  fullName: currentTeacher.fullName.trim(),
+                  shortName: currentTeacher.shortName.trim(),
+                  avatar: currentTeacher.avatar.trim(),
+                  degree: currentTeacher.degree,
+                  university: {
+                    code: currentTeacher.university.code,
+                    title: currentTeacher.university.title,
+                  },
+                }),
               },
             );
             if (response.ok) {
               const updatedTeacher = await response.json();
               dispatch(editTeacher(updatedTeacher));
               clearCurrentTeacher();
+              messageApi.open({
+                type: 'success',
+                content: 'Преподаватель успешно изменен',
+              });
             }
+          } else {
+            messageApi.open({
+              type: 'error',
+              content: 'Пожалуйста, заполните все поля',
+            });
+            break;
           }
           break;
         }
       }
     } catch (error) {
       console.error('Ошибка:', error);
-    } finally {
-      setIsEditItemModalOpen(false);
     }
   }, [
     setIsEditItemModalOpen,
+    messageApi,
     currentEntity,
     currentSubject,
     currentTeacher,
@@ -138,7 +183,19 @@ export const EditItemModal = ({
           break;
         }
         case 'teacher': {
-          dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          if (field === 'university') {
+            dispatch(
+              setCurrentTeacher({
+                ...currentTeacher,
+                university: {
+                  code: value === 'БНТУ' ? 'bntu' : 'bsuir',
+                  title: value,
+                },
+              }),
+            );
+          } else {
+            dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
+          }
           break;
         }
       }
@@ -165,10 +222,11 @@ export const EditItemModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (
-            <Space direction="vertical">
+            <Space direction="vertical" style={{ width: '100%' }}>
               <Input
                 value={currentTeacher.fullName}
                 placeholder={currentEntity.fullNamePlaceholder}
@@ -193,6 +251,25 @@ export const EditItemModal = ({
                 onChange={(e) => {
                   handleChange(currentEntity.value, 'avatar', e.target.value);
                 }}
+              />
+              <Input
+                value={currentTeacher.degree}
+                placeholder={currentEntity.degreePlaceholder}
+                onChange={(e) => {
+                  handleChange(currentEntity.value, 'degree', e.target.value);
+                }}
+              />
+              <Select
+                style={{ width: '100%' }}
+                value={currentTeacher.university.title}
+                placeholder={currentEntity.universityPlaceholder}
+                onChange={(value) => {
+                  handleChange(currentEntity.value, 'university', value);
+                }}
+                options={[
+                  { value: 'БНТУ', label: 'БНТУ' },
+                  { value: 'БГУИР', label: 'БГУИР' },
+                ]}
               />
             </Space>
           ) : currentEntity.value === 'subject' ? (

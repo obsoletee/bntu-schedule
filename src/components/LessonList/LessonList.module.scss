@@ -17,11 +17,6 @@
   }
 }
 
-.list_description {
-  display: flex;
-  flex-direction: column;
-}
-
 .icon {
   transition: all 0.3s ease-in-out;
   width: 20px;
@@ -31,11 +26,6 @@
   &:hover {
     transform: scale(1.15);
   }
-}
-
-.card_title {
-  display: flex;
-  justify-content: space-between;
 }
 
 .button {

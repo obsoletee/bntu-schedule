@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { GroupSchedule } from '../model/Schedule';
 
-export interface Schedule {
+export interface ScheduleState {
   schedule: GroupSchedule | undefined;
   isScheduleLoading: boolean;
 }
 
-const initialState: Schedule = {
+const initialState: ScheduleState = {
   schedule: undefined,
   isScheduleLoading: false,
 };
@@ -25,4 +25,4 @@ const scheduleSlice = createSlice({
 });
 
 export const { setSchedule, setScheduleLoading } = scheduleSlice.actions;
-export default scheduleSlice.reducer;
+export const scheduleReducer = scheduleSlice.reducer;

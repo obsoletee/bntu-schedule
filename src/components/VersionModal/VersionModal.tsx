@@ -43,7 +43,9 @@ export const VersionModal = ({
       onCancel={handleCancel}
     >
       <div className={style.description_container}>{changesList}</div>
-      <Link to={VERSIONS_LIST}>История обновлений</Link>
+      <Link onClick={handleOk} to={VERSIONS_LIST}>
+        История обновлений
+      </Link>
     </Modal>
   );
 };

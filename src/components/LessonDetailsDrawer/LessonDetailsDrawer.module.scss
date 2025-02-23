@@ -1,0 +1,19 @@
+.status {
+  display: block;
+  width: 2px;
+  height: 100%;
+
+  &[lesson-type='Лекция'] {
+    background-color: green;
+  }
+  &[lesson-type='Практика'] {
+    background-color: yellow;
+  }
+  &[lesson-type='Лаба'] {
+    background-color: red;
+  }
+}
+
+.body {
+  padding: 0;
+}

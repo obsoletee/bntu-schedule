@@ -1,9 +1,8 @@
-import { Tabs, TabsProps, Typography } from 'antd';
+import { Skeleton, Tabs, TabsProps, Typography } from 'antd';
 import { lazy, Suspense, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import { API } from '../../model/apiConst';
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 import { DaySchedule, daysOfWeek, GroupSchedule } from '../../model/Schedule';
 import { State } from '../../store';
 import { setSchedule, setScheduleLoading } from '../../store/scheduleReducer';
@@ -15,9 +14,13 @@ const LessonList = lazy(() => import('../../components/LessonList'));
 
 import style from './ScheduleEditPage.module.scss';
 
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeekReducer';
+
 export const ScheduleEditPage = () => {
-  const groupInfo = useSelector((state: State) => state.currentGroup);
-  const { Text, Title } = Typography;
+  const { university, currentGroup } = useSelector(
+    (state: State) => state.currentGroup,
+  );
+  const { Text } = Typography;
 
   const { schedule } = useSelector((state: State) => state.schedule);
 
@@ -31,7 +34,7 @@ export const ScheduleEditPage = () => {
       dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+          `${API.url}/${university}/group${currentGroup}`,
         );
 
         if (!response.ok) {
@@ -47,24 +50,20 @@ export const ScheduleEditPage = () => {
     };
 
     fetchData();
-  }, [groupInfo, dispatch]);
+  }, [currentGroup, university, dispatch]);
 
   const { width } = useViewportSize();
   const items: TabsProps['items'] = daysOfWeek.map(({ key, label, day }) => ({
     key,
     label,
     children: (
-      <Suspense fallback={<CustomSpin />}>
+      <Suspense fallback={<Skeleton active />}>
         <LessonList
           addButton
           addModal={true}
           editModal={true}
           deleteModal={true}
-          items={
-            day === 'sunday'
-              ? undefined
-              : (schedule?.[day] as DaySchedule[] | undefined)
-          }
+          items={schedule?.[day] as DaySchedule[] | undefined}
         />
       </Suspense>
     ),
@@ -72,27 +71,22 @@ export const ScheduleEditPage = () => {
 
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
-        <Header title="Редактор расписания" />
+      <Suspense fallback={<Skeleton active />}>
+        <Header />
       </Suspense>
 
       <div className={style.container}>
-        {groupInfo.currentGroup ? (
-          <>
-            <div className={style.title}>
-              <Title level={3}>Гр. {groupInfo.currentGroup}</Title>
-            </div>
-            <Tabs
-              activeKey={activeDayOfWeek}
-              onChange={(value) => {
-                dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: value });
-              }}
-              centered={width < 768 ? false : true}
-              size="large"
-              defaultActiveKey="1"
-              items={items}
-            />
-          </>
+        {currentGroup ? (
+          <Tabs
+            activeKey={activeDayOfWeek}
+            onChange={(value) => {
+              dispatch(changeActiveDayOfWeek(value));
+            }}
+            centered={width < 768 ? false : true}
+            size="large"
+            defaultActiveKey="1"
+            items={items}
+          />
         ) : (
           <Text type="danger">Сперва выберите группу.</Text>
         )}

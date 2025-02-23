@@ -1,9 +1,7 @@
-@import '../../styles/colors.scss';
-
 .wrapper {
   width: 100%;
   overflow: hidden;
-  background-color: $color--white;
+  background-color: #fff;
 }
 
 .container {
@@ -22,7 +20,7 @@
 
 .title {
   text-align: center;
-  color: $color--text-dark;
+  color: #1f1f1f;
 }
 
 .card_container {

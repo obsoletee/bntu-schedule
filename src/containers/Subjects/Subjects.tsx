@@ -1,9 +1,8 @@
-import { Button, Flex, Typography } from 'antd';
+import { Button, Flex, message, Skeleton, Typography } from 'antd';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { API } from '../../model/apiConst';
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 import {
   deleteSubject,
   setSubjects,
@@ -19,16 +18,16 @@ import { clearCurrentSubject } from '../../store/currentSubjectReducer';
 import { clearCurrentTeacher } from '../../store/currentTeacherReducer';
 import { Link } from 'react-router-dom';
 import { TEACHERS_PAGE } from '../../routes';
+import { useViewportSize } from '../../hooks/useViewportSize';
 
 export const Subjects = () => {
   const dispatch = useDispatch();
   const { Text } = Typography;
 
-  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const { width } = useViewportSize();
 
-  const [visiblePopoverId, setVisiblePopoverId] = useState<string | undefined>(
-    undefined,
-  );
+  const [messageApi, contextHolder] = message.useMessage();
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
   const fetchSubjects = useCallback(async () => {
     dispatch(setSubjectsLoading(true));
@@ -56,24 +55,34 @@ export const Subjects = () => {
         }
       } catch (error) {
         console.error('Ошибка:', error);
+      } finally {
+        messageApi.open({
+          type: 'success',
+          content: 'Предмет успешно удален',
+        });
       }
     },
-    [dispatch],
+    [dispatch, messageApi],
   );
 
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
-        <Header title="Предметы" />
+      {contextHolder}
+      <Suspense fallback={<Skeleton active />}>
+        <Header />
       </Suspense>
       <div className={style.container}>
         <Flex
-          align="center"
+          align={width < 768 ? 'flex-start' : 'center'}
           className={style.flex_container}
-          justify="space-between"
+          gap={width < 768 ? `0.5rem` : ''}
+          justify={width < 768 ? 'center' : 'space-between'}
+          vertical={width < 768}
+          style={width < 768 ? { marginBottom: '15px' } : {}}
         >
           <Button
             className={style.button}
+            style={width < 768 ? {} : { marginBottom: '15px' }}
             onClick={() => {
               dispatch(clearCurrentSubject());
               dispatch(clearCurrentTeacher());
@@ -86,19 +95,15 @@ export const Subjects = () => {
             <Link to={TEACHERS_PAGE}>Редактирование учителей</Link>
           </Text>
         </Flex>
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <AddItemModal
             isAddItemModalOpen={isAddItemModalOpen}
             setIsAddItemModalOpen={setIsAddItemModalOpen}
           />
         </Suspense>
 
-        <Suspense fallback={<CustomSpin />}>
-          <SubjectList
-            visiblePopoverId={visiblePopoverId}
-            setVisiblePopoverId={setVisiblePopoverId}
-            handleDeleteSubject={handleDeleteSubject}
-          />
+        <Suspense fallback={<Skeleton active />}>
+          <SubjectList handleDeleteSubject={handleDeleteSubject} />
         </Suspense>
       </div>
     </div>

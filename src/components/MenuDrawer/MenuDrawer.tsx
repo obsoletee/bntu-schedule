@@ -1,21 +1,34 @@
-import { Drawer, Space, Select, List, Typography } from 'antd';
+import { Drawer, Space, List, Typography, Flex, Image } from 'antd';
 import {
   Dispatch,
   SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { bntuAllowedGroups, bsuirAllowedGroups } from '../../model/groups';
-import { HOME } from '../../routes';
+import { GROUPS, HOME } from '../../routes';
 import { State } from '../../store';
 import { versions } from '../../model/version';
 import { VersionModal } from '../VersionModal/VersionModal';
 
 import style from './MenuDrawer.module.scss';
+import { changeGroupNumber } from '../../store/currentGroupReducer';
+import { removeLatestGroup } from '../../store/latestGroupsReducer';
+import { changeActiveDayOfWeek } from '../../store/activeDayOfWeekReducer';
+import { setScheduleLoading } from '../../store/scheduleReducer';
+import { useViewportSize } from '../../hooks/useViewportSize';
+import { DeleteOutlined } from '@ant-design/icons';
+import { icons } from '../../assets/icons';
+import { API } from '../../model/apiConst';
+import {
+  AllowedGroups,
+  setGroups,
+  setGroupsLoading,
+} from '../../store/availableGroupsReducer';
 
 interface MenuDrawerProps {
   isMenuActive: boolean;
@@ -27,55 +40,54 @@ export const MenuDrawer = ({
   setIsMenuActive,
 }: MenuDrawerProps) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const { Title, Text } = Typography;
+  const currentPath = useMemo(() => {
+    return window.location.pathname;
+  }, []);
 
-  const latestGroups = useSelector(
-    (state: State) => state.latestGroups.latestGroups,
-  );
+  const { Text } = Typography;
+
+  const { width } = useViewportSize();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { latestGroups } = useSelector((state: State) => state.latestGroups);
+  const { availableGroups } = useSelector(
+    (state: State) => state.availableGroups,
+  );
+
+  const latestGroupDetails = useMemo(() => {
+    const latestGroupNumbers = latestGroups.map((group) => group.groupNumber);
+
+    return availableGroups.filter((group) =>
+      latestGroupNumbers.includes(group.value),
+    );
+  }, [availableGroups, latestGroups]);
 
   const latestVersion = useMemo(() => {
     return versions.slice(-1)[0];
   }, []);
 
-  const latestGroupsReversed = useMemo(() => {
-    return latestGroups.slice(-5).reverse();
-  }, [latestGroups]);
-
-  const handleChangeGroupNumber = useCallback(
-    (value: string, university: string) => {
-      dispatch({
-        type: 'CHANGE_GROUP_NUMBER',
-        payload: { currentGroup: value, university: university },
-      });
-
-      if (!latestGroups.some((group) => group.number === value)) {
-        dispatch({
-          type: 'ADD_LATEST_GROUPS',
-          payload: { number: value, university: university },
-        });
-      }
-
-      setIsMenuActive(false);
-    },
-    [dispatch, latestGroups, setIsMenuActive],
-  );
   const handleUseGroupNumber = useCallback(
     (value: string, university: string) => {
-      dispatch({
-        type: 'CHANGE_GROUP_NUMBER',
-        payload: { currentGroup: value, university: university },
-      });
-      dispatch({ type: 'CHANGE_ACTIVE_DAY_OF_WEEK', payload: '1' });
       setIsMenuActive(false);
+      if (currentPath === GROUPS) {
+        navigate(HOME);
+      }
+      setTimeout(() => {
+        dispatch(setScheduleLoading(true));
+        dispatch(changeGroupNumber({ currentGroup: value, university }));
+        dispatch(changeActiveDayOfWeek('1'));
+        dispatch(setScheduleLoading(false));
+      }, 100);
     },
-    [dispatch, setIsMenuActive],
+    [dispatch, setIsMenuActive, navigate, currentPath],
   );
 
   const handleDeleteLatestGroup = useCallback(
     (value: string) => {
-      dispatch({ type: 'REMOVE_LATEST_GROUPS', payload: value });
+      dispatch(removeLatestGroup(value));
     },
     [dispatch],
   );
@@ -88,13 +100,42 @@ export const MenuDrawer = ({
     setIsModalOpen(true);
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(setGroupsLoading(true));
+      try {
+        const response = await fetch(`${API.url}/availableGroups`);
+
+        if (!response.ok) {
+          throw new Error('Ошибка при получении данных');
+        }
+        const result: AllowedGroups[] = await response.json();
+        dispatch(setGroups(result));
+      } catch (error) {
+        console.error('Ошибка:', error);
+      } finally {
+        dispatch(setGroupsLoading(false));
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
+
   return (
     <>
       <Drawer
+        width={width < 473 ? '80%' : 378}
         title={
           <Space direction="horizontal">
             <Text>
-              <Link to={HOME}>Расписание</Link>
+              <Link
+                onClick={() => {
+                  setIsMenuActive(false);
+                }}
+                to={HOME}
+              >
+                Расписание
+              </Link>
             </Text>
             <Text
               type="secondary"
@@ -110,84 +151,101 @@ export const MenuDrawer = ({
         open={isMenuActive}
       >
         <Space direction="vertical" className={style.drawer_container}>
-          <Space direction="vertical">
-            <Title level={3}>Выберите группу:</Title>
-            <Space direction="vertical">
-              <Space direction="horizontal">
-                <Text>БНТУ</Text>
-                <Select
-                  showSearch
-                  placeholder="Номер группы"
-                  optionFilterProp="label"
-                  onChange={(value) => {
-                    handleChangeGroupNumber(value, 'bntu');
-                  }}
-                  options={bntuAllowedGroups}
-                />
-              </Space>
-              <Space direction="horizontal">
-                <Text>БГУИР</Text>
-                <Select
-                  showSearch
-                  placeholder="Номер группы"
-                  optionFilterProp="label"
-                  onChange={(value) => {
-                    handleChangeGroupNumber(value, 'bsuir');
-                  }}
-                  options={bsuirAllowedGroups}
-                />
-              </Space>
-              {latestGroups.length > 0 ? (
-                <List
-                  header={<Title level={4}>Добавленные:</Title>}
-                  itemLayout="horizontal"
-                  dataSource={latestGroupsReversed}
-                  renderItem={(group) => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={
-                          <Space direction="horizontal">
-                            <Text
-                              style={{ cursor: 'pointer' }}
-                              onClick={() =>
-                                handleUseGroupNumber(
-                                  group.number,
-                                  group.university,
-                                )
-                              }
-                            >{`${group.number} `}</Text>
-                            <Text
-                              onClick={() =>
-                                handleDeleteLatestGroup(group.number)
-                              }
-                              style={{ cursor: 'pointer' }}
-                              type="secondary"
-                            >
-                              x
-                            </Text>
-                          </Space>
-                        }
-                      />
-                    </List.Item>
-                  )}
-                />
-              ) : (
-                <Text>Добавленных групп нет.</Text>
-              )}
-            </Space>
+          <Space direction="vertical" style={{ width: '100%' }}>
+            {latestGroups.length > 0 ? (
+              <List
+                header={
+                  <Text strong style={{ fontSize: '18px' }}>
+                    Добавленные группы:
+                  </Text>
+                }
+                itemLayout="horizontal"
+                dataSource={latestGroupDetails}
+                renderItem={(group) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      style={{ width: '100%', cursor: 'pointer' }}
+                      avatar={
+                        <Image
+                          style={{ cursor: 'pointer' }}
+                          onClick={() =>
+                            handleUseGroupNumber(
+                              group.data.groupNumber,
+                              group.data.universityCode,
+                            )
+                          }
+                          src={
+                            group.data.universityCode === 'bntu'
+                              ? icons.bntuLogo
+                              : icons.bsuirLogo
+                          }
+                          width={32}
+                          height={32}
+                          preview={false}
+                        />
+                      }
+                      title={
+                        <Flex
+                          justify="space-between"
+                          align="center"
+                          onClick={() =>
+                            handleUseGroupNumber(
+                              group.data.groupNumber,
+                              group.data.universityCode,
+                            )
+                          }
+                        >
+                          <Text strong underline style={{ cursor: 'pointer' }}>
+                            {group.data.groupNumber}
+                          </Text>
+
+                          <DeleteOutlined
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteLatestGroup(group.data.groupNumber);
+                            }}
+                            style={{ cursor: 'pointer', fontSize: '18px' }}
+                          />
+                        </Flex>
+                      }
+                      description={
+                        <Space
+                          style={{ cursor: 'pointer' }}
+                          onClick={() =>
+                            handleUseGroupNumber(
+                              group.data.groupNumber,
+                              group.data.universityCode,
+                            )
+                          }
+                        >
+                          <Text>{group.data.universityName}</Text>
+                          <Text>|</Text>
+                          <Text>{group.data.departmentShortName}</Text>
+                        </Space>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            ) : (
+              <Text style={{ fontSize: '18px' }}>Добавленных групп нет.</Text>
+            )}
           </Space>
-          {/*           
+
           <Space direction="vertical">
-            <Text strong>
-              <Link to={'/subjects'}>Список предметов</Link>
+            {/* <Text strong>
+              <Link to={SUBJECTS_PAGE}>Список предметов</Link>
             </Text>
             <Text strong>
-              <Link to={'/teachers'}>Список учителей</Link>
+              <Link to={TEACHERS_PAGE}>Список учителей</Link>
             </Text>
             <Text strong>
-              <Link to={'/edit'}>Редактор расписания</Link>
+              <Link to={EDIT_PAGE}>Редактор расписания</Link>
+            </Text> */}
+            <Text style={{ fontSize: '18px' }} strong>
+              <Link to={GROUPS}>Добавить расписание</Link>
             </Text>
-          </Space> */}
+          </Space>
         </Space>
       </Drawer>
       <VersionModal

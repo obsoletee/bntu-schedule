@@ -1,5 +1,3 @@
-@import './colors.scss';
-
 * {
   padding: 0;
   margin: 0;
@@ -41,7 +39,7 @@ body {
   -ms-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-  background-color: $color--white;
+  background-color: #fff;
 }
 
 input,

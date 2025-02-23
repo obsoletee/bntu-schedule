@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Teacher } from '../model/Schedule';
 
-interface CurrentTeacherState {
+export interface CurrentTeacherState {
   currentTeacher: Teacher;
 }
 
@@ -12,6 +12,11 @@ const initialState: CurrentTeacherState = {
     fullName: '',
     shortName: '',
     avatar: 'emptyAvatar',
+    degree: '',
+    university: {
+      code: '',
+      title: '',
+    },
   },
 };
 
@@ -28,6 +33,11 @@ const currentTeacherSlice = createSlice({
         fullName: '',
         shortName: '',
         avatar: 'emptyAvatar',
+        degree: '',
+        university: {
+          code: '',
+          title: '',
+        },
       };
     },
   },

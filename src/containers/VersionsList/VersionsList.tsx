@@ -1,44 +1,47 @@
-import { List, Typography } from 'antd';
+import { Skeleton, Timeline, Typography } from 'antd';
 import { lazy, Suspense } from 'react';
 
 import { versions } from '../../model/version';
-import { CustomSpin } from '../../components/CustomSpin/CustomSpin';
 
 const Header = lazy(() => import('../../components/Header'));
 
 import style from './VersionList.module.scss';
+import { CheckOutlined } from '@ant-design/icons';
 
 export const VersionsList = () => {
   const { Text, Title } = Typography;
   return (
     <div className={style.wrapper}>
-      <Suspense fallback={<CustomSpin />}>
-        <Header title="Обновления" />
+      <Suspense fallback={<Skeleton active />}>
+        <Header />
       </Suspense>
       <div className={style.container}>
-        <Title level={3}>История изменений</Title>
-        <List
-          itemLayout="horizontal"
-          dataSource={[...versions].reverse()}
-          renderItem={(item) => (
-            <List.Item key={item.title}>
-              <List.Item.Meta
-                key={item.title}
-                title={
-                  <div className={style.version_title}>
-                    <Text strong>Версия {item.title}: </Text>{' '}
-                    <Text type="secondary">{item.date}</Text>
-                  </div>
-                }
-                description={item.changes.map((string) => (
-                  <div>
-                    <Text>{`- ${string}`}</Text>
-                  </div>
-                ))}
-              />
-            </List.Item>
-          )}
-        />
+        <Title style={{ marginBottom: '30px' }} level={3}>
+          История изменений
+        </Title>
+        <Timeline reverse>
+          {versions.map((version, index) => (
+            <Timeline.Item
+              color={index === versions.length - 1 ? 'green' : 'blue'}
+              dot={
+                index === versions.length - 1 ? (
+                  <CheckOutlined style={{ fontSize: '20px' }} />
+                ) : undefined
+              }
+              key={version.title}
+            >
+              <div className={style.version_title}>
+                <Text strong>Версия {version.title}: </Text>{' '}
+                <Text type="secondary">{version.date}</Text>
+              </div>
+              {version.changes.map((string) => (
+                <div>
+                  <Text>{`- ${string}`}</Text>
+                </div>
+              ))}
+            </Timeline.Item>
+          ))}
+        </Timeline>
       </div>
     </div>
   );

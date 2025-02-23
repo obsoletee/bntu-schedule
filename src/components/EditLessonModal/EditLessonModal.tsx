@@ -1,7 +1,14 @@
-import { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
   Checkbox,
   Input,
+  message,
   Modal,
   Radio,
   Select,
@@ -46,9 +53,13 @@ export const EditLessonModal = ({
   const { Text } = Typography;
   const format = 'HH:mm';
 
+  const [teacher, setTeacher] = useState<Teacher[]>([]);
+
   const { activeDayOfWeek } = useSelector(
     (state: State) => state.activeDayOfWeek,
   );
+
+  const [messageApi, contextHolder] = message.useMessage();
   const { currentLesson } = useSelector((state: State) => state.currentLesson);
   const groupInfo = useSelector((state: State) => state.currentGroup);
   const { subjectList } = useSelector((state: State) => state.subjects);
@@ -94,8 +105,47 @@ export const EditLessonModal = ({
     fetchTeachers();
   }, [groupInfo, dispatch]);
 
+  useEffect(() => {
+    setTeacher(
+      currentLesson.teacherId
+        ? teacherList.filter((teacher) => {
+            return currentLesson.teacherId.includes(teacher._id);
+          })
+          ? teacherList.filter((teacher) => {
+              return currentLesson.teacherId.includes(teacher._id);
+            })
+          : [
+              {
+                _id: '',
+                shortName: '',
+                fullName: '',
+                avatar: 'emptyAvatar',
+                degree: '',
+                university: {
+                  code: '',
+                  title: '',
+                },
+              },
+            ]
+        : [
+            {
+              _id: '',
+              shortName: '',
+              fullName: '',
+              avatar: 'emptyAvatar',
+              degree: '',
+              university: {
+                code: '',
+                title: '',
+              },
+            },
+          ],
+    );
+  }, [teacherList, currentLesson]);
+
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
+      console.log('отправляем: ', currentLesson);
       const response = await fetch(
         `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
         {
@@ -106,9 +156,10 @@ export const EditLessonModal = ({
           body: JSON.stringify({
             ...schedule,
             [currentDay]: [
-              ...((schedule?.[currentDay] as DaySchedule[]) ?? []).map(
-                (lesson) =>
-                  lesson.id === currentLesson.id ? currentLesson : lesson,
+              ...(
+                (schedule?.[currentDay] as DaySchedule[]) ?? []
+              ).map((lesson) =>
+                lesson.id === currentLesson.id ? currentLesson : lesson,
               ),
               ...(schedule?.[currentDay] &&
               (schedule[currentDay] as DaySchedule[]).some(
@@ -122,12 +173,23 @@ export const EditLessonModal = ({
       );
       const result = await response.json();
       dispatch(setSchedule(result));
+      messageApi.open({
+        type: 'success',
+        content: 'Занятие успешно отредактировано',
+      });
     };
-    if (currentLesson.startTime === '' || currentLesson.endTime === '') {
-      alert('Заполните поля "Время начала" и "Время окончания"');
-    } else if (currentLesson.subject.fullName === '') {
-      alert('Выберите предмет');
+    if (currentLesson.subject.fullName === '') {
+      messageApi.open({
+        type: 'error',
+        content: 'Выберите предмет',
+      });
+    } else if (currentLesson.startTime === '' || currentLesson.endTime === '') {
+      messageApi.open({
+        type: 'error',
+        content: 'Заполните поля "Время начала" и "Время окончания"',
+      });
     } else {
+      setIsEditModalOpen(false);
       try {
         switch (activeDayOfWeek) {
           case '1': {
@@ -159,12 +221,12 @@ export const EditLessonModal = ({
             break;
           }
         }
-        setIsEditModalOpen(false);
       } catch (error) {
         console.error('Ошибка:', error);
       }
     }
   }, [
+    messageApi,
     activeDayOfWeek,
     currentLesson,
     dispatch,
@@ -196,27 +258,9 @@ export const EditLessonModal = ({
                   (subject) => subject.fullName === value,
                 )[0].fullName,
               },
-            }),
-          );
-          break;
-        case 'teacher':
-          dispatch(
-            setCurrentLesson({
-              ...currentLesson,
-              teacher: {
-                _id: teacherList.filter(
-                  (teacher) => teacher.fullName === value,
-                )[0]._id,
-                shortName: teacherList.filter(
-                  (teacher) => teacher.fullName === value,
-                )[0].shortName,
-                fullName: teacherList.filter(
-                  (teacher) => teacher.fullName === value,
-                )[0].fullName,
-                avatar: teacherList.filter(
-                  (teacher) => teacher.fullName === value,
-                )[0].avatar,
-              },
+              subjectId: subjectList.filter(
+                (subject) => subject.fullName === value,
+              )[0]._id,
             }),
           );
           break;
@@ -230,7 +274,62 @@ export const EditLessonModal = ({
         }
       }
     },
-    [currentLesson, dispatch, subjectList, teacherList],
+    [currentLesson, dispatch, subjectList],
+  );
+
+  const hangleChangeMultiple = useCallback(
+    (value: string[]) => {
+      if (value.length === 0) {
+        dispatch(
+          setCurrentLesson({
+            ...currentLesson,
+            teacher: {
+              _id: currentLesson.teacher._id,
+              shortName: '',
+              fullName: '',
+              avatar: 'emptyAvatar',
+              degree: '',
+              university: {
+                code: '',
+                title: '',
+              },
+            },
+            teacherId: [],
+          }),
+        );
+      } else {
+        dispatch(
+          setCurrentLesson({
+            ...currentLesson,
+            teacher: {
+              _id: teacherList.filter(
+                (teacher) => teacher.fullName === value[0],
+              )[0]._id,
+              shortName: teacherList.filter(
+                (teacher) => teacher.fullName === value[0],
+              )[0].shortName,
+              fullName: teacherList.filter(
+                (teacher) => teacher.fullName === value[0],
+              )[0].fullName,
+              avatar: teacherList.filter(
+                (teacher) => teacher.fullName === value[0],
+              )[0].avatar,
+              degree: teacherList.filter(
+                (teacher) => teacher.fullName === value[0],
+              )[0].degree,
+              university: teacherList.filter(
+                (teacher) => teacher.fullName === value[0],
+              )[0].university,
+            },
+            teacherId: teacherList
+              .filter((teacher) => value.includes(teacher.fullName))
+              .map((teacher) => teacher._id),
+          }),
+        );
+      }
+    },
+
+    [teacherList, currentLesson, dispatch],
   );
 
   return (
@@ -248,6 +347,7 @@ export const EditLessonModal = ({
       onCancel={handleCancel}
       cancelText="Отмена"
     >
+      {contextHolder}
       <div className={style.container}>
         <div className={style.description_container}>
           <Select
@@ -278,6 +378,7 @@ export const EditLessonModal = ({
           />
           <Select
             showSearch
+            mode="multiple"
             placeholder="Выберите преподавателя"
             optionFilterProp="label"
             options={teacherList.map((teacher) => {
@@ -287,13 +388,14 @@ export const EditLessonModal = ({
                 value: teacher.fullName,
               };
             })}
-            value={currentLesson.teacher.fullName}
+            value={teacher ? teacher.map((item) => item.fullName) : undefined}
             onChange={(value) => {
-              handleChange(value, 'teacher');
+              hangleChangeMultiple(value);
             }}
           />
           <Text>Время занятия:</Text>
           <TimePicker.RangePicker
+            allowClear={false}
             onChange={(value) => {
               dispatch(
                 setCurrentLesson({

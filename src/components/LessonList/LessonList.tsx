@@ -1,20 +1,20 @@
-import { Button, List, Space, Typography } from 'antd';
+import { Button, Flex, List, Skeleton, Space, Typography } from 'antd';
 import EditOutlined from '@ant-design/icons/lib/icons/EditOutlined';
-import DeleteOutlined from '@ant-design/icons/lib/icons/DeleteOutlined';
-import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { CustomSpin } from '../CustomSpin/CustomSpin';
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { DaySchedule } from '../../model/Schedule';
 import { setCurrentLesson } from '../../store/currentLessonReducer';
 import { useViewportSize } from '../../hooks/useViewportSize';
 
 const AddLessonModal = lazy(() => import('../AddLessonModal'));
-const DeleteLessonModal = lazy(() => import('../DeleteLessonModal'));
+const LessonDeletePopconfirm = lazy(() => import('../LessonDeletePopconfirm'));
 const EditLessonModal = lazy(() => import('../EditLessonModal'));
-const LessonModal = lazy(() => import('../LessonModal'));
+const LessonDetailsDrawer = lazy(() => import('../LessonDetailsDrawer'));
 
 import style from './LessonList.module.scss';
+import { State } from '../../store';
 
 interface LessonListWithDateProps {
   items: DaySchedule[] | undefined;
@@ -37,10 +37,14 @@ export const LessonList = ({
 
   const { width } = useViewportSize();
 
+  const { subgroup } = useSelector((state: State) => state.currentGroup);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { subjectList } = useSelector((state: State) => state.subjects);
+  const { teacherList } = useSelector((state: State) => state.teachers);
 
   const handleOpenModal = useCallback(
     (lessonInfo: DaySchedule) => {
@@ -58,35 +62,34 @@ export const LessonList = ({
     [dispatch],
   );
 
-  const handleOpenDeleteModal = useCallback(
-    (lessonInfo: DaySchedule) => {
-      setIsDeleteModalOpen(true);
-      dispatch(setCurrentLesson(lessonInfo));
-    },
-    [dispatch],
-  );
-
   const handleOpenAddModal = useCallback(() => {
     setIsAddModalOpen(true);
   }, []);
 
+  const filteredItems = useMemo(() => {
+    return items?.filter(
+      (item) =>
+        !subgroup ||
+        item.subgroup === '0' ||
+        item.subgroup.localeCompare(subgroup) === 0,
+    );
+  }, [items, subgroup]);
   const sortedItems = useMemo(() => {
-    const newItems = items?.slice().sort((a, b) => {
-      return a.startTime.localeCompare(b.startTime);
-    });
-    return newItems;
-  }, [items]);
+    return filteredItems
+      ?.slice()
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }, [filteredItems]);
 
   return (
     <>
-      <Suspense fallback={<CustomSpin />}>
-        <LessonModal
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
+      <Suspense fallback={<Skeleton active />}>
+        <LessonDetailsDrawer
+          isDrawerOpen={isModalOpen}
+          setIsDrawerOpen={setIsModalOpen}
         />
       </Suspense>
       {addModal && (
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <AddLessonModal
             isAddModalOpen={isAddModalOpen}
             setIsAddModalOpen={setIsAddModalOpen}
@@ -94,18 +97,10 @@ export const LessonList = ({
         </Suspense>
       )}
       {editModal && (
-        <Suspense fallback={<CustomSpin />}>
+        <Suspense fallback={<Skeleton active />}>
           <EditLessonModal
             isEditModalOpen={isEditModalOpen}
             setIsEditModalOpen={setIsEditModalOpen}
-          />
-        </Suspense>
-      )}
-      {deleteModal && (
-        <Suspense fallback={<CustomSpin />}>
-          <DeleteLessonModal
-            isDeleteModalOpen={isDeleteModalOpen}
-            setIsDeleteModalOpen={setIsDeleteModalOpen}
           />
         </Suspense>
       )}
@@ -126,45 +121,85 @@ export const LessonList = ({
                 <div className={style.status} lesson-type={item.type}></div>
               }
               title={
-                <div className={style.card_title}>
+                <Flex justify="space-between">
                   <Text>
-                    {`${item.startTime}-${item.endTime}: ${item.subject.shortName}`}
+                    {`${item.startTime}-${item.endTime}: ${
+                      subjectList.filter((subject) => {
+                        return item.subjectId.includes(subject._id);
+                      }).length > 0
+                        ? subjectList.filter((subject) => {
+                            return item.subjectId.includes(subject._id);
+                          })[0].shortName
+                        : ''
+                    } 
+                    ${
+                      item.type === 'Лекция'
+                        ? `(ЛК)`
+                        : item.type === 'Практика'
+                        ? `(ПР)`
+                        : `(ЛБ)`
+                    }`}
                   </Text>
-                  <Space size={width < 768 ? 'small' : 'large'}>
-                    {editModal && (
-                      <EditOutlined
-                        className={style.icon}
-                        alt="edit"
+                  <Text style={{ fontSize: '12px' }} type="secondary">
+                    Нед. {item.week.join(', ')}
+                  </Text>
+                  {editModal || deleteModal ? (
+                    <Space size={width < 768 ? 'small' : 'large'}>
+                      {editModal && (
+                        <EditOutlined
+                          className={style.icon}
+                          alt="edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditModal(item);
+                          }}
+                        />
+                      )}
+
+                      <div
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleOpenEditModal(item);
                         }}
-                      />
-                    )}
-                    {deleteModal && (
-                      <DeleteOutlined
-                        className={style.icon}
-                        alt="delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenDeleteModal(item);
-                        }}
-                      />
-                    )}
-                  </Space>
-                </div>
+                      >
+                        {deleteModal && (
+                          <Suspense fallback={<></>}>
+                            <LessonDeletePopconfirm />
+                          </Suspense>
+                        )}
+                      </div>
+                    </Space>
+                  ) : (
+                    <></>
+                  )}
+                </Flex>
               }
               description={
-                <div className={style.list_description}>
+                <Flex vertical>
                   {item.class && item.korpus ? (
                     <Text type="secondary">{`${item.class}-${item.korpus}к`}</Text>
                   ) : null}
                   <Text type="secondary">
                     {item.subgroup !== '0'
-                      ? `${item.teacher.shortName} (подгр. ${item.subgroup})`
-                      : `${item.teacher.shortName}`}
+                      ? `${
+                          teacherList.filter((teacher) => {
+                            return item.teacherId.includes(teacher._id);
+                          }).length > 0
+                            ? teacherList.filter((teacher) => {
+                                return item.teacherId.includes(teacher._id);
+                              })[0].shortName
+                            : ''
+                        } (подгр. ${item.subgroup})`
+                      : `${
+                          teacherList.filter((teacher) => {
+                            return item.teacherId.includes(teacher._id);
+                          }).length > 0
+                            ? teacherList.filter((teacher) => {
+                                return item.teacherId.includes(teacher._id);
+                              })[0].shortName
+                            : ''
+                        }`}
                   </Text>
-                </div>
+                </Flex>
               }
             />
           </List.Item>

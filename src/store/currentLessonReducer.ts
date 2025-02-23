@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DaySchedule } from '../model/Schedule';
 
-interface CurrentLessonState {
+export interface CurrentLessonState {
   currentLesson: DaySchedule;
 }
 
@@ -16,7 +16,11 @@ const initialState: CurrentLessonState = {
       shortName: '',
       fullName: '',
       avatar: 'emptyAvatar',
+      degree: '',
+      university: { code: '', title: '' },
     },
+    teacherId: [''],
+    subjectId: '',
     type: '',
     class: '',
     korpus: '',
@@ -43,7 +47,11 @@ const currentLessonSlice = createSlice({
           shortName: '',
           fullName: '',
           avatar: 'emptyAvatar',
+          degree: '',
+          university: { code: '', title: '' },
         },
+        teacherId: [''],
+        subjectId: '',
         type: '',
         class: '',
         korpus: '',

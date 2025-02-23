@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Subject } from '../model/Schedule';
 
-interface SubjectState {
+export interface SubjectsState {
   subjectList: Subject[];
   isSubjectsLoading: boolean;
 }
 
-const initialState: SubjectState = {
+const initialState: SubjectsState = {
   subjectList: [],
   isSubjectsLoading: false,
 };
