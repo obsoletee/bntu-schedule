@@ -18,9 +18,10 @@ export const updateDateTime = (
   const year = currentDate.getFullYear();
   const formattedDate = `${day}.${month}.${year}`;
   const currentDayOfWeek = daysOfWeek.filter(
-    (day) => day.key === currentDate.getDay().toString(),
+    (day) => day.key === currentDate.getDay().toString().toLowerCase(),
   )[0];
   const weekNumber = countWeekNumber(currentDate, university);
+  console.log('функция', daysOfWeek);
 
   return { formattedDate, studyWeekNumber: weekNumber, currentDayOfWeek };
 };

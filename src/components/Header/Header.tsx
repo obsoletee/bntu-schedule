@@ -39,10 +39,11 @@ export const Header = () => {
         studyWeekNumber,
         currentDayOfWeek,
       } = updateDateTime(university, new Date());
+      console.log(formattedDate, studyWeekNumber, currentDayOfWeek);
       setCurrentState({
         currentDate: formattedDate,
         studyWeekNumber: studyWeekNumber,
-        currentDayLabel: currentDayOfWeek.contraction,
+        currentDayLabel: currentDayOfWeek ? currentDayOfWeek.contraction : '',
       });
     };
 

@@ -41,7 +41,7 @@ export const daysOfWeek: Array<{
   { key: '4', label: 'Четверг', day: 'thursday', contraction: 'Чт' },
   { key: '5', label: 'Пятница', day: 'friday', contraction: 'Пт' },
   { key: '6', label: 'Суббота', day: 'saturday', contraction: 'Сб' },
-  { key: '7', label: 'Воскресенье', day: 'sunday', contraction: 'Вс' },
+  { key: '0', label: 'Воскресенье', day: 'sunday', contraction: 'Вс' },
 ];
 
 export interface Subject {
