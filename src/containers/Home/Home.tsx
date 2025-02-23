@@ -162,7 +162,7 @@ export const Home = () => {
       <div className={style.container}>
         {currentGroup ? (
           <>
-            <Carousel draggable infinite={false} dots={false} speed={100}>
+            <Carousel draggable infinite={false} dots={false} speed={200}>
               {university === 'bntu'
                 ? bntuScheduleList.map((date) => (
                     <Space key={date.date} direction="vertical">

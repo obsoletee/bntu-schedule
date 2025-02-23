@@ -1,4 +1,4 @@
-import { Typography, Image, Space, Drawer, Flex, Popover } from 'antd';
+import { Typography, Image, Space, Flex, Popover, Modal } from 'antd';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -8,18 +8,18 @@ import {
 } from '../../assets/images/teacherImages';
 import { State } from '../../store';
 
-import styles from './LessonDetailsDrawer.module.scss';
+import styles from './LessonDetailsModal.module.scss';
 import { useViewportSize } from '../../hooks/useViewportSize';
 import { Subject, Teacher } from '../../model/Schedule';
 
 interface LessonModalProps {
-  isDrawerOpen: boolean;
-  setIsDrawerOpen: Dispatch<SetStateAction<boolean>>;
+  isModalOpen: boolean;
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export const LessonDetailsDrawer = ({
-  isDrawerOpen,
-  setIsDrawerOpen,
+export const LessonDetailsModal = ({
+  isModalOpen,
+  setIsModalOpen,
 }: LessonModalProps) => {
   const { Text } = Typography;
 
@@ -65,23 +65,16 @@ export const LessonDetailsDrawer = ({
     );
   }, [teacher]);
 
-  const onClose = () => {
-    setIsDrawerOpen(false);
+  const handleClose = () => {
+    setIsModalOpen(false);
   };
 
   return (
-    <Drawer
-      placement={'bottom'}
-      closable={false}
-      onClose={onClose}
-      open={isDrawerOpen}
+    <Modal
+      onCancel={handleClose}
+      onOk={handleClose}
+      open={isModalOpen}
       destroyOnClose={true}
-      height={'fit-content'}
-      styles={
-        width < 768
-          ? { body: { padding: '24px 12px' } }
-          : { body: { padding: '36px 24px' } }
-      }
     >
       <Flex vertical gap={8}>
         <Flex>
@@ -231,6 +224,6 @@ export const LessonDetailsDrawer = ({
           </Flex>
         </Flex>
       </Flex>
-    </Drawer>
+    </Modal>
   );
 };

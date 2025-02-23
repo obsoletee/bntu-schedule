@@ -11,7 +11,7 @@ import { useViewportSize } from '../../hooks/useViewportSize';
 const AddLessonModal = lazy(() => import('../AddLessonModal'));
 const LessonDeletePopconfirm = lazy(() => import('../LessonDeletePopconfirm'));
 const EditLessonModal = lazy(() => import('../EditLessonModal'));
-const LessonDetailsDrawer = lazy(() => import('../LessonDetailsDrawer'));
+const LessonDetailsModal = lazy(() => import('../LessonDetailsModal'));
 
 import style from './LessonList.module.scss';
 import { State } from '../../store';
@@ -83,9 +83,9 @@ export const LessonList = ({
   return (
     <>
       <Suspense fallback={<Skeleton active />}>
-        <LessonDetailsDrawer
-          isDrawerOpen={isModalOpen}
-          setIsDrawerOpen={setIsModalOpen}
+        <LessonDetailsModal
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
         />
       </Suspense>
       {addModal && (
