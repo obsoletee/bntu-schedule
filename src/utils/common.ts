@@ -21,7 +21,6 @@ export const updateDateTime = (
     (day) => day.key === currentDate.getDay().toString().toLowerCase(),
   )[0];
   const weekNumber = countWeekNumber(currentDate, university);
-  console.log('функция', daysOfWeek);
 
   return { formattedDate, studyWeekNumber: weekNumber, currentDayOfWeek };
 };
