@@ -85,7 +85,7 @@ export const FullSchedulePage = () => {
       <div className={style.container}>
         {currentGroup ? (
           <>
-            <Carousel draggable infinite={false} dots={false} speed={250}>
+            <Carousel draggable infinite={false} dots={false} speed={100}>
               {items.map((item) => (
                 <>{item.children}</>
               ))}
