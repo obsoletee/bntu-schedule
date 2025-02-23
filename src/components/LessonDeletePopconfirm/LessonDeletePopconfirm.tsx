@@ -31,7 +31,7 @@ export const LessonDeletePopconfirm = () => {
   const handleConfirm = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.localhost}/${university}/group${currentGroup}`,
+        `${API.url}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {

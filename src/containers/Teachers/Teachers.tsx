@@ -30,7 +30,7 @@ export const Teachers = () => {
   const fetchTeachers = useCallback(async () => {
     dispatch(setTeachersLoading(true));
     try {
-      const response = await fetch(`${API.localhost}/teachers/`);
+      const response = await fetch(`${API.url}/teachers/`);
       const data = await response.json();
       dispatch(setTeachers(data));
     } finally {
@@ -45,7 +45,7 @@ export const Teachers = () => {
   const handleDeleteTeacher = useCallback(
     async (id: string) => {
       try {
-        const response = await fetch(`${API.localhost}/teachers/${id}`, {
+        const response = await fetch(`${API.url}/teachers/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {

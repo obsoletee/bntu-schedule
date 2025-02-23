@@ -104,7 +104,7 @@ export const MenuDrawer = ({
     const fetchData = async () => {
       dispatch(setGroupsLoading(true));
       try {
-        const response = await fetch(`${API.localhost}/availableGroups`);
+        const response = await fetch(`${API.url}/availableGroups`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');

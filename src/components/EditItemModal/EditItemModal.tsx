@@ -89,7 +89,7 @@ export const EditItemModal = ({
           if (currentSubject.fullName && currentSubject.shortName) {
             setIsEditItemModalOpen(false);
             const response = await fetch(
-              `${API.localhost}/subjects/${currentSubject._id}`,
+              `${API.url}/subjects/${currentSubject._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -127,7 +127,7 @@ export const EditItemModal = ({
           ) {
             setIsEditItemModalOpen(false);
             const response = await fetch(
-              `${API.localhost}/teachers/${currentTeacher._id}`,
+              `${API.url}/teachers/${currentTeacher._id}`,
               {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },

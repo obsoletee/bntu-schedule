@@ -55,7 +55,7 @@ export const AddItemModal = ({
   const fetchTeachers = useCallback(async () => {
     dispatch(setTeachersLoading(true));
     try {
-      const response = await fetch(`${API.localhost}/teachers/`);
+      const response = await fetch(`${API.url}/teachers/`);
       const data = await response.json();
       dispatch(setTeachers(data));
     } finally {
@@ -70,7 +70,7 @@ export const AddItemModal = ({
   const fetchSubjects = useCallback(async () => {
     dispatch(setSubjectsLoading(true));
     try {
-      const response = await fetch(`${API.localhost}/subjects/`);
+      const response = await fetch(`${API.url}/subjects/`);
       const data = await response.json();
       dispatch(setSubjects(data));
     } finally {
@@ -140,7 +140,7 @@ export const AddItemModal = ({
 
           if (currentSubject.fullName && currentSubject.shortName) {
             setIsAddItemModalOpen(false);
-            const response = await fetch(`${API.localhost}/subjects`, {
+            const response = await fetch(`${API.url}/subjects`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -186,7 +186,7 @@ export const AddItemModal = ({
           }
           if (currentTeacher.fullName && currentTeacher.shortName) {
             setIsAddItemModalOpen(false);
-            const response = await fetch(`${API.localhost}/teachers`, {
+            const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

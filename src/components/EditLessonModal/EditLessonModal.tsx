@@ -70,7 +70,7 @@ export const EditLessonModal = ({
     const fetchSubjects = async () => {
       dispatch(setSubjectsLoading(true));
       try {
-        const response = await fetch(`${API.localhost}/subjects/`);
+        const response = await fetch(`${API.url}/subjects/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -87,7 +87,7 @@ export const EditLessonModal = ({
     const fetchTeachers = async () => {
       dispatch(setTeachersLoading(true));
       try {
-        const response = await fetch(`${API.localhost}/teachers/`);
+        const response = await fetch(`${API.url}/teachers/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -147,7 +147,7 @@ export const EditLessonModal = ({
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       console.log('отправляем: ', currentLesson);
       const response = await fetch(
-        `${API.localhost}/${groupInfo.university}/group${groupInfo.currentGroup}`,
+        `${API.url}/${groupInfo.university}/group${groupInfo.currentGroup}`,
         {
           method: 'PATCH',
           headers: {

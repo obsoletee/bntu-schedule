@@ -93,7 +93,7 @@ export const AddLessonModal = ({
     const fetchSubjects = async () => {
       dispatch(setSubjectsLoading(true));
       try {
-        const response = await fetch(`${API.localhost}/subjects/`);
+        const response = await fetch(`${API.url}/subjects/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -110,7 +110,7 @@ export const AddLessonModal = ({
     const fetchTeachers = async () => {
       dispatch(setTeachersLoading(true));
       try {
-        const response = await fetch(`${API.localhost}/teachers/`);
+        const response = await fetch(`${API.url}/teachers/`);
 
         if (!response.ok) {
           throw new Error('Ошибка при получении данных');
@@ -143,7 +143,7 @@ export const AddLessonModal = ({
   const handleOk = useCallback(async () => {
     const patchSchedule = async (currentDay: keyof GroupSchedule) => {
       const response = await fetch(
-        `${API.localhost}/${university}/group${currentGroup}`,
+        `${API.url}/${university}/group${currentGroup}`,
         {
           method: 'PATCH',
           headers: {

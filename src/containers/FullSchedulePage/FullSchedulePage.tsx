@@ -27,7 +27,7 @@ export const FullSchedulePage = () => {
       dispatch(setScheduleLoading(true));
       try {
         const response = await fetch(
-          `${API.localhost}/${university}/group${currentGroup}`,
+          `${API.url}/${university}/group${currentGroup}`,
         );
 
         if (!response.ok) {
