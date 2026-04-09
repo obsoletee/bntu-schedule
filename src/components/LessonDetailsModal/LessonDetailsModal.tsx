@@ -1,9 +1,8 @@
 import { Typography, Image, Space, Flex, Popover, Modal } from 'antd';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import {
-  TeacherImageKeys,
   teacherImages,
 } from '../../assets/images/teacherImages';
 import { State } from '../../store';
@@ -116,7 +115,7 @@ export const LessonDetailsModal = ({
                     borderRadius: '50%',
                   }}
                   preview={false}
-                  src={`${API.url}/teachers/${item._id}/avatar`}
+                  src={`${API.url}/teachers/${teacher._id}/avatar`}
                 />
               }
             />
