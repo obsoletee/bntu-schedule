@@ -16,6 +16,7 @@ import { SUBJECTS_PAGE } from '../../routes';
 const AddItemModal = lazy(() => import('../../components/AddItemModal'));
 const Header = lazy(() => import('../../components/Header'));
 const TeacherList = lazy(() => import('./TeacherList'));
+import { useViewportSize } from '../../hooks/useViewportSize';
 
 import style from './Teachers.module.scss';
 
