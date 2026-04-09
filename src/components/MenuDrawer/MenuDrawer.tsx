@@ -10,7 +10,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { GROUPS, HOME, EDIT_PAGE} from '../../routes';
+import { GROUPS, HOME, EDIT_PAGE, TEACHERS_PAGE, SUBJECTS_PAGE} from '../../routes';
 import { State } from '../../store';
 import { versions } from '../../model/version';
 import { VersionModal } from '../VersionModal/VersionModal';
@@ -245,8 +245,14 @@ export const MenuDrawer = ({
             <Text style={{ fontSize: '18px' }} strong>
               <Link to={GROUPS}>Добавить расписание</Link>
             </Text>
-            <Text style={{ fontSize: '18px' }} strong>
+            <Text style={{ fontSize: '12px' }} strong>
               <Link to={EDIT_PAGE}>Админка</Link>
+            </Text>
+            <Text style={{ fontSize: '12px' }} strong>
+              <Link to={TEACHERS_PAGE}>Преподы</Link>
+            </Text>
+            <Text style={{ fontSize: '12px' }} strong>
+              <Link to={SUBJECTS_PAGE}>Предметы</Link>
             </Text>
           </Space>
         </Space>
