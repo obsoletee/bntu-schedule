@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { useSelector } from 'react-redux';
 import { State } from '../../store';
@@ -13,7 +14,9 @@ import {
   clearCurrentSubject,
   setCurrentSubject,
 } from '../../store/currentSubjectReducer';
-import { Input, message, Modal, Select, Space, Typography } from 'antd';
+import { Input, message, Modal, Select, Space, Typography, Upload, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 
 import style from './AddItemModal.module.scss';
 import {
@@ -36,21 +39,20 @@ export const AddItemModal = ({
   const { Text } = Typography;
   const dispatch = useDispatch();
 
-  const currentPath = useMemo(() => {
-    return window.location.pathname;
-  }, []);
+  const currentPath = useMemo(() => window.location.pathname, []);
 
   const [messageApi, contextHolder] = message.useMessage();
 
   const { teacherList } = useSelector((state: State) => state.teachers);
   const { subjectList } = useSelector((state: State) => state.subjects);
 
-  const { currentSubject } = useSelector(
-    (state: State) => state.currentSubject,
-  );
-  const { currentTeacher } = useSelector(
-    (state: State) => state.currentTeacher,
-  );
+  const { currentSubject } = useSelector((state: State) => state.currentSubject);
+  const { currentTeacher } = useSelector((state: State) => state.currentTeacher);
+
+  // Локальное состояние для файла аватара и превью
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadFileList, setUploadFileList] = useState<UploadFile[]>([]);
 
   const fetchTeachers = useCallback(async () => {
     dispatch(setTeachersLoading(true));
@@ -82,43 +84,26 @@ export const AddItemModal = ({
     fetchSubjects();
   }, [fetchSubjects]);
 
-  const currentEntity: {
-    value: 'subject' | 'teacher' | 'empty';
-    fullNamePlaceholder: string;
-    shortNamePlaceholder: string;
-    avatarPlaceholder: string;
-    degreePlaceholder: string;
-    universityPlaceholder: string;
-  } = useMemo(() => {
-    if (currentPath === SUBJECTS_PAGE) {
-      return {
-        value: 'subject',
-        fullNamePlaceholder: 'Полное название',
-        shortNamePlaceholder: 'Сокращенное название',
-        avatarPlaceholder: '',
-        degreePlaceholder: '',
-        universityPlaceholder: '',
-      };
+  // Очистка локального состояния файла при закрытии модалки
+  const resetAvatarState = () => {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setUploadFileList([]);
+  };
+
+  // Обработчик загрузки файла
+  const handleUploadChange: UploadProps['onChange'] = ({ fileList }) => {
+    const file = fileList[0]?.originFileObj;
+    if (file) {
+      setAvatarFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+      setUploadFileList([{ uid: '-1', name: file.name, status: 'done', url: previewUrl }]);
+    } else {
+      resetAvatarState();
     }
-    if (currentPath === TEACHERS_PAGE) {
-      return {
-        value: 'teacher',
-        fullNamePlaceholder: 'ФИО',
-        shortNamePlaceholder: 'Фамилия и инициалы',
-        avatarPlaceholder: 'Фамилия латиницей',
-        degreePlaceholder: 'Ученая степень',
-        universityPlaceholder: 'Университет',
-      };
-    }
-    return {
-      value: 'empty',
-      fullNamePlaceholder: '',
-      shortNamePlaceholder: '',
-      avatarPlaceholder: '',
-      degreePlaceholder: '',
-      universityPlaceholder: '',
-    };
-  }, [currentPath]);
+  };
 
   const handleOk = useCallback(async () => {
     try {
@@ -149,7 +134,7 @@ export const AddItemModal = ({
               }),
             });
             if (response.ok) {
-              clearCurrentSubject();
+              dispatch(clearCurrentSubject());
               fetchSubjects();
               messageApi.open({
                 type: 'success',
@@ -167,15 +152,12 @@ export const AddItemModal = ({
         }
 
         case 'teacher': {
+          // Проверка дубликатов по ФИО (игнорируем старое поле avatar)
           if (
             teacherList.filter(
               (teacher) =>
                 teacher.fullName.toLowerCase().trim() ===
-                  currentTeacher.fullName.toLowerCase().trim() ||
-                (currentTeacher.avatar.toLowerCase().trim() ===
-                  teacher.avatar.toLowerCase().trim() &&
-                  currentTeacher.avatar.toLowerCase().trim() !==
-                    'emptyAvatar'.toLowerCase()),
+                currentTeacher.fullName.toLowerCase().trim(),
             ).length !== 0
           ) {
             messageApi.open({
@@ -186,28 +168,41 @@ export const AddItemModal = ({
           }
           if (currentTeacher.fullName && currentTeacher.shortName) {
             setIsAddItemModalOpen(false);
+
+            // Формируем FormData
+            const formData = new FormData();
+            const teacherData = {
+              fullName: currentTeacher.fullName.trim(),
+              shortName: currentTeacher.shortName.trim(),
+              degree: currentTeacher.degree,
+              university: {
+                code: currentTeacher.university.code,
+                title: currentTeacher.university.title,
+              },
+            };
+            formData.append('data', JSON.stringify(teacherData));
+            if (avatarFile) {
+              formData.append('avatar', avatarFile);
+            }
+
             const response = await fetch(`${API.url}/teachers`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                fullName: currentTeacher.fullName.trim(),
-                shortName: currentTeacher.shortName.trim(),
-                avatar: currentTeacher.avatar
-                  ? currentTeacher.avatar.trim()
-                  : 'emptyAvatar',
-                degree: currentTeacher.degree,
-                university: {
-                  code: currentTeacher.university.code,
-                  title: currentTeacher.university.title,
-                },
-              }),
+              body: formData, // Не ставим Content-Type, браузер сам установит boundary
             });
+
             if (response.ok) {
-              clearCurrentTeacher();
+              dispatch(clearCurrentTeacher());
+              resetAvatarState();
               fetchTeachers();
               messageApi.open({
                 type: 'success',
                 content: 'Преподаватель успешно добавлен',
+              });
+            } else {
+              const errorText = await response.text();
+              messageApi.open({
+                type: 'error',
+                content: `Ошибка: ${errorText}`,
               });
             }
           } else {
@@ -222,6 +217,10 @@ export const AddItemModal = ({
       }
     } catch (error) {
       console.error('Ошибка:', error);
+      messageApi.open({
+        type: 'error',
+        content: 'Произошла ошибка при добавлении',
+      });
     }
   }, [
     messageApi,
@@ -230,9 +229,11 @@ export const AddItemModal = ({
     currentEntity,
     currentSubject,
     currentTeacher,
+    avatarFile,
     setIsAddItemModalOpen,
     fetchSubjects,
     fetchTeachers,
+    dispatch,
   ]);
 
   const handleChange = useCallback(
@@ -264,8 +265,47 @@ export const AddItemModal = ({
   );
 
   const handleCancel = useCallback(() => {
+    resetAvatarState();
     setIsAddItemModalOpen(false);
   }, [setIsAddItemModalOpen]);
+
+  const currentEntity: {
+    value: 'subject' | 'teacher' | 'empty';
+    fullNamePlaceholder: string;
+    shortNamePlaceholder: string;
+    avatarPlaceholder: string;
+    degreePlaceholder: string;
+    universityPlaceholder: string;
+  } = useMemo(() => {
+    if (currentPath === SUBJECTS_PAGE) {
+      return {
+        value: 'subject',
+        fullNamePlaceholder: 'Полное название',
+        shortNamePlaceholder: 'Сокращенное название',
+        avatarPlaceholder: '',
+        degreePlaceholder: '',
+        universityPlaceholder: '',
+      };
+    }
+    if (currentPath === TEACHERS_PAGE) {
+      return {
+        value: 'teacher',
+        fullNamePlaceholder: 'ФИО',
+        shortNamePlaceholder: 'Фамилия и инициалы',
+        avatarPlaceholder: 'Аватар (изображение)',
+        degreePlaceholder: 'Ученая степень',
+        universityPlaceholder: 'Университет',
+      };
+    }
+    return {
+      value: 'empty',
+      fullNamePlaceholder: '',
+      shortNamePlaceholder: '',
+      avatarPlaceholder: '',
+      degreePlaceholder: '',
+      universityPlaceholder: '',
+    };
+  }, [currentPath]);
 
   return (
     <Modal
@@ -298,18 +338,7 @@ export const AddItemModal = ({
                 value={currentTeacher.shortName}
                 placeholder={currentEntity.shortNamePlaceholder}
                 onChange={(e) => {
-                  handleChange(
-                    currentEntity.value,
-                    'shortName',
-                    e.target.value,
-                  );
-                }}
-              />
-              <Input
-                value={currentTeacher.avatar}
-                placeholder={currentEntity.avatarPlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'avatar', e.target.value);
+                  handleChange(currentEntity.value, 'shortName', e.target.value);
                 }}
               />
               <Input
@@ -329,6 +358,17 @@ export const AddItemModal = ({
                   { value: 'БГУИР', label: 'БГУИР' },
                 ]}
               />
+              {/* Поле загрузки аватара */}
+              <Upload
+                listType="picture"
+                maxCount={1}
+                beforeUpload={() => false} // отключаем автоматическую загрузку
+                fileList={uploadFileList}
+                onChange={handleUploadChange}
+                onRemove={() => resetAvatarState()}
+              >
+                <Button icon={<UploadOutlined />}>Загрузить аватар</Button>
+              </Upload>
             </Space>
           ) : currentEntity.value === 'subject' ? (
             <Space direction="vertical">
@@ -343,11 +383,7 @@ export const AddItemModal = ({
                 value={currentSubject.shortName}
                 placeholder={currentEntity.shortNamePlaceholder}
                 onChange={(e) => {
-                  handleChange(
-                    currentEntity.value,
-                    'shortName',
-                    e.target.value,
-                  );
+                  handleChange(currentEntity.value, 'shortName', e.target.value);
                 }}
               />
             </Space>
