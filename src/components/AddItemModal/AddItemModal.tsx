@@ -105,6 +105,45 @@ export const AddItemModal = ({
     }
   };
 
+  // ⬇️ currentEntity объявляем ЗДЕСЬ, перед handleOk
+  const currentEntity: {
+    value: 'subject' | 'teacher' | 'empty';
+    fullNamePlaceholder: string;
+    shortNamePlaceholder: string;
+    avatarPlaceholder: string;
+    degreePlaceholder: string;
+    universityPlaceholder: string;
+  } = useMemo(() => {
+    if (currentPath === SUBJECTS_PAGE) {
+      return {
+        value: 'subject',
+        fullNamePlaceholder: 'Полное название',
+        shortNamePlaceholder: 'Сокращенное название',
+        avatarPlaceholder: '',
+        degreePlaceholder: '',
+        universityPlaceholder: '',
+      };
+    }
+    if (currentPath === TEACHERS_PAGE) {
+      return {
+        value: 'teacher',
+        fullNamePlaceholder: 'ФИО',
+        shortNamePlaceholder: 'Фамилия и инициалы',
+        avatarPlaceholder: 'Аватар (изображение)',
+        degreePlaceholder: 'Ученая степень',
+        universityPlaceholder: 'Университет',
+      };
+    }
+    return {
+      value: 'empty',
+      fullNamePlaceholder: '',
+      shortNamePlaceholder: '',
+      avatarPlaceholder: '',
+      degreePlaceholder: '',
+      universityPlaceholder: '',
+    };
+  }, [currentPath]);
+
   const handleOk = useCallback(async () => {
     try {
       switch (currentEntity.value) {
@@ -234,6 +273,7 @@ export const AddItemModal = ({
     fetchSubjects,
     fetchTeachers,
     dispatch,
+    resetAvatarState,
   ]);
 
   const handleChange = useCallback(
@@ -267,45 +307,7 @@ export const AddItemModal = ({
   const handleCancel = useCallback(() => {
     resetAvatarState();
     setIsAddItemModalOpen(false);
-  }, [setIsAddItemModalOpen]);
-
-  const currentEntity: {
-    value: 'subject' | 'teacher' | 'empty';
-    fullNamePlaceholder: string;
-    shortNamePlaceholder: string;
-    avatarPlaceholder: string;
-    degreePlaceholder: string;
-    universityPlaceholder: string;
-  } = useMemo(() => {
-    if (currentPath === SUBJECTS_PAGE) {
-      return {
-        value: 'subject',
-        fullNamePlaceholder: 'Полное название',
-        shortNamePlaceholder: 'Сокращенное название',
-        avatarPlaceholder: '',
-        degreePlaceholder: '',
-        universityPlaceholder: '',
-      };
-    }
-    if (currentPath === TEACHERS_PAGE) {
-      return {
-        value: 'teacher',
-        fullNamePlaceholder: 'ФИО',
-        shortNamePlaceholder: 'Фамилия и инициалы',
-        avatarPlaceholder: 'Аватар (изображение)',
-        degreePlaceholder: 'Ученая степень',
-        universityPlaceholder: 'Университет',
-      };
-    }
-    return {
-      value: 'empty',
-      fullNamePlaceholder: '',
-      shortNamePlaceholder: '',
-      avatarPlaceholder: '',
-      degreePlaceholder: '',
-      universityPlaceholder: '',
-    };
-  }, [currentPath]);
+  }, [setIsAddItemModalOpen, resetAvatarState]);
 
   return (
     <Modal
