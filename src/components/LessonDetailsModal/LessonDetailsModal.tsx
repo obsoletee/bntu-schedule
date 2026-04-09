@@ -110,7 +110,7 @@ export const LessonDetailsModal = ({
 
                 borderRadius: '50%',
               }}
-              src={teacherImages[avatarKey[0]]}
+              src={`${API.url}/teachers/${item._id}/avatar`}
               fallback={teacherImages.emptyAvatar}
               placeholder={
                 <Image
@@ -121,7 +121,7 @@ export const LessonDetailsModal = ({
                     borderRadius: '50%',
                   }}
                   preview={false}
-                  src={teacherImages.emptyAvatar}
+                  src={`${API.url}/teachers/${item._id}/avatar`}
                 />
               }
             />
