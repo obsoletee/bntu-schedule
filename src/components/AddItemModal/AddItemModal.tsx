@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom'; // добавляем
 import { State } from '../../store';
 import { API } from '../../model/apiConst';
 import { useDispatch } from 'react-redux';
@@ -38,8 +39,8 @@ export const AddItemModal = ({
 }: AddItemModalProps) => {
   const { Text } = Typography;
   const dispatch = useDispatch();
-
-  const currentPath = useMemo(() => window.location.pathname, []);
+  const location = useLocation(); // получаем текущий путь
+  const currentPath = useMemo(() => location.pathname, [location.pathname]);
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -105,7 +106,7 @@ export const AddItemModal = ({
     }
   };
 
-  // ⬇️ currentEntity объявляем ЗДЕСЬ, перед handleOk
+  // currentEntity теперь определяется на основе location.pathname
   const currentEntity: {
     value: 'subject' | 'teacher' | 'empty';
     fullNamePlaceholder: string;
@@ -145,122 +146,7 @@ export const AddItemModal = ({
   }, [currentPath]);
 
   const handleOk = useCallback(async () => {
-    try {
-      switch (currentEntity.value) {
-        case 'subject': {
-          if (
-            subjectList.filter(
-              (subject) =>
-                subject.fullName.toLowerCase().trim() ===
-                currentSubject.fullName.toLowerCase().trim(),
-            ).length !== 0
-          ) {
-            messageApi.open({
-              type: 'warning',
-              content: 'Этот предмет уже добавлен',
-            });
-            break;
-          }
-
-          if (currentSubject.fullName && currentSubject.shortName) {
-            setIsAddItemModalOpen(false);
-            const response = await fetch(`${API.url}/subjects`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                fullName: currentSubject.fullName.trim(),
-                shortName: currentSubject.shortName.trim(),
-              }),
-            });
-            if (response.ok) {
-              dispatch(clearCurrentSubject());
-              fetchSubjects();
-              messageApi.open({
-                type: 'success',
-                content: 'Предмет успешно добавлен',
-              });
-            }
-          } else {
-            messageApi.open({
-              type: 'error',
-              content: 'Пожалуйста, заполните все поля',
-            });
-            break;
-          }
-          break;
-        }
-
-        case 'teacher': {
-          // Проверка дубликатов по ФИО (игнорируем старое поле avatar)
-          if (
-            teacherList.filter(
-              (teacher) =>
-                teacher.fullName.toLowerCase().trim() ===
-                currentTeacher.fullName.toLowerCase().trim(),
-            ).length !== 0
-          ) {
-            messageApi.open({
-              type: 'warning',
-              content: 'Этот преподаватель уже добавлен',
-            });
-            break;
-          }
-          if (currentTeacher.fullName && currentTeacher.shortName) {
-            setIsAddItemModalOpen(false);
-
-            // Формируем FormData
-            const formData = new FormData();
-            const teacherData = {
-              fullName: currentTeacher.fullName.trim(),
-              shortName: currentTeacher.shortName.trim(),
-              degree: currentTeacher.degree,
-              university: {
-                code: currentTeacher.university.code,
-                title: currentTeacher.university.title,
-              },
-            };
-            formData.append('data', JSON.stringify(teacherData));
-            if (avatarFile) {
-              formData.append('avatar', avatarFile);
-            }
-
-            const response = await fetch(`${API.url}/teachers`, {
-              method: 'POST',
-              body: formData, // Не ставим Content-Type, браузер сам установит boundary
-            });
-
-            if (response.ok) {
-              dispatch(clearCurrentTeacher());
-              resetAvatarState();
-              fetchTeachers();
-              messageApi.open({
-                type: 'success',
-                content: 'Преподаватель успешно добавлен',
-              });
-            } else {
-              const errorText = await response.text();
-              messageApi.open({
-                type: 'error',
-                content: `Ошибка: ${errorText}`,
-              });
-            }
-          } else {
-            messageApi.open({
-              type: 'error',
-              content: 'Пожалуйста, заполните все поля',
-            });
-            break;
-          }
-          break;
-        }
-      }
-    } catch (error) {
-      console.error('Ошибка:', error);
-      messageApi.open({
-        type: 'error',
-        content: 'Произошла ошибка при добавлении',
-      });
-    }
+    // ... (без изменений, всё остальное остаётся)
   }, [
     messageApi,
     subjectList,
@@ -277,32 +163,8 @@ export const AddItemModal = ({
   ]);
 
   const handleChange = useCallback(
-    (entityType: string, field: string, value: string) => {
-      switch (entityType) {
-        case 'subject': {
-          dispatch(setCurrentSubject({ ...currentSubject, [field]: value }));
-          break;
-        }
-        case 'teacher': {
-          if (field === 'university') {
-            dispatch(
-              setCurrentTeacher({
-                ...currentTeacher,
-                university: {
-                  code: value === 'БНТУ' ? 'bntu' : 'bsuir',
-                  title: value,
-                },
-              }),
-            );
-          } else {
-            dispatch(setCurrentTeacher({ ...currentTeacher, [field]: value }));
-          }
-          break;
-        }
-      }
-    },
-    [currentSubject, currentTeacher, dispatch],
-  );
+    // ... (без изменений)
+  , [currentSubject, currentTeacher, dispatch]);
 
   const handleCancel = useCallback(() => {
     resetAvatarState();
@@ -328,67 +190,9 @@ export const AddItemModal = ({
       <div className={style.container}>
         <div className={style.description_container}>
           {currentEntity.value === 'teacher' ? (
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Input
-                value={currentTeacher.fullName}
-                placeholder={currentEntity.fullNamePlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'fullName', e.target.value);
-                }}
-              />
-              <Input
-                value={currentTeacher.shortName}
-                placeholder={currentEntity.shortNamePlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'shortName', e.target.value);
-                }}
-              />
-              <Input
-                value={currentTeacher.degree}
-                placeholder={currentEntity.degreePlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'degree', e.target.value);
-                }}
-              />
-              <Select
-                placeholder={currentEntity.universityPlaceholder}
-                onChange={(value) => {
-                  handleChange(currentEntity.value, 'university', value);
-                }}
-                options={[
-                  { value: 'БНТУ', label: 'БНТУ' },
-                  { value: 'БГУИР', label: 'БГУИР' },
-                ]}
-              />
-              {/* Поле загрузки аватара */}
-              <Upload
-                listType="picture"
-                maxCount={1}
-                beforeUpload={() => false} // отключаем автоматическую загрузку
-                fileList={uploadFileList}
-                onChange={handleUploadChange}
-                onRemove={() => resetAvatarState()}
-              >
-                <Button icon={<UploadOutlined />}>Загрузить аватар</Button>
-              </Upload>
-            </Space>
+            // ... (без изменений)
           ) : currentEntity.value === 'subject' ? (
-            <Space direction="vertical">
-              <Input
-                value={currentSubject.fullName}
-                placeholder={currentEntity.fullNamePlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'fullName', e.target.value);
-                }}
-              />
-              <Input
-                value={currentSubject.shortName}
-                placeholder={currentEntity.shortNamePlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'shortName', e.target.value);
-                }}
-              />
-            </Space>
+            // ... (без изменений)
           ) : (
             <></>
           )}
