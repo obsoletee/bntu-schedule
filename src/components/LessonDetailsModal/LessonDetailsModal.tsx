@@ -7,6 +7,7 @@ import {
   teacherImages,
 } from '../../assets/images/teacherImages';
 import { State } from '../../store';
+import { API } from '../../model/apiConst';
 
 import styles from './LessonDetailsModal.module.scss';
 import { useViewportSize } from '../../hooks/useViewportSize';
@@ -59,12 +60,6 @@ export const LessonDetailsModal = ({
     );
   }, [currentLesson, subjectList, teacherList]);
 
-  const avatarKey = useMemo(() => {
-    return teacher.map(
-      (item) => item.avatar.toLocaleLowerCase() as TeacherImageKeys,
-    );
-  }, [teacher]);
-
   const handleClose = () => {
     setIsModalOpen(false);
   };
@@ -110,7 +105,7 @@ export const LessonDetailsModal = ({
 
                 borderRadius: '50%',
               }}
-              src={`${API.url}/teachers/${item._id}/avatar`}
+              src={`${API.url}/teachers/${teacher._id}/avatar`}
               fallback={teacherImages.emptyAvatar}
               placeholder={
                 <Image
