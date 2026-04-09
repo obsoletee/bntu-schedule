@@ -22,15 +22,12 @@ import {
 import { useDispatch } from 'react-redux';
 
 import { CustomSpin } from '../../../components/CustomSpin/CustomSpin';
-import {
-  TeacherImageKeys,
-  teacherImages,
-} from '../../../assets/images/teacherImages';
 import { State } from '../../../store';
 import { setCurrentTeacher } from '../../../store/currentTeacherReducer';
 import { useSelector } from 'react-redux';
 import { useViewportSize } from '../../../hooks/useViewportSize';
 import Worker from '../../../webworkers/teacherSearchWorker?worker';
+import { API } from '../../model/apiConst';
 
 const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
@@ -128,8 +125,8 @@ export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
                     <Avatar
                       src={
                         <Image
-                          src={`${API.url}/teachers/${teacher._id}/avatar`}
-                          fallback="путь_к_заглушке.jpg"  // опционально
+                          src={`${API.url}/teachers/${teacherImages._id}/avatar`}
+                          fallback={teacherImages.emptyAvatar}  // опционально
                         />
                       }
                     />
