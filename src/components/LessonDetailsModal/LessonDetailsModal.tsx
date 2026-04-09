@@ -63,6 +63,10 @@ export const LessonDetailsModal = ({
     setIsModalOpen(false);
   };
 
+  const avatarUrl = teacher.length > 0 && teacher[0]?._id 
+  ? `${API.url}/teachers/${teacher[0]._id}/avatar` 
+  : teacherImages.emptyAvatar;
+
   return (
     <Modal
       onCancel={handleClose}
@@ -104,7 +108,7 @@ export const LessonDetailsModal = ({
 
                 borderRadius: '50%',
               }}
-              src={`${API.url}/teachers/${teacher[0]._id}/avatar`}
+              src={avatarUrl}
               fallback={teacherImages.emptyAvatar}
               placeholder={
                 <Image
@@ -115,7 +119,7 @@ export const LessonDetailsModal = ({
                     borderRadius: '50%',
                   }}
                   preview={false}
-                  src={`${API.url}/teachers/${teacher[0]._id}/avatar`}
+                  src={avatarUrl}
                 />
               }
             />
