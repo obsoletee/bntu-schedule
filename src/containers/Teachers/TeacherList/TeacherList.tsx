@@ -21,7 +21,6 @@ import {
 } from 'react';
 import { useDispatch } from 'react-redux';
 import {
-  TeacherImageKeys,
   teacherImages,
 } from '../../../assets/images/teacherImages';
 import { CustomSpin } from '../../../components/CustomSpin/CustomSpin';
