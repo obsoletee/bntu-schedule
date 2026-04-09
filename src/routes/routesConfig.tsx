@@ -1,5 +1,5 @@
 import {
-  createBrowserRouter,
+  createHashRouter,
   createRoutesFromElements,
   Route,
 } from 'react-router-dom';
@@ -20,7 +20,7 @@ import Subjects from '../containers/Subjects';
 import FullSchedulePage from '../containers/FullSchedulePage';
 import Groups from '../containers/Groups';
 
-export const router = createBrowserRouter(
+export const router = createHashRouter(
   createRoutesFromElements(
     <>
       <Route path={HOME} element={<Home />} />
