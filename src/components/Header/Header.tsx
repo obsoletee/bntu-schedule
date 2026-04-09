@@ -1,6 +1,7 @@
 import { Flex, Typography } from 'antd';
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom'; // добавлен импорт
 
 import { State } from '../../store';
 import { updateDateTime } from '../../utils/common';
@@ -21,6 +22,8 @@ interface currentState {
 
 export const Header = () => {
   const { Text } = Typography;
+  const location = useLocation(); // получаем объект location от React Router
+  const currentPath = location.pathname; // теперь будет корректный путь без #
 
   const { currentGroup, university } = useSelector(
     (state: State) => state.currentGroup,
@@ -32,6 +35,7 @@ export const Header = () => {
     currentDayLabel: '',
   });
   const [isMenuActive, setIsMenuActive] = useState(false);
+
   useEffect(() => {
     const asyncUpdateDate = () => {
       const {
@@ -48,10 +52,6 @@ export const Header = () => {
 
     asyncUpdateDate();
   }, [university]);
-
-  const currentPath = useMemo(() => {
-    return window.location.pathname;
-  }, []);
 
   const showDrawer = () => {
     setIsMenuActive(true);
