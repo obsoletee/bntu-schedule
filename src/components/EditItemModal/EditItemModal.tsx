@@ -1,5 +1,7 @@
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
-import { Input, message, Modal, Select, Space, Typography } from 'antd';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { Input, message, Modal, Select, Space, Typography, Upload, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { editTeacher } from '../../store/teachersReducer';
@@ -33,16 +35,64 @@ export const EditItemModal = ({
   const [messageApi, contextHolder] = message.useMessage();
   const { Text } = Typography;
 
-  const currentPath = useMemo(() => {
-    return window.location.pathname;
-  }, []);
+  const currentPath = useMemo(() => window.location.pathname, []);
 
-  const { currentSubject } = useSelector(
-    (state: State) => state.currentSubject,
-  );
-  const { currentTeacher } = useSelector(
-    (state: State) => state.currentTeacher,
-  );
+  const { currentSubject } = useSelector((state: State) => state.currentSubject);
+  const { currentTeacher } = useSelector((state: State) => state.currentTeacher);
+
+  // Локальное состояние для файла аватара и превью
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadFileList, setUploadFileList] = useState<UploadFile[]>([]);
+
+  // Загрузка текущей аватарки при открытии модалки
+  useEffect(() => {
+    if (isEditItemModalOpen && currentTeacher?._id) {
+      fetch(`${API.url}/teachers/${currentTeacher._id}/avatar`)
+        .then(res => {
+          if (res.ok) return res.blob();
+          throw new Error('No avatar');
+        })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          setAvatarPreview(url);
+          setUploadFileList([{
+            uid: '-1',
+            name: 'avatar.jpg',
+            status: 'done',
+            url,
+          }]);
+        })
+        .catch(() => {
+          setAvatarPreview(null);
+          setUploadFileList([]);
+        });
+    } else {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setUploadFileList([]);
+    }
+  }, [isEditItemModalOpen, currentTeacher]);
+
+  const resetAvatarState = () => {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setUploadFileList([]);
+  };
+
+  const handleUploadChange: UploadProps['onChange'] = ({ fileList }) => {
+    const file = fileList[0]?.originFileObj;
+    if (file) {
+      setAvatarFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+      setUploadFileList([{ uid: '-1', name: file.name, status: 'done', url: previewUrl }]);
+    } else {
+      resetAvatarState();
+    }
+  };
 
   const currentEntity: {
     value: 'subject' | 'teacher' | 'empty';
@@ -67,7 +117,7 @@ export const EditItemModal = ({
         value: 'teacher',
         fullNamePlaceholder: 'ФИО',
         shortNamePlaceholder: 'Фамилия и инициалы',
-        avatarPlaceholder: 'Фамилия латиницей',
+        avatarPlaceholder: 'Аватар (изображение)',
         degreePlaceholder: 'Ученая степень',
         universityPlaceholder: 'Университет',
       };
@@ -103,7 +153,7 @@ export const EditItemModal = ({
             if (response.ok) {
               const updatedSubject = await response.json();
               dispatch(editSubject(updatedSubject));
-              clearCurrentSubject();
+              dispatch(clearCurrentSubject());
               messageApi.open({
                 type: 'success',
                 content: 'Предмет успешно изменен',
@@ -114,57 +164,65 @@ export const EditItemModal = ({
               type: 'error',
               content: 'Пожалуйста, заполните все поля',
             });
-            break;
           }
           break;
         }
 
         case 'teacher': {
-          if (
-            currentTeacher.fullName &&
-            currentTeacher.shortName &&
-            currentTeacher.avatar
-          ) {
+          if (currentTeacher.fullName && currentTeacher.shortName) {
             setIsEditItemModalOpen(false);
-            const response = await fetch(
-              `${API.url}/teachers/${currentTeacher._id}`,
-              {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  _id: currentTeacher._id,
-                  fullName: currentTeacher.fullName.trim(),
-                  shortName: currentTeacher.shortName.trim(),
-                  avatar: currentTeacher.avatar.trim(),
-                  degree: currentTeacher.degree,
-                  university: {
-                    code: currentTeacher.university.code,
-                    title: currentTeacher.university.title,
-                  },
-                }),
+
+            const formData = new FormData();
+            const teacherData = {
+              fullName: currentTeacher.fullName.trim(),
+              shortName: currentTeacher.shortName.trim(),
+              degree: currentTeacher.degree,
+              university: {
+                code: currentTeacher.university.code,
+                title: currentTeacher.university.title,
               },
-            );
+            };
+            formData.append('data', JSON.stringify(teacherData));
+            if (avatarFile) {
+              formData.append('avatar', avatarFile);
+            }
+
+            const response = await fetch(`${API.url}/teachers/${currentTeacher._id}`, {
+              method: 'PATCH',
+              body: formData,
+            });
+
             if (response.ok) {
               const updatedTeacher = await response.json();
               dispatch(editTeacher(updatedTeacher));
-              clearCurrentTeacher();
+              dispatch(clearCurrentTeacher());
+              resetAvatarState();
               messageApi.open({
                 type: 'success',
                 content: 'Преподаватель успешно изменен',
+              });
+            } else {
+              const errorText = await response.text();
+              messageApi.open({
+                type: 'error',
+                content: `Ошибка: ${errorText}`,
               });
             }
           } else {
             messageApi.open({
               type: 'error',
-              content: 'Пожалуйста, заполните все поля',
+              content: 'Пожалуйста, заполните все обязательные поля',
             });
-            break;
           }
           break;
         }
       }
     } catch (error) {
       console.error('Ошибка:', error);
+      messageApi.open({
+        type: 'error',
+        content: 'Произошла ошибка при сохранении',
+      });
     }
   }, [
     setIsEditItemModalOpen,
@@ -172,7 +230,9 @@ export const EditItemModal = ({
     currentEntity,
     currentSubject,
     currentTeacher,
+    avatarFile,
     dispatch,
+    resetAvatarState,
   ]);
 
   const handleChange = useCallback(
@@ -204,8 +264,9 @@ export const EditItemModal = ({
   );
 
   const handleCancel = useCallback(() => {
+    resetAvatarState();
     setIsEditItemModalOpen(false);
-  }, [setIsEditItemModalOpen]);
+  }, [setIsEditItemModalOpen, resetAvatarState]);
 
   return (
     <Modal
@@ -238,18 +299,7 @@ export const EditItemModal = ({
                 value={currentTeacher.shortName}
                 placeholder={currentEntity.shortNamePlaceholder}
                 onChange={(e) => {
-                  handleChange(
-                    currentEntity.value,
-                    'shortName',
-                    e.target.value,
-                  );
-                }}
-              />
-              <Input
-                value={currentTeacher.avatar}
-                placeholder={currentEntity.avatarPlaceholder}
-                onChange={(e) => {
-                  handleChange(currentEntity.value, 'avatar', e.target.value);
+                  handleChange(currentEntity.value, 'shortName', e.target.value);
                 }}
               />
               <Input
@@ -261,7 +311,7 @@ export const EditItemModal = ({
               />
               <Select
                 style={{ width: '100%' }}
-                value={currentTeacher.university.title}
+                value={currentTeacher.university?.title}
                 placeholder={currentEntity.universityPlaceholder}
                 onChange={(value) => {
                   handleChange(currentEntity.value, 'university', value);
@@ -271,6 +321,16 @@ export const EditItemModal = ({
                   { value: 'БГУИР', label: 'БГУИР' },
                 ]}
               />
+              <Upload
+                listType="picture"
+                maxCount={1}
+                beforeUpload={() => false}
+                fileList={uploadFileList}
+                onChange={handleUploadChange}
+                onRemove={() => resetAvatarState()}
+              >
+                <Button icon={<UploadOutlined />}>Загрузить новый аватар</Button>
+              </Upload>
             </Space>
           ) : currentEntity.value === 'subject' ? (
             <Space direction="vertical">
@@ -285,11 +345,7 @@ export const EditItemModal = ({
                 value={currentSubject.shortName}
                 placeholder={currentEntity.shortNamePlaceholder}
                 onChange={(e) => {
-                  handleChange(
-                    currentEntity.value,
-                    'shortName',
-                    e.target.value,
-                  );
+                  handleChange(currentEntity.value, 'shortName', e.target.value);
                 }}
               />
             </Space>
