@@ -22,6 +22,8 @@ import style from './Teachers.module.scss';
 export const Teachers = () => {
   const dispatch = useDispatch();
 
+  const { width } = useViewportSize();
+
   const { Text } = Typography;
 
   const [messageApi, contextHolder] = message.useMessage();
