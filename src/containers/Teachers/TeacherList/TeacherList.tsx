@@ -27,7 +27,7 @@ import { setCurrentTeacher } from '../../../store/currentTeacherReducer';
 import { useSelector } from 'react-redux';
 import { useViewportSize } from '../../../hooks/useViewportSize';
 import Worker from '../../../webworkers/teacherSearchWorker?worker';
-import { API } from '../../model/apiConst';
+import { API } from '../../../model/apiConst';
 
 const EditItemModal = lazy(() => import('../../../components/EditItemModal'));
 
