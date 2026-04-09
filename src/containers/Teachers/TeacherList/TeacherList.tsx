@@ -127,7 +127,7 @@ export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
                     <Avatar
                     src={
                       <Image
-                        size={64}
+                        sizes={'large'}
                         src={`${API.url}/teachers/${item._id}/avatar`}
                         fallback={teacherImages.emptyAvatar}
                       />
