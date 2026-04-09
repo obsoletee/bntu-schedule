@@ -1,4 +1,4 @@
-<!-- 
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -13,41 +13,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
--->
-
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/icon.webp" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Расписание БНТУ</title>
-
-    <script type="text/javascript">
-  (function() {
-    // Проверяем, что текущий путь не является запросом к реальному файлу (содержит точку)
-    var path = window.location.pathname;
-    var isFileRequest = /\.[a-zA-Z0-9]+$/.test(path); // заканчивается на расширение файла
-    var isRoot = path === '/';
-    // Если это не запрос файла и не корень – перенаправляем на /index.html с сохранением пути в query параметре
-    if (!isFileRequest && !isRoot) {
-      var redirectUrl = '/index.html?redirected=' + encodeURIComponent(path + window.location.search);
-      window.location.replace(redirectUrl);
-    } else if (window.location.search.includes('redirected=')) {
-      // Если мы вернулись на главную с параметром redirected – извлекаем путь и восстанавливаем
-      var params = new URLSearchParams(window.location.search);
-      var originalPath = params.get('redirected');
-      if (originalPath) {
-        window.history.replaceState(null, null, originalPath + window.location.hash);
-      }
-    }
-  })();
-</script>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
   </body>
 </html>
