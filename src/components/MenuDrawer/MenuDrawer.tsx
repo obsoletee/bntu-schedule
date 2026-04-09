@@ -233,17 +233,8 @@ export const MenuDrawer = ({
           </Space>
 
           <Space direction="vertical">
-            {/* <Text strong>
-              <Link to={SUBJECTS_PAGE}>Список предметов</Link>
-            </Text>
-            <Text strong>
-              <Link to={TEACHERS_PAGE}>Список учителей</Link>
-            </Text>
-            <Text strong>
-              <Link to={EDIT_PAGE}>Редактор расписания</Link>
-            </Text> */}
             <Text style={{ fontSize: '18px' }} strong>
-              <Link to={GROUPS}>Добавить расписание</Link>
+              <Link to={GROUPS}>Добавить группу</Link>
             </Text>
             <Text style={{ fontSize: '12px' }} strong>
               <Link to={EDIT_PAGE}>Админка</Link>
