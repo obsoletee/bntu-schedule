@@ -71,9 +71,12 @@ export const Teachers = () => {
       </Suspense>
       <div className={style.container}>
         <Flex
-          align="center"
+          align={width < 768 ? 'flex-start' : 'center'}
           className={style.flex_container}
-          justify="space-between"
+          gap={width < 768 ? `0.5rem` : ''}
+          justify={width < 768 ? 'center' : 'space-between'}
+          vertical={width < 768}
+          style={width < 768 ? { marginBottom: '15px' } : {}}
         >
           <Button
             className={style.button}
