@@ -128,10 +128,8 @@ export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
                     <Avatar
                       src={
                         <Image
-                          src={
-                            teacherImages[item.avatar as TeacherImageKeys] ||
-                            teacherImages.emptyAvatar
-                          }
+                          src={`${API.url}/teachers/${teacher._id}/avatar`}
+                          fallback="путь_к_заглушке.jpg"  // опционально
                         />
                       }
                     />
