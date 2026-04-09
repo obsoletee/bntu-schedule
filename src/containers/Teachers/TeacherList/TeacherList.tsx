@@ -125,13 +125,14 @@ export const TeacherList = ({ handleDeleteTeacher }: TeacherListProps) => {
                 <List.Item.Meta
                   avatar={
                     <Avatar
-    src={
-      <Image
-        src={`${API.url}/teachers/${item._id}/avatar`}
-        fallback={teacherImages.emptyAvatar}
-      />
-    }
-  />
+                    src={
+                      <Image
+                        size={64}
+                        src={`${API.url}/teachers/${item._id}/avatar`}
+                        fallback={teacherImages.emptyAvatar}
+                      />
+                    }
+                  />
                   }
                   title={
                     <Space size={width < 768 ? 'small' : 'large'}>
